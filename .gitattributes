@@ -1,0 +1,29 @@
+# Normalize line endings: text files are LF in the repo, auto on checkout.
+* text=auto eol=lf
+
+# Explicit text types (served + tooling)
+*.html   text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.json   text eol=lf
+*.svg    text eol=lf
+*.md     text eol=lf
+*.toml   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# Binary assets — never touch EOLs, never diff as text
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+*.pdf    binary
+
+# GitHub Linguist: this is a website, not a JS project.
+*.html   linguist-detectable=true
