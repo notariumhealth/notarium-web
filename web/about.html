@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Notarium</title>
+  <meta name="description" content="Why Sophia Daw built Notarium: a private, local-first health tracker for people documenting chronic illness and the workplace accommodation process that comes with it.">
+  <link rel="canonical" href="https://notarium.health/about">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    :root {
+      --bg: #0D1117;
+      --surface: #141921;
+      --border: #1E2535;
+      --text: #EEE9E2;
+      --muted: #7A7E8D;
+      --accent: #4A9585;
+      --accent-hover: #5BB8A4;
+
+      --font-display: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Inter", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    /* ---------- Nav ---------- */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      padding-bottom: 28px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 26px;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+
+    .nav-logo-dot {
+      color: var(--accent);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-link {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-hover);
+    }
+
+    .nav-link[aria-current="page"] {
+      color: var(--text);
+    }
+
+    /* ---------- Article hero ---------- */
+    .hero {
+      padding-top: 72px;
+      padding-bottom: 64px;
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .about-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(44px, 9vw, 76px);
+      line-height: 1.02;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .lead {
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 640px;
+    }
+
+    /* ---------- Section scaffolding ---------- */
+    .section {
+      padding-top: 72px;
+      padding-bottom: 72px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(30px, 5vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      max-width: 700px;
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Prose ---------- */
+    .prose {
+      max-width: 680px;
+    }
+
+    .prose p {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .prose strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .prose a {
+      color: var(--accent);
+      transition: color 0.2s ease;
+    }
+
+    .prose a:hover {
+      color: var(--accent-hover);
+    }
+
+    .signature {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 24px;
+      color: var(--text);
+      margin-top: 44px;
+    }
+
+    /* ---------- CTA row ---------- */
+    .cta-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 36px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .cta-meta {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 22px;
+      color: var(--muted);
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .lead {
+        font-size: 19px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about" aria-current="page">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <article>
+      <section class="wrap hero">
+        <p class="hero-eyebrow">About</p>
+        <h1 class="about-title">Why I built<br>Notarium.</h1>
+        <p class="lead">I'm Sophia Daw. I built Notarium because I needed it for myself, and the apps I'd been using couldn't be stitched together into anything that worked.</p>
+      </section>
+
+      <section class="wrap section">
+        <div class="prose">
+          <p>Sometime in my thirties I came down with POTS and dysautonomia, with full syncope episodes. The diagnoses kept growing: hypermobile Ehlers-Danlos, chronic fatigue, post-exertional malaise, long COVID. There's the neurodivergence and the mental-health overlap that often comes with this kind of body. I'm on sixteen medications and supplements. Exercise makes me worse instead of better. My life was documented in spreadsheets and data exports because no app held the whole picture.</p>
+          <p>When my employer's accommodations process started, I wasn't as ready as I could have been. Almost a year went by before stay-at-work accommodations came through. During that year I got written up for health-related tardiness while waiting on the very paperwork that would have made the tardiness a protected event. I didn't have a clean record of what was happening day to day, what I'd reported, or when. The interface between my body, my work, and the legal process didn't exist in any tool I was using.</p>
+          <p>The apps I'd tried weren't bad. Daylio has a beautiful interface but a thin notion of factors and flares. Bearable has the data model but a tedious entry flow that wore me down. Medisafe handles a missed dose but not a stretch of missed doses, and it's pharma-backed in ways I don't trust with my health data. My Google Forms were a bandaid. I left feedback for the developers of each of these. The features I needed never came.</p>
+          <p>So I started consulting with a friend who is a senior developer, and the project that became Notarium took shape. It's a private, local-first mobile app for people doing what I'm doing: living in a body that requires documentation, navigating a workplace process that requires evidence, and trying to spend as few clicks per day on the logging as possible.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Why trust the engineering</h2>
+        <div class="prose">
+          <p>My background is in security engineering for regulated industries: healthcare for several years, then financial services. I've been in IT and security since 2009, when my first job was at Dell. I hold a CISSP certification from ISC2. The decisions about how Notarium handles your data come from over a decade of doing the same job for healthcare PHI and financial PII.</p>
+          <p>That means: everything stays on your device by default. Any future sync is opt-in per row of data, never global. There are no analytics, no crash reporting, no ad SDKs, no third-party telemetry. Notarium will be open source, so you'll be able to verify these claims yourself.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">What Notarium stands for</h2>
+        <p class="lead">Built with accessibility in mind, because when we build for everyone, everyone benefits.</p>
+        <div class="prose" style="margin-top: 28px;">
+          <p>That means designing for one-tap logging when your hands shake or your brain is foggy. It means producing organized, timestamped documentation that you can share with HR, an attorney, or the EEOC if your accommodation process needs it. It means the app survives missing inputs. Engineers call that graceful degradation. The reference is the Muji flashlight that takes one to four AA batteries: four make it brightest, three make it less bright, one is still useful. Notarium is built the same way. A wearable that didn't sync, a Health Connect permission you haven't granted, a day of medication logs: any of these can be missing, and Notarium still gives you something useful.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">What you can do from here</h2>
+        <div class="prose">
+          <p>Notarium is in development. Join the waitlist and I'll let you know the moment it's ready for Android. When it ships it'll be free, on both F-Droid and Google Play.</p>
+          <p>If you've been stitching apps together and exporting spreadsheets to make sense of your own body and health, you're not alone.</p>
+        </div>
+        <div class="cta-row">
+          <a class="btn-primary" href="/#waitlist">Get early access</a>
+          <span class="cta-meta">Android &middot; Free</span>
+        </div>
+        <p class="signature">&mdash; Sophia</p>
+      </section>
+    </article>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <span class="footer-copy">&copy; 2026 Notarium LLC</span>
+  </footer>
+</body>
+</html>

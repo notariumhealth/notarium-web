@@ -82,6 +82,12 @@
       color: var(--accent);
     }
 
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
     .nav-link {
       color: var(--accent);
       font-size: 15px;
@@ -392,8 +398,11 @@
 <body>
   <header class="wrap">
     <nav class="nav">
-      <a class="nav-logo" href="#" aria-label="Notarium home">Notarium<span class="nav-logo-dot">.</span></a>
-      <a class="nav-link" href="#waitlist">Get early access &rarr;</a>
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="#waitlist">Get early access &rarr;</a>
+      </div>
     </nav>
   </header>
 
