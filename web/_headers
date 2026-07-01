@@ -1,0 +1,18 @@
+# Cloudflare Pages security response headers for notarium.health
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# This is a fully static, JavaScript-free marketing site. The only cross-origin
+# resources are the Bunny Fonts stylesheet + font files (fonts.bunny.net) and
+# the waitlist form POST (formspree.io). The CSP is locked to exactly those.
+# If you add a script, image host, analytics endpoint, or a new form action,
+# update the CSP below or the resource will be blocked.
+
+/*
+  Content-Security-Policy: default-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src https://fonts.bunny.net; img-src 'self' data:; form-action https://formspree.io; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Permissions-Policy: accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), interest-cohort=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
