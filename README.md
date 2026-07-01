@@ -52,6 +52,14 @@ the `#` H1 becomes the hero eyebrow, the first paragraph the hero lead, each
 headline, and the waitlist CTA are web-only chrome defined in `build.mjs`.
 Commit the regenerated `web/*.html` along with the content change.
 
+`build.mjs` also pins the CSP: each served page has one inline `<style>` block,
+and the generator writes a `'sha256-…'` for each into the `style-src` of
+`web/_headers` (so the CSP needs no `'unsafe-inline'`). This means **any edit to
+an inline `<style>` block — including hand-authored `web/index.html` — requires
+re-running `node tools/build.mjs`** so the hash matches, then commit the updated
+`web/_headers`. A stale hash makes the browser refuse that page's styles (fails
+loud, never silently open).
+
 ## Local preview
 
 Open the file directly, or serve the folder:

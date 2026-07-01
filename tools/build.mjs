@@ -20,6 +20,7 @@
 // the signature. Inline Markdown supported: [text](url) and **bold**.
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -154,4 +155,37 @@ for (const page of PAGES) {
   console.log(`built ${page.out}  <-  ${page.src}`);
   built++;
 }
+
+// --- CSP style-src hashes ---------------------------------------------------
+// Each served page ships exactly one inline <style> block (index hand-authored,
+// about generated above). Rather than weaken the CSP with 'unsafe-inline', we
+// pin each block by its SHA-256 hash in web/_headers' style-src. This step
+// keeps the two in lockstep: edit index.html's styles or change the about
+// template, re-run this script, and the hashes refresh. If a page's inline
+// <style> ever fails to hash, the browser will refuse to apply it — so a
+// forgotten rebuild fails loud (unstyled page), never silently open.
+const STYLE_PAGES = ['web/index.html', 'web/about.html'];
+
+function styleHash(relPath) {
+  const html = readFileSync(join(ROOT, relPath), 'utf8');
+  const m = html.match(/<style>([\s\S]*?)<\/style>/);
+  if (!m) throw new Error(`no inline <style> found in ${relPath}`);
+  return `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`;
+}
+
+const hashes = [...new Set(STYLE_PAGES.map(styleHash))].sort();
+const styleSrc = `style-src 'self' ${hashes.join(' ')} https://fonts.bunny.net;`;
+const headersPath = join(ROOT, 'web/_headers');
+const headers = readFileSync(headersPath, 'utf8');
+if (!/^\s*Content-Security-Policy:.*\bstyle-src [^;]*;/m.test(headers)) {
+  throw new Error('web/_headers: could not find a CSP style-src directive to update');
+}
+const updated = headers.replace(/\bstyle-src [^;]*;/, styleSrc);
+if (updated !== headers) {
+  writeFileSync(headersPath, updated);
+  console.log(`updated web/_headers style-src (${hashes.length} hash(es))`);
+} else {
+  console.log('web/_headers style-src already current');
+}
+
 console.log(`done: ${built} page(s)`);
