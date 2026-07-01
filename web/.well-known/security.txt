@@ -1,0 +1,18 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+# Notarium security contact and disclosure. See https://www.rfc-editor.org/rfc/rfc9116
+# Please report vulnerabilities to security@notarium.health, encrypted with the key below.
+
+Contact: mailto:security@notarium.health
+Expires: 2027-06-30T00:00:00.000Z
+Encryption: https://notarium.health/.well-known/pgp-key.txt
+Preferred-Languages: en
+Canonical: https://notarium.health/.well-known/security.txt
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQTJ8SYQM8ltTiZfO5C9PRrODU+8YwUCakRtmwAKCRC9PRrODU+8
+YxCCAP9MuJ19UMNHcwTpkRdTiH6puh19S8m5WKZN7KqCuVnl5wEAk9js3fkBp6rc
+bk9YgfSXTGKIcAuicDrB8BrHCdHGFQ8=
+=xAJo
+-----END PGP SIGNATURE-----
