@@ -27,7 +27,7 @@ suspected vulnerability.
 its deployment configuration (HTTP headers, Content-Security-Policy).
 
 **Out of scope:** third-party dependencies (report those upstream), Cloudflare's
-own infrastructure, and the Notarium app itself — report app issues in the
+own infrastructure, and the Notarium app itself - report app issues in the
 [notarium](https://github.com/notariumhealth/notarium) repository.
 
 ## PGP key
