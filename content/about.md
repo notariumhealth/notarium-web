@@ -28,4 +28,4 @@ Notarium is in development. Join the waitlist at [notarium.health](https://notar
 
 If you've been stitching apps together and exporting spreadsheets to make sense of your own body and health, you're not alone.
 
-— Sophia
+- Sophia

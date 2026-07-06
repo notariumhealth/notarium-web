@@ -2,7 +2,7 @@
 // Static page generator for notarium-web.
 //
 // Source of truth for prose is Markdown under content/ (vendored from the
-// canonical repo: notarium/docs/website/*.md — see tools/sync-content.sh).
+// canonical repo: notarium/docs/website/*.md - see tools/sync-content.sh).
 // This renders that Markdown into a styled template and writes the served
 // HTML under web/. The committed web/*.html is what Cloudflare Pages serves;
 // there is no build step at deploy time.
@@ -15,7 +15,7 @@
 //   paragraphs before    \
 //     the first ## H2    -> opening prose section (no heading)
 //   ## H2 + paragraphs  -> a .section with .section-title + .prose
-//   final "— ..." line  -> .signature (rendered in its section)
+//   final "- ..." line  -> .signature (rendered in its section)
 // The CTA row is web-only chrome; it is injected into the section that holds
 // the signature. Inline Markdown supported: [text](url) and **bold**.
 
@@ -31,7 +31,7 @@ const PAGES = [
     src: 'content/about.md',
     out: 'web/about.html',
     template: 'templates/about.html',
-    title: 'About — Notarium',
+    title: 'About - Notarium',
     description:
       'Why Sophia Daw built Notarium: a private, local-first health tracker for people documenting chronic illness and the workplace accommodation process that comes with it.',
     canonical: 'https://notarium.health/about',
@@ -60,7 +60,8 @@ function inline(s) {
 }
 
 function isSignature(text) {
-  return /^(—|—|&mdash;)/.test(text.trim());
+  // A signature block leads with a hyphen + space, e.g. "- Sophia".
+  return /^-\s/.test(text.trim());
 }
 
 // Split into blank-line-separated blocks; classify each.
@@ -156,36 +157,62 @@ for (const page of PAGES) {
   built++;
 }
 
-// --- CSP style-src hashes ---------------------------------------------------
-// Each served page ships exactly one inline <style> block (index hand-authored,
-// about generated above). Rather than weaken the CSP with 'unsafe-inline', we
-// pin each block by its SHA-256 hash in web/_headers' style-src. This step
-// keeps the two in lockstep: edit index.html's styles or change the about
-// template, re-run this script, and the hashes refresh. If a page's inline
-// <style> ever fails to hash, the browser will refuse to apply it — so a
-// forgotten rebuild fails loud (unstyled page), never silently open.
-const STYLE_PAGES = ['web/index.html', 'web/about.html'];
+// --- CSP inline-hash pinning -----------------------------------------------
+// Served pages ship inline <style> (every page) and, on the logo poll, one
+// inline <script> (the dropdown dedup). Rather than weaken the CSP with
+// 'unsafe-inline', each block is pinned by its SHA-256 hash: style-src for the
+// styles, script-src for the script. Edit a block, re-run this script, and the
+// hashes refresh. A forgotten rebuild fails loud - the browser refuses the
+// block (unstyled page or inert script), never silently open.
+const STYLE_PAGES = [
+  'web/index.html',
+  'web/about.html',
+  'web/logo-poll/index.html',
+  'web/thanks-for-voting/index.html',
+];
+const SCRIPT_PAGES = ['web/logo-poll/index.html'];
 
-function styleHash(relPath) {
+function blockHash(relPath, tag) {
   const html = readFileSync(join(ROOT, relPath), 'utf8');
-  const m = html.match(/<style>([\s\S]*?)<\/style>/);
-  if (!m) throw new Error(`no inline <style> found in ${relPath}`);
+  const m = html.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
+  if (!m) throw new Error(`no inline <${tag}> found in ${relPath}`);
   return `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`;
 }
 
-const hashes = [...new Set(STYLE_PAGES.map(styleHash))].sort();
-const styleSrc = `style-src 'self' ${hashes.join(' ')} https://fonts.bunny.net;`;
+const styleHashes = [...new Set(STYLE_PAGES.map((p) => blockHash(p, 'style')))].sort();
+const scriptHashes = [...new Set(SCRIPT_PAGES.map((p) => blockHash(p, 'script')))].sort();
+const styleSrc = `style-src 'self' ${styleHashes.join(' ')} https://fonts.bunny.net;`;
+const scriptSrc = `script-src ${scriptHashes.join(' ')};`;
+
+// Operate only on the Content-Security-Policy line itself. Matching directive
+// names anywhere in the file would collide with the header comment (which names
+// style-src/script-src in prose); isolating the line keeps [^;]* from spanning
+// newlines into that comment.
 const headersPath = join(ROOT, 'web/_headers');
 const headers = readFileSync(headersPath, 'utf8');
-if (!/^\s*Content-Security-Policy:.*\bstyle-src [^;]*;/m.test(headers)) {
-  throw new Error('web/_headers: could not find a CSP style-src directive to update');
+const cspRe = /^(\s*Content-Security-Policy:\s*)(.*)$/m;
+const cspMatch = headers.match(cspRe);
+if (!cspMatch) {
+  throw new Error('web/_headers: no Content-Security-Policy line found');
 }
-const updated = headers.replace(/\bstyle-src [^;]*;/, styleSrc);
+let csp = cspMatch[2];
+if (!/\bstyle-src [^;]*;/.test(csp)) {
+  throw new Error('web/_headers: CSP has no style-src directive to update');
+}
+csp = csp.replace(/\bstyle-src [^;]*;/, styleSrc);
+if (/\bscript-src [^;]*;/.test(csp)) {
+  csp = csp.replace(/\bscript-src [^;]*;/, scriptSrc);
+} else if (/\bdefault-src [^;]*;/.test(csp)) {
+  csp = csp.replace(/\bdefault-src [^;]*;/, (d) => `${d} ${scriptSrc}`);
+} else {
+  throw new Error('web/_headers: no default-src directive to anchor script-src after');
+}
+const updated = headers.replace(cspRe, (all, prefix) => prefix + csp);
 if (updated !== headers) {
   writeFileSync(headersPath, updated);
-  console.log(`updated web/_headers style-src (${hashes.length} hash(es))`);
+  console.log(`updated web/_headers CSP (${styleHashes.length} style, ${scriptHashes.length} script)`);
 } else {
-  console.log('web/_headers style-src already current');
+  console.log('web/_headers CSP already current');
 }
 
 console.log(`done: ${built} page(s)`);

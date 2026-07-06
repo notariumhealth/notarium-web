@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- GENERATED FILE. Do not edit by hand. Source: content/{{SRC}} - regenerate with: node tools/build.mjs -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{TITLE}}</title>
-  <meta name="description" content="{{DESCRIPTION}}">
-  <link rel="canonical" href="{{CANONICAL}}">
+  <title>Thanks - Notarium</title>
+  <meta name="description" content="Thanks for ranking the Notarium logo concepts.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://notarium.health/thanks-for-voting">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     :root {
@@ -100,14 +100,10 @@
       color: var(--accent-hover);
     }
 
-    .nav-link[aria-current="page"] {
-      color: var(--text);
-    }
-
-    /* ---------- Article hero ---------- */
+    /* ---------- Hero ---------- */
     .hero {
-      padding-top: 72px;
-      padding-bottom: 64px;
+      padding-top: 96px;
+      padding-bottom: 40px;
     }
 
     .hero-eyebrow {
@@ -119,7 +115,7 @@
       margin-bottom: 28px;
     }
 
-    .about-title {
+    .hero-title {
       font-family: var(--font-display);
       font-weight: 300;
       font-size: clamp(44px, 9vw, 76px);
@@ -132,57 +128,63 @@
     .lead {
       font-size: 22px;
       font-weight: 300;
-      line-height: 1.5;
+      line-height: 1.55;
       color: var(--text);
-      max-width: 640px;
+      max-width: 620px;
     }
 
-    /* ---------- Section scaffolding ---------- */
-    .section {
-      padding-top: 72px;
-      padding-bottom: 72px;
-      border-top: 1px solid var(--border);
+    /* ---------- Follow list ---------- */
+    .follow-section {
+      padding-top: 56px;
+      padding-bottom: 96px;
     }
 
-    .section-title {
-      font-family: var(--font-display);
-      font-weight: 300;
-      font-size: clamp(30px, 5vw, 42px);
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      max-width: 700px;
-      margin-bottom: 32px;
-    }
-
-    /* ---------- Prose ---------- */
-    .prose {
-      max-width: 680px;
-    }
-
-    .prose p {
-      font-size: 17px;
-      font-weight: 300;
-      line-height: 1.7;
-      color: var(--muted);
+    .follow-label {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
       margin-bottom: 24px;
     }
 
-    .prose p:last-child {
-      margin-bottom: 0;
+    .follow {
+      list-style: none;
+      max-width: 560px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
     }
 
-    .prose strong {
-      color: var(--text);
+    .follow li {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .follow li:last-child {
+      border-bottom: none;
+    }
+
+    .follow .label {
+      font-size: 13px;
       font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      min-width: 96px;
+      flex: none;
     }
 
-    .prose a {
+    .follow a {
       color: var(--accent);
+      font-weight: 400;
       transition: color 0.2s ease;
     }
 
-    .prose a:hover {
+    .follow a:hover {
       color: var(--accent-hover);
     }
 
@@ -192,39 +194,6 @@
       font-size: 24px;
       color: var(--text);
       margin-top: 44px;
-    }
-
-    /* ---------- CTA row ---------- */
-    .cta-row {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 36px;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--bg);
-      font-family: var(--font-body);
-      font-size: 16px;
-      font-weight: 500;
-      padding: 14px 28px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .cta-meta {
-      font-size: 15px;
-      color: var(--muted);
-      font-weight: 400;
     }
 
     /* ---------- Footer ---------- */
@@ -255,11 +224,15 @@
     /* ---------- Responsive ---------- */
     @media (max-width: 560px) {
       .hero {
-        padding-top: 48px;
-        padding-bottom: 48px;
+        padding-top: 64px;
+        padding-bottom: 32px;
       }
       .lead {
         font-size: 19px;
+      }
+      .follow li {
+        flex-direction: column;
+        gap: 4px;
       }
     }
 
@@ -279,16 +252,29 @@
     <nav class="nav">
       <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="nav-logo-dot">.</span></a>
       <div class="nav-right">
-        <a class="nav-link" href="/about" aria-current="page">About</a>
+        <a class="nav-link" href="/about">About</a>
         <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
       </div>
     </nav>
   </header>
 
   <main>
-    <article>
-{{BODY}}
-    </article>
+    <section class="wrap hero">
+      <p class="hero-eyebrow">Logo poll</p>
+      <h1 class="hero-title">Thanks for ranking.</h1>
+      <p class="lead">Your input goes into the final pick. I'll share the results and the chosen logo on Bluesky and the about page once the vote closes around <strong>July 19, 2026</strong>.</p>
+    </section>
+
+    <section class="wrap follow-section">
+      <p class="follow-label">If you want to follow along</p>
+      <ul class="follow">
+        <li><span class="label">Bluesky</span> <a href="https://bsky.app/profile/notarium.health">@notarium.health</a></li>
+        <li><span class="label">Mastodon</span> <a href="https://hachyderm.io/@notarium" rel="me">@notarium@hachyderm.io</a></li>
+        <li><span class="label">Code</span> <a href="https://github.com/notariumhealth/notarium">github.com/notariumhealth/notarium</a></li>
+        <li><span class="label">The project</span> <a href="/">notarium.health</a></li>
+      </ul>
+      <p class="signature">- Sophia</p>
+    </section>
   </main>
 
   <footer class="wrap footer">

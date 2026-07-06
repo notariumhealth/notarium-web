@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logo poll - Notarium</title>
+  <meta name="description" content="Help pick the Notarium logo. Rank your top five from fifteen concepts. No account, no tracking.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://notarium.health/logo-poll">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    :root {
+      --bg: #0D1117;
+      --surface: #141921;
+      --border: #1E2535;
+      --text: #EEE9E2;
+      --muted: #7A7E8D;
+      --accent: #4A9585;
+      --accent-hover: #5BB8A4;
+
+      --font-display: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Inter", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    /* ---------- Nav ---------- */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      padding-bottom: 28px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 26px;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+
+    .nav-logo-dot {
+      color: var(--accent);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-link {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-hover);
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      padding-top: 72px;
+      padding-bottom: 56px;
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(44px, 9vw, 76px);
+      line-height: 1.02;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .lead {
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 640px;
+      margin-bottom: 24px;
+    }
+
+    .hero-note {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 640px;
+    }
+
+    /* ---------- Section scaffolding ---------- */
+    .section {
+      padding-top: 64px;
+      padding-bottom: 64px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Logo gallery ---------- */
+    .poll-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 18px;
+      margin: 0;
+      list-style: none;
+    }
+
+    .poll-gallery figure {
+      margin: 0;
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 16px;
+    }
+
+    .poll-gallery img {
+      width: 100%;
+      height: auto;
+      max-width: 128px;
+      display: block;
+      margin: 0 auto 14px;
+    }
+
+    .poll-gallery figcaption {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .poll-gallery a.zoom {
+      display: block;
+      cursor: zoom-in;
+      border-radius: 6px;
+    }
+
+    .poll-gallery a.zoom:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* ---------- Lightbox ---------- */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      background: rgba(13, 17, 23, 0.94);
+      cursor: zoom-out;
+      animation: lb-fade 0.15s ease;
+    }
+
+    @keyframes lb-fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lightbox img {
+      max-width: min(560px, 90vw);
+      max-height: 90vh;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 44px;
+    }
+
+    .other-field[hidden] {
+      display: none;
+    }
+
+    /* ---------- Form ---------- */
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 28px 32px;
+      margin-bottom: 24px;
+    }
+
+    legend {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 26px;
+      color: var(--text);
+      padding: 0 10px;
+      margin-left: -10px;
+    }
+
+    label {
+      display: block;
+      margin: 24px 0 8px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    label .hint {
+      display: block;
+      font-weight: 300;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    label .req {
+      color: var(--accent);
+      margin-left: 4px;
+    }
+
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 400;
+      padding: 13px 15px;
+      transition: border-color 0.2s ease;
+    }
+
+    select:hover,
+    textarea:hover,
+    input[type="text"]:hover {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.6;
+    }
+
+    /* ---------- Choice grids (checkbox / radio) ---------- */
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: 400;
+      font-size: 15px;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .choice:hover {
+      border-color: var(--accent);
+    }
+
+    .choice input {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+      flex: none;
+    }
+
+    /* ---------- Submit ---------- */
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 500;
+      padding: 15px 34px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .honeypot {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 22px;
+      color: var(--muted);
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 48px;
+        padding-bottom: 40px;
+      }
+      .lead {
+        font-size: 19px;
+      }
+      fieldset {
+        padding: 22px 18px 26px;
+      }
+      .btn-primary {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wrap hero">
+      <p class="hero-eyebrow">Community poll</p>
+      <h1 class="hero-title">Help pick the logo.</h1>
+      <p class="lead">Notarium is a private, local-first app for people tracking their health and documenting chronic illness, along with the workplace-accommodation process that often comes with it. The mark should read as quiet and exact. It protects the person and avoids clinical or hype registers.</p>
+      <p class="hero-note">Below are nine concepts. Pick your favorite, then rank up to four more. Only your #1 is required. No account, no tracking, one response per person. It takes about three to five minutes.</p>
+    </section>
+
+    <section class="wrap section">
+      <p class="section-label">The nine concepts</p>
+      <ul class="poll-gallery" aria-label="Nine logo concepts numbered one through nine. Select a logo to enlarge it.">
+        <li><figure><a class="zoom" href="/logo-poll/logo-01.png"><img src="/logo-poll/logo-01.png" alt="Logo 1"></a><figcaption>Logo 1</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-02.png"><img src="/logo-poll/logo-02.png" alt="Logo 2"></a><figcaption>Logo 2</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-03.png"><img src="/logo-poll/logo-03.png" alt="Logo 3"></a><figcaption>Logo 3</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-04.png"><img src="/logo-poll/logo-04.png" alt="Logo 4"></a><figcaption>Logo 4</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-05.png"><img src="/logo-poll/logo-05.png" alt="Logo 5"></a><figcaption>Logo 5</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-06.png"><img src="/logo-poll/logo-06.png" alt="Logo 6"></a><figcaption>Logo 6</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-07.png"><img src="/logo-poll/logo-07.png" alt="Logo 7"></a><figcaption>Logo 7</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-08.png"><img src="/logo-poll/logo-08.png" alt="Logo 8"></a><figcaption>Logo 8</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-09.png"><img src="/logo-poll/logo-09.png" alt="Logo 9"></a><figcaption>Logo 9</figcaption></figure></li>
+      </ul>
+    </section>
+
+    <section class="wrap section">
+      <p class="section-label">Your ranking</p>
+      <form action="https://formspree.io/f/xojorywl" method="POST">
+        <input type="hidden" name="_next" value="https://notarium.health/thanks-for-voting">
+        <input type="hidden" name="_subject" value="Notarium logo poll response">
+
+        <div class="honeypot" aria-hidden="true">
+          <label for="_gotcha">Leave this empty</label>
+          <input type="text" id="_gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
+        </div>
+
+        <fieldset>
+          <legend>Rank your favorites</legend>
+
+          <label for="rank-1">Your #1 favorite<span class="req">*</span>
+            <span class="hint">Your single top pick. Required. A logo you pick is removed from the other menus.</span>
+          </label>
+          <select id="rank-1" name="rank_1" required>
+            <option value="">Select one&hellip;</option>
+            <option>Logo 1</option><option>Logo 2</option><option>Logo 3</option>
+            <option>Logo 4</option><option>Logo 5</option><option>Logo 6</option>
+            <option>Logo 7</option><option>Logo 8</option><option>Logo 9</option>
+          </select>
+
+          <label for="rank-2">Your #2 favorite
+            <span class="hint">Optional.</span>
+          </label>
+          <select id="rank-2" name="rank_2">
+            <option value="">Select one&hellip;</option>
+            <option>Logo 1</option><option>Logo 2</option><option>Logo 3</option>
+            <option>Logo 4</option><option>Logo 5</option><option>Logo 6</option>
+            <option>Logo 7</option><option>Logo 8</option><option>Logo 9</option>
+          </select>
+
+          <label for="rank-3">Your #3 favorite
+            <span class="hint">Optional.</span>
+          </label>
+          <select id="rank-3" name="rank_3">
+            <option value="">Select one&hellip;</option>
+            <option>Logo 1</option><option>Logo 2</option><option>Logo 3</option>
+            <option>Logo 4</option><option>Logo 5</option><option>Logo 6</option>
+            <option>Logo 7</option><option>Logo 8</option><option>Logo 9</option>
+          </select>
+
+          <label for="rank-4">Your #4 favorite
+            <span class="hint">Optional.</span>
+          </label>
+          <select id="rank-4" name="rank_4">
+            <option value="">Select one&hellip;</option>
+            <option>Logo 1</option><option>Logo 2</option><option>Logo 3</option>
+            <option>Logo 4</option><option>Logo 5</option><option>Logo 6</option>
+            <option>Logo 7</option><option>Logo 8</option><option>Logo 9</option>
+          </select>
+
+          <label for="rank-5">Your #5 favorite
+            <span class="hint">Optional.</span>
+          </label>
+          <select id="rank-5" name="rank_5">
+            <option value="">Select one&hellip;</option>
+            <option>Logo 1</option><option>Logo 2</option><option>Logo 3</option>
+            <option>Logo 4</option><option>Logo 5</option><option>Logo 6</option>
+            <option>Logo 7</option><option>Logo 8</option><option>Logo 9</option>
+          </select>
+        </fieldset>
+
+        <fieldset>
+          <legend>A few follow-ups</legend>
+
+          <label for="q-standout">What made your #1 pick stand out?
+            <span class="hint">Optional. A sentence or two, if you have a specific reason.</span>
+          </label>
+          <textarea id="q-standout" name="q_standout" rows="3"></textarea>
+
+          <label>Any logos you'd actively vote against as the final choice?
+            <span class="hint">Optional. Select any that apply, or "None of them" if you're neutral.</span>
+          </label>
+          <div class="choice-grid" role="group" aria-label="Logos to vote against">
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 1"> Logo 1</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 2"> Logo 2</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 3"> Logo 3</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 4"> Logo 4</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 5"> Logo 5</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 6"> Logo 6</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 7"> Logo 7</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 8"> Logo 8</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="Logo 9"> Logo 9</label>
+            <label class="choice"><input type="checkbox" name="q_avoid" value="None of them"> None of them</label>
+          </div>
+
+          <label>Would you install an app with your #1 pick as its home-screen icon?
+            <span class="hint">Optional.</span>
+          </label>
+          <div class="choice-grid" role="radiogroup" aria-label="Would you install with your #1 as the icon">
+            <label class="choice"><input type="radio" name="q_install" value="Yes"> Yes</label>
+            <label class="choice"><input type="radio" name="q_install" value="Maybe"> Maybe</label>
+            <label class="choice"><input type="radio" name="q_install" value="No"> No</label>
+          </div>
+
+          <label>Which qualities matter most for a health-documentation app used in accommodation cases?
+            <span class="hint">Optional. Choose up to three.</span>
+          </label>
+          <div class="choice-grid" role="group" aria-label="Qualities that matter most">
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Simplicity"> Simplicity</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Timeless"> Timeless</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Legible when small"> Legible when small</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Serious / weighty"> Serious / weighty</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Trustworthy"> Trustworthy</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Restrained"> Restrained</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Distinctive"> Distinctive</label>
+            <label class="choice"><input type="checkbox" name="q_qualities" value="Other"> Other</label>
+          </div>
+
+          <div class="other-field">
+            <label for="q-qualities-other">If you chose "Other", what quality?
+              <span class="hint">Optional.</span>
+            </label>
+            <input type="text" id="q-qualities-other" name="q_qualities_other" autocomplete="off">
+          </div>
+
+          <label for="q-comments">Anything else worth sharing about these concepts?
+            <span class="hint">Optional. Impressions, associations, patterns you noticed.</span>
+          </label>
+          <textarea id="q-comments" name="q_comments" rows="4"></textarea>
+        </fieldset>
+
+        <button class="btn-primary" type="submit">Submit ranking</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <span class="footer-copy">&copy; 2026 Notarium LLC</span>
+  </footer>
+
+  <script>
+    // Progressive enhancement: keep the five rank menus mutually exclusive so a
+    // logo can't be chosen twice. An option picked in one menu is disabled in
+    // the others. With JS off, all menus stay fully usable (only #1 is
+    // required), so the form still submits - it just won't dedup client-side.
+    (function () {
+      var ranks = Array.prototype.slice.call(
+        document.querySelectorAll('select[name^="rank_"]')
+      );
+      function sync() {
+        var taken = {};
+        ranks.forEach(function (sel) {
+          if (sel.value) taken[sel.value] = sel;
+        });
+        ranks.forEach(function (sel) {
+          Array.prototype.forEach.call(sel.options, function (opt) {
+            if (!opt.value) return; // never disable the placeholder
+            opt.disabled = !!taken[opt.value] && taken[opt.value] !== sel;
+          });
+        });
+      }
+      ranks.forEach(function (sel) {
+        sel.addEventListener('change', sync);
+      });
+      sync();
+    })();
+
+    // Click a gallery logo to enlarge it in a lightbox; click anywhere or press
+    // Escape to close. With JS off, the thumbnail link opens the image directly.
+    (function () {
+      var box = null;
+      function close() { if (box) { box.remove(); box = null; } }
+      document.querySelectorAll('.poll-gallery a.zoom').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          close();
+          var alt = link.querySelector('img').alt;
+          box = document.createElement('div');
+          box.className = 'lightbox';
+          box.setAttribute('role', 'dialog');
+          box.setAttribute('aria-label', alt + ', enlarged');
+          var big = document.createElement('img');
+          big.src = link.getAttribute('href');
+          big.alt = alt;
+          box.appendChild(big);
+          box.addEventListener('click', close);
+          document.body.appendChild(box);
+        });
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') close();
+      });
+    })();
+
+    // Reveal the free-text box only when "Other" is checked. Hidden by JS on
+    // load, so with JS off the box stays visible and remains fillable.
+    (function () {
+      var field = document.querySelector('.other-field');
+      var other = document.querySelector('input[name="q_qualities"][value="Other"]');
+      if (!field || !other) return;
+      function toggle() {
+        field.hidden = !other.checked;
+        if (other.checked) field.querySelector('input').focus();
+      }
+      other.addEventListener('change', toggle);
+      toggle();
+    })();
+  </script>
+</body>
+</html>
