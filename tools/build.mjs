@@ -169,6 +169,8 @@ const STYLE_PAGES = [
   'web/about.html',
   'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
+  'web/security/index.html',
+  'web/404.html',
 ];
 const SCRIPT_PAGES = ['web/logo-poll/index.html'];
 

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security - Notarium</title>
+  <meta name="description" content="How to report a security vulnerability in the Notarium website, what to expect, scope, and our PGP key.">
+  <link rel="canonical" href="https://notarium.health/security">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    :root {
+      --bg: #0D1117;
+      --surface: #141921;
+      --border: #1E2535;
+      --text: #EEE9E2;
+      --muted: #7A7E8D;
+      --accent: #4A9585;
+      --accent-hover: #5BB8A4;
+      --font-display: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Inter", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      padding-bottom: 28px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 26px;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+
+    .nav-logo-dot { color: var(--accent); }
+    .tm { font-size: 0.5em; font-weight: 400; vertical-align: super; }
+    .nav-right { display: flex; align-items: center; gap: 28px; }
+
+    .nav-link {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover { color: var(--accent-hover); }
+
+    .article { max-width: 760px; }
+
+    .hero { padding-top: 56px; padding-bottom: 24px; }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(40px, 7vw, 64px);
+      line-height: 1.03;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .lead {
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 640px;
+    }
+
+    section {
+      padding-top: 40px;
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    section h2 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(24px, 3.5vw, 32px);
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    p {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: #C9CCD3;
+      margin-bottom: 16px;
+    }
+
+    ul { margin: 0 0 16px 1.2em; padding: 0; }
+
+    li {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: #C9CCD3;
+      margin-bottom: 8px;
+    }
+
+    strong { color: var(--text); font-weight: 500; }
+    a.link { color: var(--accent); }
+    a.link:hover { color: var(--accent-hover); }
+
+    code {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px 32px;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 22px;
+      color: var(--muted);
+    }
+
+    .footer-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+    .footer-nav a { color: var(--accent); font-size: 14px; transition: color 0.2s ease; }
+    .footer-nav a:hover { color: var(--accent-hover); }
+    .footer-copy { font-size: 13px; color: var(--muted); flex-basis: 100%; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="tm">&trade;</span><span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap article">
+    <div class="hero">
+      <p class="hero-eyebrow">Security policy</p>
+      <h1>Security</h1>
+      <p class="lead">Security and privacy are the point of Notarium, and we take reports seriously. This policy covers the <strong>notarium.health website</strong>. For the app, see the <a class="link" href="https://github.com/notariumhealth/notarium">notarium</a> repository.</p>
+    </div>
+
+    <section>
+      <h2>Reporting a vulnerability</h2>
+      <p>Please report security issues privately. <strong>Do not open a public issue</strong> for a suspected vulnerability.</p>
+      <ul>
+        <li>Email <a class="link" href="mailto:security@notarium.health">security@notarium.health</a>, ideally encrypted with our PGP key (below).</li>
+        <li>Or use GitHub's <strong>private vulnerability reporting</strong>: this repository, the <strong>Security</strong> tab, then <strong>Report a vulnerability</strong>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>What to expect</h2>
+      <ul>
+        <li>We acknowledge reports within <strong>72 hours</strong>.</li>
+        <li>We aim for coordinated disclosure within <strong>90 days</strong> and will keep you posted on progress along the way.</li>
+        <li>We are glad to credit you in the fix if you would like the acknowledgment.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Scope</h2>
+      <p><strong>In scope:</strong> the code for the static notarium.health site and its deployment configuration (HTTP headers, Content-Security-Policy).</p>
+      <p><strong>Out of scope:</strong> third-party dependencies (report those upstream), Cloudflare's own infrastructure, and the Notarium app itself. Report app issues in the <a class="link" href="https://github.com/notariumhealth/notarium">notarium</a> repository.</p>
+    </section>
+
+    <section>
+      <h2>PGP key</h2>
+      <ul>
+        <li>Fingerprint: <code>C9F12610 33C96D4E 265F3B90 BD3D1ACE 0D4FBC63</code></li>
+        <li>Public key: <a class="link" href="/.well-known/pgp-key.txt">/.well-known/pgp-key.txt</a></li>
+        <li>See also: <a class="link" href="/.well-known/security.txt">/.well-known/security.txt</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <nav class="footer-nav" aria-label="Legal and source">
+      <a href="/security">Security</a>
+      <a href="https://github.com/notariumhealth">GitHub</a>
+      <a href="https://codeberg.org/notariumhealth">Codeberg</a>
+    </nav>
+    <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
+  </footer>
+</body>
+</html>
