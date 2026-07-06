@@ -11,7 +11,7 @@
 # (or the generator) or the resource will be blocked.
 
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'sha256-1C+DDiTFnEAL8HkAhp2BE4lv+w5X9CNkuqTH/34egSc='; style-src 'self' 'sha256-3hpIs5LZyF2HGZdS5xDi+5nGB7UfPspkyGn4/NKfhDo=' 'sha256-O7FkGTr+yAUPn6oUBgei15OVRtfc0a2I8ZO3BJDBhWk=' 'sha256-f+2Ym+ObYoi6j+iV3x5flt+wmcbn1RnrizPCaOZN3h8=' 'sha256-ogM3Tp+32mTwPM2qcZUXvpmNx5uWjn6t22G8mViNV6k=' https://fonts.bunny.net; font-src https://fonts.bunny.net; img-src 'self' data:; form-action https://formspree.io; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'sha256-1C+DDiTFnEAL8HkAhp2BE4lv+w5X9CNkuqTH/34egSc='; style-src 'self' 'sha256-3hpIs5LZyF2HGZdS5xDi+5nGB7UfPspkyGn4/NKfhDo=' 'sha256-O7FkGTr+yAUPn6oUBgei15OVRtfc0a2I8ZO3BJDBhWk=' 'sha256-ogM3Tp+32mTwPM2qcZUXvpmNx5uWjn6t22G8mViNV6k=' 'sha256-s2rAUKVFFMAZtACXfAKTaXoJbYJgM0AIS1BgGqHmaqs=' https://fonts.bunny.net; font-src https://fonts.bunny.net; img-src 'self' data:; form-action https://formspree.io; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
