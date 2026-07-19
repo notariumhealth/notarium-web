@@ -15,9 +15,15 @@
 //   paragraphs before    \
 //     the first ## H2    -> opening prose section (no heading)
 //   ## H2 + paragraphs  -> a .section with .section-title + .prose
-//   final "- ..." line  -> .signature (rendered in its section)
-// The CTA row is web-only chrome; it is injected into the section that holds
-// the signature. Inline Markdown supported: [text](url) and **bold**.
+//   ### H3              -> a subsection heading within a section
+//   - a / - b (multi-line, or any doc with more than one dash-led block)
+//                       -> <ul> list
+//   sole trailing "- x" -> .signature (rendered in its section)
+// The parsing rules live in tools/render.mjs (see its header comment for the
+// full signature-vs-list discriminator); this file just maps the result onto
+// the page template. The CTA row is web-only chrome; it is injected into the
+// section that holds the signature. Inline Markdown supported:
+// [text](url) and **bold**.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';

@@ -46,3 +46,33 @@ test('board.md renders its reasons as a list with no signature', () => {
   assert.equal(sections[0].blocks[1].kind, 'ul');
   assert.equal(sections[0].blocks[1].items.length, 3);
 });
+
+test('a list interrupted by a stray blank line keeps every item, no signature', () => {
+  const md = '# T\n\nlead\n\n## S\n\n- one\n- two\n\n- three';
+  const { sections } = parse(md);
+  assert.equal(sections[0].signature, null);
+  assert.deepEqual(sections[0].blocks, [
+    { kind: 'ul', items: ['one', 'two', 'three'] },
+  ]);
+});
+
+test('a document ending on a single bullet with another list elsewhere has no signature', () => {
+  const md = '# T\n\nlead\n\n## S\n\n- one\n- two\n\nmiddle\n\n- three';
+  const { sections } = parse(md);
+  assert.equal(sections[0].signature, null);
+  assert.deepEqual(sections[0].blocks, [
+    { kind: 'ul', items: ['one', 'two'] },
+    { kind: 'p', text: 'middle' },
+    { kind: 'ul', items: ['three'] },
+  ]);
+});
+
+test('a single trailing bullet with no other list in the document is still a signature', () => {
+  const md = '# T\n\nlead\n\n## S\n\nfirst paragraph\n\nsecond paragraph\n\n- Sophia';
+  const { sections } = parse(md);
+  assert.equal(sections[0].signature, '- Sophia');
+  assert.deepEqual(sections[0].blocks, [
+    { kind: 'p', text: 'first paragraph' },
+    { kind: 'p', text: 'second paragraph' },
+  ]);
+});

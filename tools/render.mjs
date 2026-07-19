@@ -3,10 +3,15 @@
 // Block-level conventions, not a general Markdown engine:
 //   # H1     -> hero eyebrow          ## H2  -> section
 //   ### H3   -> subsection heading    - a/- b (multi-line) -> <ul>
-//   final single-line "- x"           -> signature (e.g. "- Sophia")
-// The signature rule is deliberately narrow: it was the original meaning of a
-// leading hyphen here, and widening lists without narrowing it would silently
-// swallow every bullet list into a <p class="signature">.
+//   sole trailing single-line "- x"   -> signature (e.g. "- Sophia")
+// The signature rule is deliberately narrow: a block is a signature only if
+// it is the single dash-led block in the whole document, is one line long,
+// and is the final block. Any document with a second dash-led block anywhere
+// treats every dash-led block as a list, including a final single bullet -
+// that shape is a list of one item, not a signature. Adjacent dash-led
+// blocks separated only by a blank line are merged before classification, so
+// a stray blank line inside a list cannot split it and strand the tail as a
+// false signature.
 
 function escapeHtml(s) {
   return s
@@ -23,23 +28,33 @@ export function inline(s) {
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 }
 
-function isListBlock(text) {
+function isDashLedBlock(text) {
   const lines = text.trim().split('\n');
-  return lines.length > 1 && lines.every((l) => /^-\s/.test(l.trim()));
-}
-
-function isSignatureBlock(text, isFinalBlock) {
-  const lines = text.trim().split('\n');
-  return isFinalBlock && lines.length === 1 && /^-\s/.test(lines[0].trim());
+  return lines.every((l) => /^-\s/.test(l.trim()));
 }
 
 // Split into blank-line-separated blocks; classify each.
 export function parse(md) {
-  const blocks = md
+  const rawBlocks = md
     .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
     .map((b) => b.trim())
     .filter(Boolean);
+
+  // Merge runs of adjacent dash-led blocks (they were only ever split apart
+  // by a blank line) so a stray blank line inside a list cannot fracture it
+  // into two blocks.
+  const blocks = [];
+  for (const b of rawBlocks) {
+    const prev = blocks[blocks.length - 1];
+    if (prev !== undefined && isDashLedBlock(prev) && isDashLedBlock(b)) {
+      blocks[blocks.length - 1] = `${prev}\n${b}`;
+    } else {
+      blocks.push(b);
+    }
+  }
+
+  const dashBlockCount = blocks.filter(isDashLedBlock).length;
 
   let h1 = '';
   const intro = []; // blocks before the first H2
@@ -53,16 +68,22 @@ export function parse(md) {
       sections.push(cur);
     } else if (b.startsWith('# ')) {
       h1 = b.slice(2).trim();
-    } else if (isSignatureBlock(b, isFinal)) {
-      // Signature belongs to the current (last) section.
-      if (cur) cur.signature = b.trim();
-      else intro.push({ kind: 'p', text: b }); // no section yet: keep as prose
+    } else if (isDashLedBlock(b)) {
+      const lines = b.split('\n').map((l) => l.trim());
+      if (isFinal && lines.length === 1 && dashBlockCount === 1) {
+        // The sole dash-led block in the document, on the final line:
+        // the author-signature shape (about.md's "- Sophia"). Any other
+        // dash-led block anywhere in the doc means this is a list instead,
+        // even a final single bullet - a list of one item, not a signature.
+        if (cur) cur.signature = b.trim();
+        else intro.push({ kind: 'p', text: b }); // no section yet: keep as prose
+      } else {
+        const items = lines.map((l) => l.replace(/^-\s+/, ''));
+        const block = { kind: 'ul', items };
+        cur ? cur.blocks.push(block) : intro.push(block);
+      }
     } else if (b.startsWith('### ')) {
       const block = { kind: 'h3', text: b.slice(4).trim() };
-      cur ? cur.blocks.push(block) : intro.push(block);
-    } else if (isListBlock(b)) {
-      const items = b.split('\n').map((l) => l.trim().replace(/^-\s+/, ''));
-      const block = { kind: 'ul', items };
       cur ? cur.blocks.push(block) : intro.push(block);
     } else {
       const block = { kind: 'p', text: b };
