@@ -25,6 +25,21 @@ fi
 # Copy only the files build.mjs actually publishes. This repo is public; a doc
 # that lives in canonical's docs/website/ without a PAGES entry is internal
 # (site audits, IP clearance research) and must not be vendored here.
+#
+# --list-sources runs as a process substitution below, so its exit status is
+# not visible to `set -e` or to pipefail (pipefail only covers `|` pipes, not
+# `<(...)`). A build.mjs that prints some entries and then dies would let the
+# loop copy a partial set and fall through as if nothing were wrong. Capture
+# the output to a file first and check the exit status explicitly so a
+# mid-list failure fails the sync instead of silently under-copying.
+manifest_file="$(mktemp)"
+trap 'rm -f "$manifest_file"' EXIT
+
+if ! node "$REPO_ROOT/tools/build.mjs" --list-sources > "$manifest_file"; then
+  echo "sync-content: build.mjs --list-sources failed" >&2
+  exit 1
+fi
+
 copied=0
 while IFS= read -r name; do
   [[ -z "$name" ]] && continue
@@ -36,7 +51,7 @@ while IFS= read -r name; do
   cp "$src" "$REPO_ROOT/content/$name"
   echo "synced content/$name  <-  $src"
   copied=$((copied + 1))
-done < <(node "$REPO_ROOT/tools/build.mjs" --list-sources)
+done < "$manifest_file"
 
 if [[ "$copied" -eq 0 ]]; then
   echo "sync-content: no .md files in $SRC_DIR" >&2
