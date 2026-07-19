@@ -23,26 +23,18 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PAGES } from './pages.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const PAGES = [
-  {
-    src: 'content/about.md',
-    out: 'web/about.html',
-    template: 'templates/about.html',
-    title: 'About - Notarium',
-    description:
-      'Why Sophia Daw built Notarium: a private, local-first health tracker for people documenting chronic illness and the workplace accommodation process that comes with it.',
-    canonical: 'https://notarium.health/about',
-    heroTitle: 'Why I built<br>Notarium.',
-    cta:
-      '<div class="cta-row">\n' +
-      '          <a class="btn-primary" href="/#waitlist">Get early access</a>\n' +
-      '          <span class="cta-meta">Android &middot; Free</span>\n' +
-      '        </div>',
-  },
-];
+// `--list-sources` prints the content basenames this repo publishes, one per
+// line. tools/sync-content.sh consumes it so the copy is an allowlist rather
+// than a glob: an internal doc in canonical's docs/website/ cannot reach this
+// public repo just by existing.
+if (process.argv.includes('--list-sources')) {
+  for (const page of PAGES) console.log(page.src.replace(/^content\//, ''));
+  process.exit(0);
+}
 
 function escapeHtml(s) {
   return s

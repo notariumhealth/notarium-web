@@ -22,14 +22,21 @@ if [[ ! -d "$SRC_DIR" ]]; then
   exit 1
 fi
 
-shopt -s nullglob
+# Copy only the files build.mjs actually publishes. This repo is public; a doc
+# that lives in canonical's docs/website/ without a PAGES entry is internal
+# (site audits, IP clearance research) and must not be vendored here.
 copied=0
-for md in "$SRC_DIR"/*.md; do
-  name="$(basename "$md")"
-  cp "$md" "$REPO_ROOT/content/$name"
-  echo "synced content/$name  <-  $md"
+while IFS= read -r name; do
+  [[ -z "$name" ]] && continue
+  src="$SRC_DIR/$name"
+  if [[ ! -f "$src" ]]; then
+    echo "sync-content: published page missing from canonical: $src" >&2
+    exit 1
+  fi
+  cp "$src" "$REPO_ROOT/content/$name"
+  echo "synced content/$name  <-  $src"
   copied=$((copied + 1))
-done
+done < <(node "$REPO_ROOT/tools/build.mjs" --list-sources)
 
 if [[ "$copied" -eq 0 ]]; then
   echo "sync-content: no .md files in $SRC_DIR" >&2
