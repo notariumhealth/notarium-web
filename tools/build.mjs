@@ -34,6 +34,23 @@ import { render } from './render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
+// --- Shared base style ------------------------------------------------------
+// Every served page carries one <style> block whose first region is the shared
+// base, delimited by markers, followed by that page's own rules. Injecting
+// rather than linking keeps the CSP inline-hash model intact (no new style-src
+// origin) and keeps the palette in exactly one file.
+//
+// This must run BEFORE the CSP hash pinning block at the bottom of this file.
+// Pinning first would hash pre-injection content, and the browser would then
+// refuse every style block on the site.
+const BASE_CSS = readFileSync(join(ROOT, 'styles/base.css'), 'utf8').trim();
+
+function injectBaseStyles(html) {
+  const re = /(\/\* BEGIN base \*\/)[\s\S]*?(\/\* END base \*\/)/;
+  if (!re.test(html)) throw new Error('page has no base-style region to inject into');
+  return html.replace(re, `$1\n${BASE_CSS}\n    $2`);
+}
+
 // `--list-sources` prints the content basenames this repo publishes, one per
 // line. tools/sync-content.sh consumes it so the copy is an allowlist rather
 // than a glob: an internal doc in canonical's docs/website/ cannot reach this
@@ -54,9 +71,25 @@ for (const page of PAGES) {
     .replaceAll('{{DESCRIPTION}}', page.description)
     .replaceAll('{{CANONICAL}}', page.canonical)
     .replace('{{BODY}}', body);
-  writeFileSync(join(ROOT, page.out), html);
+  writeFileSync(join(ROOT, page.out), injectBaseStyles(html));
   console.log(`built ${page.out}  <-  ${page.src}`);
   built++;
+}
+
+// Hand-maintained pages (not in PAGES) still take the shared base. Runs before
+// the CSP pinning below so the hashes describe post-injection content.
+const HAND_MAINTAINED = [
+  'web/index.html', 'web/404.html', 'web/security/index.html',
+  'web/logo-poll/index.html', 'web/thanks-for-voting/index.html',
+];
+for (const rel of HAND_MAINTAINED) {
+  const p = join(ROOT, rel);
+  const before = readFileSync(p, 'utf8');
+  const after = injectBaseStyles(before);
+  if (after !== before) {
+    writeFileSync(p, after);
+    console.log(`restyled ${rel}`);
+  }
 }
 
 // --- CSP inline-hash pinning -----------------------------------------------

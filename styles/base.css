@@ -1,0 +1,136 @@
+/* Shared base style for every served page.
+ *
+ * tools/build.mjs injects this file verbatim between the begin/end marker
+ * comments in each page's inline <style>. It is injected rather than linked
+ * so the CSP inline-hash model stays intact: no new style-src origin, no
+ * extra request, one file to edit. This text deliberately avoids spelling
+ * out the marker comments, so the injected body can never look like a marker.
+ *
+ * Only rules that were confirmed identical on every page live here. Rules
+ * that differ even slightly between pages (body, .footer, .footer-copy, the
+ * reduced-motion block) stay in each page's own region below the END marker.
+ */
+
+:root {
+  --bg: #0D1117;
+  --surface: #141921;
+  --border: #1E2535;
+  --text: #EEE9E2;
+  /* F-2: the previous muted grey was 4.36:1 on surface and failed AA for
+     normal text. #82869A is 4.89:1 on surface and 5.25:1 on bg. */
+  --muted: #82869A;
+  --accent: #4A9585;
+  --accent-hover: #5BB8A4;
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* F-4: skip link, visually hidden until it takes focus. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
+}
+
+/* F-3: form controls need a 3:1 boundary. --border is 1.24:1 on bg and is
+   fine for decorative card edges but invisible as a control boundary.
+   --muted is 5.25:1. The audit's suggested #3A4356 computes to 1.91:1 and
+   does not pass; do not use it. */
+input,
+select,
+textarea {
+  border: 1px solid var(--muted);
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.nav-logo-dot {
+  color: var(--accent);
+}
+
+.tm {
+  font-size: 0.5em;
+  font-weight: 400;
+  vertical-align: super;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-link {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-hover);
+}
+
+/* ---------- Footer (only the parts every page shares) ---------- */
+.footer-logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--muted);
+}

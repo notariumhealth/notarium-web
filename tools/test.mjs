@@ -1,6 +1,7 @@
 // Run: node --test tools/test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { parse } from './render.mjs';
 
 test('trailing single-line dash block is the signature', () => {
@@ -75,4 +76,37 @@ test('a single trailing bullet with no other list in the document is still a sig
     { kind: 'p', text: 'first paragraph' },
     { kind: 'p', text: 'second paragraph' },
   ]);
+});
+
+// --- Shared base-style region ----------------------------------------------
+// The palette used to be copy-pasted per page, so a token that failed contrast
+// failed in every copy independently. It now lives in styles/base.css and is
+// injected by tools/build.mjs between markers. These tests are the invariant:
+// if a page loses its markers, or a page's region drifts from the others, the
+// injection silently stopped covering that page.
+
+const SERVED = [
+  'web/index.html', 'web/about.html', 'web/404.html',
+  'web/security/index.html', 'web/logo-poll/index.html',
+  'web/thanks-for-voting/index.html',
+];
+
+function baseRegion(path) {
+  const html = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+  const m = html.match(/\/\* BEGIN base \*\/([\s\S]*?)\/\* END base \*\//);
+  assert.ok(m, `${path} has no base-style region`);
+  return m[1];
+}
+
+test('every served page carries a byte-identical base style region', () => {
+  const regions = SERVED.map(baseRegion);
+  for (let i = 1; i < regions.length; i++) {
+    assert.equal(regions[i], regions[0], `${SERVED[i]} diverged from ${SERVED[0]}`);
+  }
+});
+
+test('the base palette meets the contrast floors it was fixed for', () => {
+  const css = baseRegion('web/index.html');
+  assert.match(css, /--muted:\s*#82869A/i, 'muted must be the AA-passing value');
+  assert.doesNotMatch(css, /#7A7E8D/i, 'the failing muted value must be gone');
 });
