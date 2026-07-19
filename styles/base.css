@@ -134,3 +134,19 @@ textarea {
   font-size: 22px;
   color: var(--muted);
 }
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-nav a {
+  color: var(--accent);
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--accent-hover);
+}

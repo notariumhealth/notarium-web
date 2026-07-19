@@ -146,6 +146,22 @@ textarea {
   font-size: 22px;
   color: var(--muted);
 }
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-nav a {
+  color: var(--accent);
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--accent-hover);
+}
     /* END base */
 
     body {
@@ -432,6 +448,15 @@ textarea {
 
   <footer class="wrap footer">
     <span class="footer-logo">Notarium</span>
+    <nav class="footer-nav" aria-label="Legal and source">
+      <a href="/security">Security</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/board">Board</a>
+      <a href="/credits">Credits</a>
+      <a href="https://github.com/notariumhealth/notarium-web/blob/main/LICENSE">License</a>
+      <a href="https://github.com/notariumhealth">GitHub</a>
+      <a href="https://codeberg.org/notariumhealth">Codeberg</a>
+    </nav>
     <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
   </footer>
 </body>
