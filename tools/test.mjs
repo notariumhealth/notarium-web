@@ -99,7 +99,7 @@ const SERVED = [
   'web/index.html', 'web/about.html', 'web/roadmap/index.html',
   'web/board/index.html', 'web/credits/index.html', 'web/404.html',
   'web/security/index.html', 'web/logo-poll/index.html',
-  'web/thanks-for-voting/index.html',
+  'web/thanks-for-voting/index.html', 'web/license/index.html',
 ];
 
 function baseRegion(path) {

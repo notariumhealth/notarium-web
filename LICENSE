@@ -1,14 +1,22 @@
-This repository is licensed under two different terms, split by content
-type. Check which scope a file falls under before assuming either license
-covers it.
+This repository is licensed under different terms, split by content type.
+Check which scope a file falls under before assuming any license covers it.
+Every path in this repository falls under exactly one of the four scopes
+below; none is covered by omission.
 
 ====================================================================
 Scope 1: Code - MIT License
 ====================================================================
 
-Covers: the page templates (templates/), the build tooling (tools/), and
-the stylesheet (styles/base.css). This is everything that builds or
-renders the site, as distinct from the words on the page.
+Covers: the page templates (templates/), the build tooling (tools/), the
+stylesheet (styles/base.css), the generated HTML markup served under web/
+(the tags, attributes, and structure - as distinct from the rendered text
+they carry, which is Scope 2), the hand-authored inline scripts in that
+same markup (for example web/logo-poll/index.html's rank-dropdown script),
+the generated deployment configuration (web/_headers), and the repository's
+own configuration and documentation (.gitattributes, .gitignore, .github/,
+README.md, SECURITY.md). This is everything that builds, runs, configures,
+or documents the repository, as distinct from the words on the published
+pages and distinct from the brand assets named in Scope 3.
 
 MIT License
 
@@ -38,7 +46,8 @@ Scope 2: Prose - Creative Commons Attribution-ShareAlike 4.0 International
 
 Covers: the page copy under content/ (the Markdown sources) and the
 rendered text of the published pages under web/. This is the words
-themselves, as distinct from the markup and styling that present them.
+themselves, as distinct from the markup and styling that present them
+(Scope 1) and distinct from the brand assets named in Scope 3.
 
 Copyright (c) 2026 Notarium LLC
 
@@ -52,7 +61,45 @@ This file does not reproduce the CC BY-SA 4.0 legal code. The text at the
 links above is canonical and governs in the event of any discrepancy.
 
 ====================================================================
+Scope 3: Brand assets - all rights reserved
+====================================================================
+
+Covers: the logo concept images under web/logo-poll/ (logo-01.png through
+logo-09.png), and the Notarium name, wordmark, and logo concepts generally,
+however and wherever they appear in this repository.
+
+Copyright (c) 2026 Notarium LLC. All rights reserved.
+
+These are not reusable content. They are commissioned brand concept work
+tied to a pending trademark application, and neither the MIT grant in
+Scope 1 nor the CC BY-SA grant in Scope 2 extends to them. No permission is
+granted here to copy, modify, distribute, or otherwise use these images,
+the Notarium name, the Notarium wordmark, or any logo concept, in whole or
+in part. This scope exists so that neither of the other two grants can be
+read as reaching these assets by omission.
+
+====================================================================
+Scope 4: Published security-contact files - all rights reserved
+====================================================================
+
+Covers: web/.well-known/security.txt and web/.well-known/pgp-key.txt.
+
+Copyright (c) 2026 Notarium LLC. All rights reserved.
+
+These files are published so they can be read and acted on by anyone
+locating or reporting a security issue, or verifying the PGP key used for
+that reporting. That intended use does not require a reuse license, and
+none is granted: no permission is given here to copy, modify, or
+redistribute these files outside that reporting purpose.
+
+====================================================================
 
 Third-party code and content credited at https://notarium.health/credits
 remains under its own original license, named on that page for each source.
 Nothing in this file relicenses that work.
+
+This LICENSE file's own text, and its served copy at
+https://notarium.health/license, follow the ordinary convention for license
+documents: they may be reproduced verbatim as part of stating or complying
+with the terms they contain. That convention, not any of the four scopes
+above, is what covers this file itself.

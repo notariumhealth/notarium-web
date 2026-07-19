@@ -65,6 +65,7 @@ export const PAGES = [
 export const HAND_MAINTAINED = [
   'web/index.html', 'web/404.html', 'web/security/index.html',
   'web/logo-poll/index.html', 'web/thanks-for-voting/index.html',
+  'web/license/index.html',
 ];
 
 // Every served page carries exactly one inline <style> block that gets pinned
@@ -79,6 +80,7 @@ export const STYLE_PAGES = [
   'web/thanks-for-voting/index.html',
   'web/security/index.html',
   'web/404.html',
+  'web/license/index.html',
 ];
 
 // Pages carrying an inline <script> pinned in script-src. Only the logo poll.
