@@ -97,7 +97,7 @@ test('a single trailing bullet with no other list in the document is still a sig
 
 const SERVED = [
   'web/index.html', 'web/about.html', 'web/roadmap/index.html',
-  'web/board/index.html', 'web/404.html',
+  'web/board/index.html', 'web/credits/index.html', 'web/404.html',
   'web/security/index.html', 'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
 ];
@@ -301,6 +301,59 @@ test('a page\'s own route in its nav carries aria-current, and no other link doe
 // served page (the footer nav where it exists), and this must hold for any
 // future PAGES entry too - the check is generic over the manifest, not
 // hardcoded to /roadmap specifically.
+
+// --- Block markers must not survive into the HTML ---------------------------
+// Before the renderer understood H3 and lists, a source file using either one
+// fell through to the paragraph branch and shipped its own Markdown to the
+// browser: a visible "### Pain Tracker" and visible "- " bullets. That is the
+// failure this page's structure would have hit hardest, so assert the absence
+// of the markers in the OUTPUT rather than trusting the parser tests alone.
+
+test('no generated page leaks a literal Markdown block marker', () => {
+  for (const page of PAGES) {
+    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
+    const lines = html.split('\n');
+    lines.forEach((line, i) => {
+      assert.ok(
+        !line.includes('###'),
+        `${page.out}:${i + 1} leaks a literal H3 marker: ${line.trim()}`,
+      );
+      // A rendered bullet is "<li>...", never a line that begins with a dash.
+      // The about.md signature ("- Sophia") is inline inside <p class="signature">,
+      // so it does not begin a line and is correctly not caught here.
+      assert.ok(
+        !/^\s*-\s/.test(line),
+        `${page.out}:${i + 1} leaks a literal list marker: ${line.trim()}`,
+      );
+    });
+  }
+});
+
+// --- No internal repo paths in public output --------------------------------
+// content/ is vendored from a private repo whose internal docs (competitive
+// analyses, data model, importer specs) must not be advertised by name. The
+// credits page in particular is condensed from a source file thick with them.
+
+test('no generated page names an internal repo path', () => {
+  const forbidden = /docs\/|\.titan|feature-matrix|competitive-|importer-specifications|02-data-model|gradle\//;
+  for (const page of PAGES) {
+    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
+    const hit = html.split('\n').find((l) => forbidden.test(l));
+    assert.equal(hit, undefined, `${page.out} names an internal path: ${hit && hit.trim()}`);
+  }
+});
+
+// --- Icon attribution (site audit L-3) --------------------------------------
+// The home page draws four line icons in the Feather/Lucide idiom. The audit
+// asks for attribution naming both projects and both licenses. Pin it so a
+// future rewrite of the credits copy cannot quietly drop the finding's fix.
+
+test('the credits page attributes the home-page icons with both licenses', () => {
+  const html = readFileSync(new URL('../web/credits/index.html', import.meta.url), 'utf8');
+  for (const needle of ['Feather', 'Cole Bemis', 'MIT licensed', 'Lucide', 'ISC licensed']) {
+    assert.ok(html.includes(needle), `credits page is missing the icon attribution: ${needle}`);
+  }
+});
 
 test('every PAGES entry is linked from at least one other served page', () => {
   const outs = new Set([...HAND_MAINTAINED, ...PAGES.map((p) => p.out)]);

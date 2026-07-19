@@ -48,6 +48,16 @@ export const PAGES = [
     canonical: 'https://notarium.health/board',
     heroTitle: 'Join the<br>founding board.',
   },
+  {
+    src: 'content/credits.md',
+    out: 'web/credits/index.html',
+    template: 'templates/legal.html',
+    title: 'Credits - Notarium',
+    description:
+      'The open-source projects, authors, and licenses whose work made Notarium better.',
+    canonical: 'https://notarium.health/credits',
+    heroTitle: 'Credit where<br>it is due.',
+  },
 ];
 
 // Hand-maintained served pages: not rendered from Markdown, but they still
@@ -64,6 +74,7 @@ export const STYLE_PAGES = [
   'web/about.html',
   'web/roadmap/index.html',
   'web/board/index.html',
+  'web/credits/index.html',
   'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
   'web/security/index.html',

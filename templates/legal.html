@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!-- GENERATED FILE. Do not edit by hand. Source: content/{{SRC}} - regenerate with: node tools/build.mjs -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <meta name="description" content="{{DESCRIPTION}}">
+  <link rel="canonical" href="{{CANONICAL}}">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    /* BEGIN base */
+    /* END base */
+
+    /* page-specific: long-form reference layout.
+       Derived from templates/about.html, with two deliberate differences:
+       a narrower measure, because this template carries long reference lists
+       that are scanned rather than read straight through; and no CTA row,
+       because a credits or legal page is not a place to sell anything. */
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .nav-link[aria-current="page"] {
+      color: var(--text);
+    }
+
+    /* ---------- Article hero ---------- */
+    .hero {
+      padding-top: 72px;
+      padding-bottom: 64px;
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .about-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(40px, 8vw, 66px);
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .lead {
+      font-size: 21px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 600px;
+    }
+
+    /* ---------- Section scaffolding ---------- */
+    .section {
+      padding-top: 64px;
+      padding-bottom: 64px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(28px, 4.4vw, 38px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Prose ---------- */
+    .prose {
+      max-width: 620px;
+    }
+
+    .prose p {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Each entry in a reference list opens with one of these, so it needs more
+       air above it than a subsection inside running prose would. */
+    .prose .sub-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 52px 0 14px;
+    }
+
+    .prose .sub-title:first-child {
+      margin-top: 0;
+    }
+
+    .prose-list {
+      margin: 0 0 22px 20px;
+      padding: 0;
+    }
+
+    .prose-list li {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-left: 6px;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .prose strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .prose a {
+      color: var(--accent);
+      transition: color 0.2s ease;
+    }
+
+    .prose a:hover {
+      color: var(--accent-hover);
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .lead {
+        font-size: 19px;
+      }
+      .prose .sub-title {
+        margin-top: 40px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="tm">&trade;</span><span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article>
+{{BODY}}
+    </article>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
+  </footer>
+</body>
+</html>
