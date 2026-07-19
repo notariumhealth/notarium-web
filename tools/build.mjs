@@ -34,6 +34,28 @@ import { render } from './render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
+// --- Nav active state --------------------------------------------------------
+// Templates carry their own nav markup, and a page's route decides which nav
+// link (if any) is "current" - this must not be hardcoded per template, since
+// every page rendered from the same template shares the file. Drive it from
+// the page's own `canonical` URL instead: whichever nav-link href equals the
+// page's route gets aria-current="page"; every other nav-link on the page
+// (including one a template might have hardcoded) does not. A route that has
+// no matching nav-link (e.g. /roadmap, which is not in the primary nav) ends
+// up with aria-current on nothing, which is the correct programmatic state,
+// not a fallback to whatever the template happened to mark.
+function setActiveNav(html, page) {
+  const route = new URL(page.canonical).pathname;
+  return html.replace(
+    /<a class="nav-link" href="([^"]+)"((?:\s[^>]*)?)>/g,
+    (_all, href, attrs) => {
+      const stripped = attrs.replace(/\s*aria-current="page"/, '');
+      const current = href === route ? ' aria-current="page"' : '';
+      return `<a class="nav-link" href="${href}"${stripped}${current}>`;
+    },
+  );
+}
+
 // --- Shared base style ------------------------------------------------------
 // Every served page carries one <style> block whose first region is the shared
 // base, delimited by markers, followed by that page's own rules. Injecting
@@ -75,7 +97,7 @@ for (const page of PAGES) {
     .replaceAll('{{DESCRIPTION}}', page.description)
     .replaceAll('{{CANONICAL}}', page.canonical)
     .replace('{{BODY}}', body);
-  writeFileSync(join(ROOT, page.out), injectBaseStyles(html));
+  writeFileSync(join(ROOT, page.out), injectBaseStyles(setActiveNav(html, page)));
   console.log(`built ${page.out}  <-  ${page.src}`);
   built++;
 }

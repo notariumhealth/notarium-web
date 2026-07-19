@@ -241,3 +241,78 @@ test('SERVED, STYLE_PAGES, and PAGES + HAND_MAINTAINED describe the same pages',
 test('script-pinned pages are served pages', () => {
   for (const p of SCRIPT_PAGES) assert.ok(SERVED.includes(p), `${p} is not a served page`);
 });
+
+// --- Nav active state, driven by page not hardcoded -------------------------
+// templates/about.html (and any future template sharing its nav markup) must
+// not hardcode which nav link is "current" - that was correct for /about only
+// and wrong on every other page rendered from the same template (e.g.
+// /roadmap, which inherited aria-current="page" on the About link). The
+// active state has to be computed per page from its own route, so a page
+// whose route is not in the nav at all ends up with aria-current on nothing,
+// not a fallback to whichever link happened to be marked in the template.
+
+function navLinks(html) {
+  return [...html.matchAll(/<a class="nav-link" href="([^"]+)"([^>]*)>/g)]
+    .map(([, href, rest]) => ({ href, current: /\baria-current="page"/.test(rest) }));
+}
+
+test('every generated page has at most one aria-current nav link', () => {
+  for (const page of PAGES) {
+    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
+    const links = navLinks(html);
+    assert.ok(links.length > 0, `${page.out} has no nav links to check`);
+    const current = links.filter((l) => l.current);
+    assert.ok(
+      current.length <= 1,
+      `${page.out} has ${current.length} aria-current nav links: ${JSON.stringify(current)}`,
+    );
+  }
+});
+
+test('a page\'s own route in its nav carries aria-current, and no other link does', () => {
+  for (const page of PAGES) {
+    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
+    const route = new URL(page.canonical).pathname;
+    const links = navLinks(html);
+    const own = links.find((l) => l.href === route);
+    if (own) {
+      assert.ok(own.current, `${page.out}: nav link for its own route ${route} lacks aria-current`);
+      const others = links.filter((l) => l.href !== route && l.current);
+      assert.deepEqual(
+        others, [],
+        `${page.out}: aria-current on a link other than its own route ${route}: ${JSON.stringify(others)}`,
+      );
+    } else {
+      // The page's route isn't in the nav at all (e.g. /roadmap, which has no
+      // nav entry). Nothing should claim to be current in that case.
+      const anyCurrent = links.filter((l) => l.current);
+      assert.deepEqual(
+        anyCurrent, [],
+        `${page.out}: route ${route} is not in the nav, but a link still has aria-current`,
+      );
+    }
+  }
+});
+
+// --- Orphan-page reachability -----------------------------------------------
+// A page with no inbound link from anywhere else on the site is reachable
+// only by typing the URL. /roadmap must be linked from at least one other
+// served page (the footer nav where it exists), and this must hold for any
+// future PAGES entry too - the check is generic over the manifest, not
+// hardcoded to /roadmap specifically.
+
+test('every PAGES entry is linked from at least one other served page', () => {
+  const outs = new Set([...HAND_MAINTAINED, ...PAGES.map((p) => p.out)]);
+  for (const page of PAGES) {
+    const route = new URL(page.canonical).pathname;
+    const linkedFrom = [...outs].filter((out) => {
+      if (out === page.out) return false;
+      const html = readFileSync(new URL(`../${out}`, import.meta.url), 'utf8');
+      return html.includes(`href="${route}"`);
+    });
+    assert.ok(
+      linkedFrom.length > 0,
+      `${page.out} (route ${route}) is not linked from any other served page - it is orphaned`,
+    );
+  }
+});
