@@ -29,7 +29,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PAGES } from './pages.mjs';
+import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
 import { render } from './render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -48,7 +48,11 @@ const BASE_CSS = readFileSync(join(ROOT, 'styles/base.css'), 'utf8').trim();
 function injectBaseStyles(html) {
   const re = /(\/\* BEGIN base \*\/)[\s\S]*?(\/\* END base \*\/)/;
   if (!re.test(html)) throw new Error('page has no base-style region to inject into');
-  return html.replace(re, `$1\n${BASE_CSS}\n    $2`);
+  // Replacement FUNCTION, not a string: a string replacement expands $&, $1,
+  // $` and friends, so a dollar sign in styles/base.css (a `content` value, an
+  // at-rule) would be rewritten instead of emitted. The function form emits
+  // BASE_CSS verbatim.
+  return html.replace(re, (_all, begin, end) => `${begin}\n${BASE_CSS}\n    ${end}`);
 }
 
 // `--list-sources` prints the content basenames this repo publishes, one per
@@ -78,10 +82,8 @@ for (const page of PAGES) {
 
 // Hand-maintained pages (not in PAGES) still take the shared base. Runs before
 // the CSP pinning below so the hashes describe post-injection content.
-const HAND_MAINTAINED = [
-  'web/index.html', 'web/404.html', 'web/security/index.html',
-  'web/logo-poll/index.html', 'web/thanks-for-voting/index.html',
-];
+// The list itself lives in tools/pages.mjs, alongside STYLE_PAGES, so
+// tools/test.mjs can assert the two agree.
 for (const rel of HAND_MAINTAINED) {
   const p = join(ROOT, rel);
   const before = readFileSync(p, 'utf8');
@@ -99,21 +101,25 @@ for (const rel of HAND_MAINTAINED) {
 // styles, script-src for the script. Edit a block, re-run this script, and the
 // hashes refresh. A forgotten rebuild fails loud - the browser refuses the
 // block (unstyled page or inert script), never silently open.
-const STYLE_PAGES = [
-  'web/index.html',
-  'web/about.html',
-  'web/logo-poll/index.html',
-  'web/thanks-for-voting/index.html',
-  'web/security/index.html',
-  'web/404.html',
-];
-const SCRIPT_PAGES = ['web/logo-poll/index.html'];
+// STYLE_PAGES / SCRIPT_PAGES live in tools/pages.mjs so tools/test.mjs can
+// assert they agree with the other page lists.
 
 function blockHash(relPath, tag) {
   const html = readFileSync(join(ROOT, relPath), 'utf8');
-  const m = html.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
-  if (!m) throw new Error(`no inline <${tag}> found in ${relPath}`);
-  return `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`;
+  // Tolerate attributes on the opening tag, and match globally: only one block
+  // per tag may exist. Pinning the first of several would leave the rest
+  // unhashed, and the browser would refuse them - a page half-styled or with
+  // an inert script. Fail loudly here instead.
+  const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'g');
+  const all = [...html.matchAll(re)];
+  if (all.length === 0) throw new Error(`no inline <${tag}> found in ${relPath}`);
+  if (all.length > 1) {
+    throw new Error(
+      `${relPath} has ${all.length} inline <${tag}> blocks; the CSP pins exactly one. ` +
+      'Merge them into a single block.',
+    );
+  }
+  return `'sha256-${createHash('sha256').update(all[0][1], 'utf8').digest('base64')}'`;
 }
 
 const styleHashes = [...new Set(STYLE_PAGES.map((p) => blockHash(p, 'style')))].sort();

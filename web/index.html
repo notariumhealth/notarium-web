@@ -367,7 +367,10 @@ textarea {
       flex: 1 1 auto;
       min-width: 0;
       background: var(--surface);
-      border: 1px solid var(--border);
+      /* F-3: --muted (3:1+ on bg and surface), not --border (1.24:1). A class
+         selector outranks the base region's `input, select, textarea` rule, so
+         this has to name the passing token itself. */
+      border: 1px solid var(--muted);
       border-radius: 8px;
       color: var(--text);
       font-family: var(--font-body);

@@ -337,7 +337,10 @@ textarea {
     input[type="text"] {
       width: 100%;
       background: var(--bg);
-      border: 1px solid var(--border);
+      /* F-3: --muted (3:1+ on bg and surface), not --border (1.24:1). These
+         selectors tie or beat the base region's `input, select, textarea`
+         rule and come later, so they have to name the passing token. */
+      border: 1px solid var(--muted);
       border-radius: 8px;
       color: var(--text);
       font-family: var(--font-body);
