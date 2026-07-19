@@ -38,6 +38,16 @@ export const PAGES = [
     canonical: 'https://notarium.health/roadmap',
     heroTitle: 'Where things<br>stand.',
   },
+  {
+    src: 'content/board.md',
+    out: 'web/board/index.html',
+    template: 'templates/about.html',
+    title: 'Board - Notarium',
+    description:
+      'Notarium is converting to a 501(c)(3) nonprofit and staffing a founding board. Five external seats are open.',
+    canonical: 'https://notarium.health/board',
+    heroTitle: 'Join the<br>founding board.',
+  },
 ];
 
 // Hand-maintained served pages: not rendered from Markdown, but they still
@@ -53,6 +63,7 @@ export const STYLE_PAGES = [
   'web/index.html',
   'web/about.html',
   'web/roadmap/index.html',
+  'web/board/index.html',
   'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
   'web/security/index.html',

@@ -96,7 +96,8 @@ test('a single trailing bullet with no other list in the document is still a sig
 // injection silently stopped covering that page.
 
 const SERVED = [
-  'web/index.html', 'web/about.html', 'web/roadmap/index.html', 'web/404.html',
+  'web/index.html', 'web/about.html', 'web/roadmap/index.html',
+  'web/board/index.html', 'web/404.html',
   'web/security/index.html', 'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
 ];
