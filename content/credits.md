@@ -52,7 +52,7 @@ Gadgetbridge is the privacy-respecting route to wearable data, including heart r
 
 - **Source:** published by the SECUSO research group at Karlsruhe Institute of Technology, distributed on F-Droid
 - **Authors:** the SECUSO research group
-- **License:** open source
+- **License:** GPL-3.0, read for understanding and interoperability, code not incorporated
 
 An academic reference for what a small, honest pain-diary schema contains: location, intensity, nature, and time, plus medications and notes. It is also an importer source, through its PDF export and, for people who want it, its raw database file.
 
@@ -97,7 +97,7 @@ Clove's single-form, fatigue-aware daily entry is the pattern Notarium's logging
 These projects informed the landscape study without contributing one specific pattern. They are credited for the reference.
 
 - The medication apps surveyed for reminder, multi-profile, and refill patterns: [MediTrak](https://github.com/AdamGuidarini/MediTrak), [RxDroid](https://github.com/jclehner/rxdroid), Calendula, Daily Pill, Simpill, and Medic Log.
-- The minimalist mood and journaling apps surveyed: MyMood, My Brain, Tempo, moreDays, and Mini Moods. Mini Moods is also a cautionary reference. It is open source and it still ships crash reporting over the network, which is why Notarium holds a zero-telemetry line that open-source status alone does not guarantee.
+- The minimalist mood and journaling apps surveyed: MyMood, My Brain, Tempo, moreDays, and Mini Moods. Mini Moods showed how minimal a daily mood entry can be while still feeling worth doing, and that minimalism informed Notarium's own quick-log flow.
 
 ## Building blocks
 
