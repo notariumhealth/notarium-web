@@ -24,6 +24,7 @@ import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGES } from './pages.mjs';
+import { render } from './render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -34,103 +35,6 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 if (process.argv.includes('--list-sources')) {
   for (const page of PAGES) console.log(page.src.replace(/^content\//, ''));
   process.exit(0);
-}
-
-function escapeHtml(s) {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-// Inline Markdown -> HTML. Escapes first, so [](), ** survive (their chars
-// aren't escaped) and any literal <, >, & in the prose are made safe.
-function inline(s) {
-  return escapeHtml(s)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-}
-
-function isSignature(text) {
-  // A signature block leads with a hyphen + space, e.g. "- Sophia".
-  return /^-\s/.test(text.trim());
-}
-
-// Split into blank-line-separated blocks; classify each.
-function parse(md) {
-  const blocks = md
-    .replace(/\r\n/g, '\n')
-    .split(/\n{2,}/)
-    .map((b) => b.trim())
-    .filter(Boolean);
-
-  let h1 = '';
-  const intro = []; // paragraphs before the first H2
-  const sections = []; // { title, paras:[], signature? }
-  let cur = null;
-
-  for (const b of blocks) {
-    if (b.startsWith('## ')) {
-      cur = { title: b.slice(3).trim(), paras: [], signature: null };
-      sections.push(cur);
-    } else if (b.startsWith('# ')) {
-      h1 = b.slice(2).trim();
-    } else if (isSignature(b)) {
-      // Signature belongs to the current (last) section.
-      if (cur) cur.signature = b.trim();
-      else intro.push(b); // no section yet: keep as prose
-    } else if (cur) {
-      cur.paras.push(b);
-    } else {
-      intro.push(b);
-    }
-  }
-  return { h1, intro, sections };
-}
-
-function proseHtml(paras) {
-  return paras.map((p) => `          <p>${inline(p)}</p>`).join('\n');
-}
-
-function render(page, md) {
-  const { h1, intro, sections } = parse(md);
-
-  // Hero: eyebrow from H1, fixed display title, lead = first intro paragraph.
-  const lead = intro.shift() || '';
-  const parts = [];
-  parts.push(
-    '      <section class="wrap hero">\n' +
-      `        <p class="hero-eyebrow">${inline(h1)}</p>\n` +
-      `        <h1 class="about-title">${page.heroTitle}</h1>\n` +
-      `        <p class="lead">${inline(lead)}</p>\n` +
-      '      </section>'
-  );
-
-  // Opening prose section (remaining intro paragraphs, no heading).
-  if (intro.length) {
-    parts.push(
-      '      <section class="wrap section">\n' +
-        '        <div class="prose">\n' +
-        proseHtml(intro) +
-        '\n        </div>\n' +
-        '      </section>'
-    );
-  }
-
-  for (const s of sections) {
-    let body =
-      `        <h2 class="section-title">${inline(s.title)}</h2>\n` +
-      '        <div class="prose">\n' +
-      proseHtml(s.paras) +
-      '\n        </div>';
-    if (s.signature) {
-      if (page.cta) body += `\n        ${page.cta}`;
-      body += `\n        <p class="signature">${inline(s.signature)}</p>`;
-    }
-    parts.push(`      <section class="wrap section">\n${body}\n      </section>`);
-  }
-
-  return parts.join('\n\n');
 }
 
 let built = 0;
