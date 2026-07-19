@@ -28,6 +28,16 @@ export const PAGES = [
       '          <span class="cta-meta">Android &middot; Free</span>\n' +
       '        </div>',
   },
+  {
+    src: 'content/roadmap.md',
+    out: 'web/roadmap/index.html',
+    template: 'templates/about.html',
+    title: 'Roadmap - Notarium',
+    description:
+      'What works in Notarium today, what is being built now, and what comes next. Updated when milestones land.',
+    canonical: 'https://notarium.health/roadmap',
+    heroTitle: 'Where things<br>stand.',
+  },
 ];
 
 // Hand-maintained served pages: not rendered from Markdown, but they still
@@ -42,6 +52,7 @@ export const HAND_MAINTAINED = [
 export const STYLE_PAGES = [
   'web/index.html',
   'web/about.html',
+  'web/roadmap/index.html',
   'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
   'web/security/index.html',

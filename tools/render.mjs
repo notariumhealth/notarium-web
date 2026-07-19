@@ -35,7 +35,12 @@ function isDashLedBlock(text) {
 
 // Split into blank-line-separated blocks; classify each.
 export function parse(md) {
+  // HTML comments are editor-facing notes in the canonical source (e.g. a
+  // warning about the signature discriminator in about.md) and must not
+  // reach the page. Strip them before block-splitting rather than relying on
+  // the browser: this renderer emits everything it parses as visible text.
   const rawBlocks = md
+    .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
     .map((b) => b.trim())

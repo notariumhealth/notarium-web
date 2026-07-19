@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<!-- GENERATED FILE. Do not edit by hand. Source: content/roadmap.md - regenerate with: node tools/build.mjs -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roadmap - Notarium</title>
+  <meta name="description" content="What works in Notarium today, what is being built now, and what comes next. Updated when milestones land.">
+  <link rel="canonical" href="https://notarium.health/roadmap">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    /* BEGIN base */
+/* Shared base style for every served page.
+ *
+ * tools/build.mjs injects this file verbatim between the begin/end marker
+ * comments in each page's inline <style>. It is injected rather than linked
+ * so the CSP inline-hash model stays intact: no new style-src origin, no
+ * extra request, one file to edit. This text deliberately avoids spelling
+ * out the marker comments, so the injected body can never look like a marker.
+ *
+ * Only rules that were confirmed identical on every page live here. Rules
+ * that differ even slightly between pages (body, .footer, .footer-copy, the
+ * reduced-motion block) stay in each page's own region below the END marker.
+ */
+
+:root {
+  --bg: #0D1117;
+  --surface: #141921;
+  --border: #1E2535;
+  --text: #EEE9E2;
+  /* F-2: the previous muted grey was 4.36:1 on surface and failed AA for
+     normal text. #82869A is 4.89:1 on surface and 5.25:1 on bg. */
+  --muted: #82869A;
+  --accent: #4A9585;
+  --accent-hover: #5BB8A4;
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* F-4: skip link, visually hidden until it takes focus. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
+}
+
+/* F-3: form controls need a 3:1 boundary. --border is 1.24:1 on bg and is
+   fine for decorative card edges but invisible as a control boundary.
+   --muted is 5.25:1. The audit's suggested #3A4356 computes to 1.91:1 and
+   does not pass; do not use it. */
+input,
+select,
+textarea {
+  border: 1px solid var(--muted);
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.nav-logo-dot {
+  color: var(--accent);
+}
+
+.tm {
+  font-size: 0.5em;
+  font-weight: 400;
+  vertical-align: super;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-link {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-hover);
+}
+
+/* ---------- Footer (only the parts every page shares) ---------- */
+.footer-logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--muted);
+}
+    /* END base */
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .nav-link[aria-current="page"] {
+      color: var(--text);
+    }
+
+    /* ---------- Article hero ---------- */
+    .hero {
+      padding-top: 72px;
+      padding-bottom: 64px;
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .about-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(44px, 9vw, 76px);
+      line-height: 1.02;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .lead {
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 640px;
+    }
+
+    /* ---------- Section scaffolding ---------- */
+    .section {
+      padding-top: 72px;
+      padding-bottom: 72px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(30px, 5vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      max-width: 700px;
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Prose ---------- */
+    .prose {
+      max-width: 680px;
+    }
+
+    .prose p {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .prose .sub-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      margin: 32px 0 12px;
+    }
+
+    .prose-list {
+      margin: 0 0 20px 20px;
+      padding: 0;
+    }
+
+    .prose-list li {
+      margin-bottom: 10px;
+      padding-left: 6px;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .prose strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .prose a {
+      color: var(--accent);
+      transition: color 0.2s ease;
+    }
+
+    .prose a:hover {
+      color: var(--accent-hover);
+    }
+
+    .signature {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 24px;
+      color: var(--text);
+      margin-top: 44px;
+    }
+
+    /* ---------- CTA row ---------- */
+    .cta-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 36px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .cta-meta {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .lead {
+        font-size: 19px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="tm">&trade;</span><span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about" aria-current="page">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article>
+      <section class="wrap hero">
+        <p class="hero-eyebrow">Roadmap</p>
+        <h1 class="about-title">Where things<br>stand.</h1>
+        <p class="lead">Notarium is in active development. This page is the plain version of where things stand: what already works, what release is current, and what comes next. It gets updated when milestones land, not on a marketing schedule.</p>
+      </section>
+
+      <section class="wrap section">
+        <div class="prose">
+          <p>The release naming is simple. The alpha is the 0.8 series, which is where the project is today. The beta will be 0.9.0. The first stable release will be 1.0.0, on F-Droid and Google Play, free.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Built and working today</h2>
+        <div class="prose">
+          <p>The core promise works now. You can log symptoms, moods, flares, medications, treatments like physical therapy or acupuncture, notes, and health events in one or two taps, from inside the app or straight from a home-screen widget. Structured clinical assessments (PHQ-9, GAD-7, ASRS) score themselves as you fill them in. Everything is stored on your device, encrypted in layers, with no account and no telemetry.</p>
+          <p>The documentation side is the reason Notarium exists, and it shipped early. You can keep timestamped records of health-related leave and workplace-accommodation requests, attach files as evidence, and generate organized PDF reports for a clinician, HR, or an attorney. Generated reports are sealed into the app's tamper-evident record, so you can show that what you exported is what you logged.</p>
+          <p>Your history can come with you. Importers work today for Bearable, Daylio, Flaredown, drip., Medisafe, MedTimer, MyTherapy, Apple Health exports, Visible, Privacy Friendly Pain Diary, and generic CSV, alongside Health Connect for wearable and fitness data from sources like Fitbit and Google Fit. A combined History feed brings all of it into one timeline, with a two-pane layout on tablets and foldables. Insights show your data back to you as health-metric trend charts, a home-screen sparkline card, and an opt-in correlation view that is deliberately careful about what it claims: association is a starting point for a conversation, not proof. Weather correlation works the same way and is off by default.</p>
+          <p>Rounding out the alpha: encrypted local backup and restore, an emergency medical ID card, goals and pacing, cycle tracking that can be hidden across the entire app, and a guided first-run setup.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Now: closing out the alpha</h2>
+        <div class="prose">
+          <p>The current release is 0.8.1. The work right now is not features. It is the unglamorous part: hardening, real-device testing, and standing up the support infrastructure a beta needs.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Next: a small beta</h2>
+        <div class="prose">
+          <p>Version 0.9.0 goes to the early-access list first. If you want in, join the waitlist on the <a href="https://notarium.health/#waitlist">home page</a> and you will hear from us when invites go out. Beta feedback drives fit and finish for the stable release, and the F-Droid and Play Store submissions get finalized during this window.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Then: 1.0</h2>
+        <div class="prose">
+          <p>The first stable release lands on F-Droid and Google Play, free. It ships when it passes its release gates for quality, data safety, and security posture, not on a fixed date.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">After 1.0</h2>
+        <div class="prose">
+          <p>Three directions are planned, none with promised dates. Optional sync, end-to-end encrypted, that you can point at a server you host yourself; it will be opt-in, off by default, and the server will only ever see ciphertext. An iOS version, which is already partially built under the hood. And better paths for wearables and automation that do not require cloud accounts.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">What will never be on this page</h2>
+        <div class="prose">
+          <p>Analytics, advertising, crash reporters, third-party SDKs, engagement mechanics, or anything that sells, shares, or phones home with your data. This section exists so you can hold us to it. The code is public at <a href="https://github.com/notariumhealth/notarium">github.com/notariumhealth/notarium</a>, so you do not have to take our word for anything above.</p>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
+  </footer>
+</body>
+</html>

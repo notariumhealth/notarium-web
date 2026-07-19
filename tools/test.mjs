@@ -28,6 +28,15 @@ test('a list followed by more prose is still a list', () => {
   assert.deepEqual(sections[0].blocks[1], { kind: 'p', text: 'after' });
 });
 
+test('an HTML comment is stripped, not rendered as a paragraph', () => {
+  const md = '# T\n\n<!-- editor note\n   spanning lines -->\n\nlead\n\n## S\n\nbody';
+  const { intro, sections } = parse(md);
+  assert.deepEqual(intro, [{ kind: 'p', text: 'lead' }]);
+  assert.equal(sections[0].blocks[0].text, 'body');
+  // The comment must not have leaked into any parsed block.
+  assert.ok(!JSON.stringify({ intro, sections }).includes('editor note'));
+});
+
 test('h3 becomes a subsection block, not literal text', () => {
   const { sections } = parse('# T\n\nlead\n\n## S\n\n### Sub\n\nbody');
   assert.deepEqual(sections[0].blocks[0], { kind: 'h3', text: 'Sub' });
@@ -87,7 +96,7 @@ test('a single trailing bullet with no other list in the document is still a sig
 // injection silently stopped covering that page.
 
 const SERVED = [
-  'web/index.html', 'web/about.html', 'web/404.html',
+  'web/index.html', 'web/about.html', 'web/roadmap/index.html', 'web/404.html',
   'web/security/index.html', 'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
 ];
