@@ -42,7 +42,7 @@ Five external seats. I hold the sixth as Founder / Chair.
 
 **Seat 6: Fundraising / Development.** Nonprofit development professional with experience in grant writing, individual donor cultivation, or nonprofit development strategy at a small org.
 
-Each seat has a one-pager with the full picture: what the seat does, time commitment, what you get, and how the seat fits the mission. Reply to me and I will send the one-pager for whichever seat looks like a fit.
+Each seat has a one-pager with the full picture: what the seat does, time commitment, what you get, and how the seat fits the mission. Email me at sophia@notarium.health, name the seat that looks like a fit, and I will send you its one-pager.
 
 ## Independence and composition
 

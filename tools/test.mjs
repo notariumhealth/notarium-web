@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { parse } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
 
@@ -243,6 +244,80 @@ test('script-pinned pages are served pages', () => {
   for (const p of SCRIPT_PAGES) assert.ok(SERVED.includes(p), `${p} is not a served page`);
 });
 
+// --- CSP hashes match the committed inline blocks ---------------------------
+// This is the site's most catastrophic silent failure. tools/build.mjs pins a
+// SHA-256 of each page's inline <style> (and the logo poll's inline <script>)
+// into web/_headers. Edit a page's CSS and commit without re-running the
+// build, and every check above still passes while the browser refuses that
+// page's entire style block under the Content-Security-Policy: the page ships
+// unstyled, and nothing in CI notices. Recompute each hash here exactly the
+// way blockHash does and require it to be present in the CSP line, so a
+// forgotten rebuild fails in the test run rather than in a visitor's browser.
+
+function readServed(relPath) {
+  return readFileSync(new URL(`../${relPath}`, import.meta.url), 'utf8');
+}
+
+// Mirrors blockHash in tools/build.mjs: same tag regex, same single-block
+// requirement, same base64 SHA-256 of the block's inner text. If that function
+// changes, this must change with it or the assertion becomes meaningless.
+function blockHash(relPath, tag) {
+  const html = readServed(relPath);
+  const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'g');
+  const all = [...html.matchAll(re)];
+  assert.equal(all.length, 1, `${relPath} should have exactly one inline <${tag}>, saw ${all.length}`);
+  return `'sha256-${createHash('sha256').update(all[0][1], 'utf8').digest('base64')}'`;
+}
+
+function cspLine() {
+  const headers = readServed('web/_headers');
+  const m = headers.match(/^(?:\s*)Content-Security-Policy:\s*(.*)$/m);
+  assert.ok(m, 'web/_headers has no Content-Security-Policy line');
+  return m[1];
+}
+
+test('every style page\'s committed inline style block is pinned in the CSP', () => {
+  const csp = cspLine();
+  assert.ok(STYLE_PAGES.length > 0, 'STYLE_PAGES is empty; this test would vacuously pass');
+  for (const page of STYLE_PAGES) {
+    const hash = blockHash(page, 'style');
+    assert.ok(
+      csp.includes(hash),
+      `${page}: its inline <style> hashes to ${hash}, which is absent from the CSP style-src. `
+      + 'Re-run `node tools/build.mjs` after editing page CSS or styles/base.css.',
+    );
+  }
+});
+
+test('every script page\'s committed inline script block is pinned in the CSP', () => {
+  const csp = cspLine();
+  assert.ok(SCRIPT_PAGES.length > 0, 'SCRIPT_PAGES is empty; this test would vacuously pass');
+  for (const page of SCRIPT_PAGES) {
+    const hash = blockHash(page, 'script');
+    assert.ok(
+      csp.includes(hash),
+      `${page}: its inline <script> hashes to ${hash}, which is absent from the CSP script-src. `
+      + 'Re-run `node tools/build.mjs` after editing the inline script.',
+    );
+  }
+});
+
+// The converse direction: a hash left in the CSP that no committed block
+// produces is dead weight, and it means a rebuild was skipped in the other
+// direction (a page's block changed, the stale hash was never dropped). It
+// also widens what the CSP would accept, so assert the pinned set is exactly
+// the set the pages produce.
+test('the CSP pins no hash that no committed block produces', () => {
+  const csp = cspLine();
+  const pinned = new Set((csp.match(/'sha256-[A-Za-z0-9+/=]+'/g) || []));
+  const produced = new Set([
+    ...STYLE_PAGES.map((p) => blockHash(p, 'style')),
+    ...SCRIPT_PAGES.map((p) => blockHash(p, 'script')),
+  ]);
+  const orphans = [...pinned].filter((h) => !produced.has(h));
+  assert.deepEqual(orphans, [], `CSP pins hashes no served page produces: ${orphans.join(' ')}`);
+});
+
 // --- Nav active state, driven by page not hardcoded -------------------------
 // templates/about.html (and any future template sharing its nav markup) must
 // not hardcode which nav link is "current" - that was correct for /about only
@@ -294,13 +369,6 @@ test('a page\'s own route in its nav carries aria-current, and no other link doe
     }
   }
 });
-
-// --- Orphan-page reachability -----------------------------------------------
-// A page with no inbound link from anywhere else on the site is reachable
-// only by typing the URL. /roadmap must be linked from at least one other
-// served page (the footer nav where it exists), and this must hold for any
-// future PAGES entry too - the check is generic over the manifest, not
-// hardcoded to /roadmap specifically.
 
 // --- Block markers must not survive into the HTML ---------------------------
 // Before the renderer understood H3 and lists, a source file using either one
@@ -354,6 +422,13 @@ test('the credits page attributes the home-page icons with both licenses', () =>
     assert.ok(html.includes(needle), `credits page is missing the icon attribution: ${needle}`);
   }
 });
+
+// --- Orphan-page reachability -----------------------------------------------
+// A page with no inbound link from anywhere else on the site is reachable
+// only by typing the URL. /roadmap must be linked from at least one other
+// served page (the footer nav where it exists), and this must hold for any
+// later PAGES entry too - the check is generic over the manifest, not
+// hardcoded to /roadmap specifically.
 
 test('every PAGES entry is linked from at least one other served page', () => {
   const outs = new Set([...HAND_MAINTAINED, ...PAGES.map((p) => p.out)]);

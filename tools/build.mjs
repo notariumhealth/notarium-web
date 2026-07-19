@@ -68,6 +68,17 @@ function setActiveNav(html, page) {
 const BASE_CSS = readFileSync(join(ROOT, 'styles/base.css'), 'utf8').trim();
 
 function injectBaseStyles(html) {
+  // BASE_CSS lands verbatim inside an inline <style> element. A literal
+  // closing style tag anywhere in it - even inside a CSS comment or string -
+  // terminates that element early in the browser, so every served page loses
+  // the rules after it AND blockHash below silently hashes only the truncated
+  // prefix. Both failures are site-wide and silent, so refuse at build time.
+  if (/<\/style/i.test(BASE_CSS)) {
+    throw new Error(
+      'styles/base.css contains a literal closing style tag; it is injected into an '
+      + 'inline <style> element and would truncate every served page.',
+    );
+  }
   const re = /(\/\* BEGIN base \*\/)[\s\S]*?(\/\* END base \*\/)/;
   if (!re.test(html)) throw new Error('page has no base-style region to inject into');
   // Replacement FUNCTION, not a string: a string replacement expands $&, $1,

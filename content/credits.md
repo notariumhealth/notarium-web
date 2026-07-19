@@ -46,7 +46,7 @@ Flaredown's polymorphic trackable schema is the reference behind Notarium's fact
 - **Authors:** the Gadgetbridge contributors
 - **License:** GPL-3.0, read for understanding and interoperability, code not incorporated
 
-Gadgetbridge is the privacy-respecting route to wearable data, including heart rate, heart-rate variability, sleep, steps, and blood oxygen, with no vendor account and nothing leaving the device. It demonstrates that pacing features do not require a vendor cloud. Notarium treats a live Health Connect bridge as the primary path and Gadgetbridge's database export as the way to bring in deep history.
+Gadgetbridge is the privacy-respecting route to wearable data, including heart rate, heart-rate variability, sleep, steps, and blood oxygen, with no vendor account and nothing leaving the device. It demonstrates that pacing features do not require a vendor cloud. That lesson shaped how Notarium thinks about wearable data: a live Health Connect bridge is the ordinary path, and a user's own local database export is the shape a deep-history route should take.
 
 ### Privacy Friendly Pain Diary
 
@@ -101,7 +101,7 @@ These projects informed the landscape study without contributing one specific pa
 
 ## Building blocks
 
-Notarium stands on open-source infrastructure as well. These are dependencies rather than apps whose ideas were studied, but they deserve the nod: SQLCipher by Zetetic for the encrypted database, Syncthing as the recommended user-side encrypted-backup transport, Automerge and Yjs as candidate libraries for any future opt-in sync, and Open-Meteo as the keyless, opt-in weather source.
+Notarium stands on open-source infrastructure as well. These are dependencies rather than apps whose ideas were studied, but they deserve the nod: SQLCipher by Zetetic for the encrypted database, BSD-3-Clause licensed; Syncthing as the recommended user-side encrypted-backup transport, MPL-2.0 licensed; Automerge and Yjs as candidate libraries for any opt-in sync, both MIT licensed; and Open-Meteo as the keyless, opt-in weather source, whose server software is AGPL-3.0-or-later licensed and whose API data is offered under CC BY 4.0.
 
 ## Icons
 
