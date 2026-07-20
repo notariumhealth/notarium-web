@@ -12,6 +12,12 @@
     /* BEGIN base */
     /* END base */
 
+    /* page-specific: long-form reference layout.
+       Derived from templates/about.html, with two deliberate differences:
+       a narrower measure, because this template carries long reference lists
+       that are scanned rather than read straight through; and no CTA row,
+       because a credits or legal page is not a place to sell anything. */
+
     body {
       background: var(--bg);
       color: var(--text);
@@ -45,42 +51,42 @@
     .about-title {
       font-family: var(--font-display);
       font-weight: 300;
-      font-size: clamp(44px, 9vw, 76px);
-      line-height: 1.02;
+      font-size: clamp(40px, 8vw, 66px);
+      line-height: 1.04;
       letter-spacing: -0.01em;
       color: var(--text);
       margin-bottom: 28px;
     }
 
     .lead {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 300;
       line-height: 1.5;
       color: var(--text);
-      max-width: 640px;
+      max-width: 600px;
     }
 
     /* ---------- Section scaffolding ---------- */
     .section {
-      padding-top: 72px;
-      padding-bottom: 72px;
+      padding-top: 64px;
+      padding-bottom: 64px;
       border-top: 1px solid var(--border);
     }
 
     .section-title {
       font-family: var(--font-display);
       font-weight: 300;
-      font-size: clamp(30px, 5vw, 42px);
+      font-size: clamp(28px, 4.4vw, 38px);
       line-height: 1.1;
       letter-spacing: -0.01em;
       color: var(--text);
-      max-width: 700px;
+      max-width: 600px;
       margin-bottom: 32px;
     }
 
     /* ---------- Prose ---------- */
     .prose {
-      max-width: 680px;
+      max-width: 620px;
     }
 
     .prose p {
@@ -91,20 +97,31 @@
       margin-bottom: 24px;
     }
 
+    /* Each entry in a reference list opens with one of these, so it needs more
+       air above it than a subsection inside running prose would. */
     .prose .sub-title {
       font-family: var(--font-display);
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 600;
-      margin: 32px 0 12px;
+      color: var(--text);
+      margin: 52px 0 14px;
+    }
+
+    .prose .sub-title:first-child {
+      margin-top: 0;
     }
 
     .prose-list {
-      margin: 0 0 20px 20px;
+      margin: 0 0 22px 20px;
       padding: 0;
     }
 
     .prose-list li {
-      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 8px;
       padding-left: 6px;
     }
 
@@ -134,39 +151,6 @@
       margin-top: 44px;
     }
 
-    /* ---------- CTA row ---------- */
-    .cta-row {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 36px;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--bg);
-      font-family: var(--font-body);
-      font-size: 16px;
-      font-weight: 500;
-      padding: 14px 28px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .cta-meta {
-      font-size: 15px;
-      color: var(--muted);
-      font-weight: 400;
-    }
-
     /* ---------- Footer ---------- */
     .footer {
       display: flex;
@@ -193,6 +177,9 @@
       }
       .lead {
         font-size: 19px;
+      }
+      .prose .sub-title {
+        margin-top: 40px;
       }
     }
 

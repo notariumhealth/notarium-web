@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security - Notarium</title>
-  <meta name="description" content="How to report a security vulnerability in the Notarium website, what to expect, scope, and our PGP key.">
-  <link rel="canonical" href="https://notarium.health/security">
+  <title>License - Notarium</title>
+  <meta name="description" content="The license terms for the notarium.health website: MIT for the code, CC BY-SA 4.0 for the prose, all rights reserved for the brand assets and the published security-contact files.">
+  <link rel="canonical" href="https://notarium.health/license">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -286,42 +286,50 @@ textarea {
 
   <main id="main" class="wrap article">
     <div class="hero">
-      <p class="hero-eyebrow">Security policy</p>
-      <h1>Security</h1>
-      <p class="lead">Security and privacy are the point of Notarium, and we take reports seriously. This policy covers the <strong>notarium.health website</strong>. For the app, see the <a class="link" href="https://github.com/notariumhealth/notarium">notarium</a> repository.</p>
+      <p class="hero-eyebrow">Legal</p>
+      <h1>License</h1>
+      <p class="lead">This site is licensed under different terms, split by content type. Every path in the <a class="link" href="https://github.com/notariumhealth/notarium-web">notarium-web</a> repository, with the sole exception of the <code>LICENSE</code> file itself (addressed at the end of this page), falls under exactly one of the four scopes below; none is covered by omission.</p>
     </div>
 
     <section>
-      <h2>Reporting a vulnerability</h2>
-      <p>Please report security issues privately. <strong>Do not open a public issue</strong> for a suspected vulnerability.</p>
-      <ul>
-        <li>Email <a class="link" href="mailto:security@notarium.health">security@notarium.health</a>, ideally encrypted with our PGP key (below).</li>
-        <li>Or use GitHub's <strong>private vulnerability reporting</strong>: this repository, the <strong>Security</strong> tab, then <strong>Report a vulnerability</strong>.</li>
-      </ul>
+      <h2>Scope 1: Code - MIT License</h2>
+      <p>Covers the page templates, the build tooling, the stylesheet, the generated HTML markup served on this site (the tags, attributes, and structure, as distinct from the rendered text they carry), the hand-authored inline scripts in that markup (for example the rank-dropdown script on the logo poll), the generated deployment configuration (<code>web/_headers</code>), and the repository's own configuration and documentation (<code>.gitattributes</code>, <code>.gitignore</code>, <code>.github/</code>, <code>README.md</code>, <code>SECURITY.md</code>). This is everything that builds, runs, configures, or documents the repository, as distinct from the words on the published pages and distinct from the brand assets in Scope 3.</p>
+      <p><strong>Copyright &copy; 2026 Notarium LLC</strong></p>
+      <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &ldquo;Software&rdquo;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+      <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+      <p>THE SOFTWARE IS PROVIDED &ldquo;AS IS&rdquo;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
     </section>
 
     <section>
-      <h2>What to expect</h2>
+      <h2>Scope 2: Prose - CC BY-SA 4.0</h2>
+      <p>Covers the page copy under the site's Markdown sources and the rendered text of the published pages. This is the words themselves, as distinct from the markup and styling that present them (Scope 1) and distinct from the brand assets in Scope 3.</p>
+      <p><strong>Copyright &copy; 2026 Notarium LLC</strong></p>
+      <p>This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).</p>
       <ul>
-        <li>We acknowledge reports within <strong>72 hours</strong>.</li>
-        <li>We aim for coordinated disclosure within <strong>90 days</strong> and will keep you posted on progress along the way.</li>
-        <li>We are glad to credit you in the fix if you would like the acknowledgment.</li>
+        <li>Deed (human-readable summary): <a class="link" href="https://creativecommons.org/licenses/by-sa/4.0/">creativecommons.org/licenses/by-sa/4.0</a></li>
+        <li>Full legal code: <a class="link" href="https://creativecommons.org/licenses/by-sa/4.0/legalcode">creativecommons.org/licenses/by-sa/4.0/legalcode</a></li>
       </ul>
+      <p>This page does not reproduce the CC BY-SA 4.0 legal code. The text at the links above is canonical and governs in the event of any discrepancy.</p>
     </section>
 
     <section>
-      <h2>Scope</h2>
-      <p><strong>In scope:</strong> the code for the static notarium.health site and its deployment configuration (HTTP headers, Content-Security-Policy).</p>
-      <p><strong>Out of scope:</strong> third-party dependencies (report those upstream), Cloudflare's own infrastructure, and the Notarium app itself. Report app issues in the <a class="link" href="https://github.com/notariumhealth/notarium">notarium</a> repository.</p>
+      <h2>Scope 3: Brand assets - all rights reserved</h2>
+      <p>Covers the logo concept images on the <a class="link" href="/logo-poll">logo poll</a> page, and the Notarium name, wordmark, and logo concepts generally, however and wherever they appear.</p>
+      <p><strong>Copyright &copy; 2026 Notarium LLC. All rights reserved.</strong></p>
+      <p>These are not reusable content. They are commissioned brand concept work tied to a pending trademark application, and neither the MIT grant in Scope 1 nor the CC BY-SA grant in Scope 2 extends to them. No permission is granted here to copy, modify, distribute, or otherwise use these images, the Notarium name, the Notarium wordmark, or any logo concept, in whole or in part. This scope exists so that neither of the other two grants can be read as reaching these assets by omission.</p>
     </section>
 
     <section>
-      <h2>PGP key</h2>
-      <ul>
-        <li>Fingerprint: <code>C9F12610 33C96D4E 265F3B90 BD3D1ACE 0D4FBC63</code></li>
-        <li>Public key: <a class="link" href="/.well-known/pgp-key.txt">/.well-known/pgp-key.txt</a></li>
-        <li>See also: <a class="link" href="/.well-known/security.txt">/.well-known/security.txt</a></li>
-      </ul>
+      <h2>Scope 4: Published security-contact files - all rights reserved</h2>
+      <p>Covers <a class="link" href="/.well-known/security.txt">/.well-known/security.txt</a> and <a class="link" href="/.well-known/pgp-key.txt">/.well-known/pgp-key.txt</a>.</p>
+      <p><strong>Copyright &copy; 2026 Notarium LLC. All rights reserved.</strong></p>
+      <p>These files are published so they can be read and acted on by anyone locating or reporting a security issue, or verifying the PGP key used for that reporting. That intended use does not require a reuse license, and none is granted: no permission is given here to copy, modify, or redistribute these files outside that reporting purpose.</p>
+    </section>
+
+    <section>
+      <h2>Third-party work</h2>
+      <p>Third-party code and content credited on the <a class="link" href="/credits">credits</a> page remains under its own original license, named there for each source. Nothing on this page relicenses that work.</p>
+      <p>This page is the served copy of the <code>LICENSE</code> file at the root of the <a class="link" href="https://github.com/notariumhealth/notarium-web">notarium-web</a> repository. The two are kept in sync; the repository file is the byte-for-byte reference if a discrepancy ever needs resolving. This page and that file follow the ordinary convention for license documents: they may be reproduced verbatim as part of stating or complying with the terms they contain. That convention, not any of the four scopes above, is what covers this page itself.</p>
     </section>
   </main>
 

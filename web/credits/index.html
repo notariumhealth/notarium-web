@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!-- GENERATED FILE. Do not edit by hand. Source: content/credits.md - regenerate with: node tools/build.mjs -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credits - Notarium</title>
+  <meta name="description" content="The open-source projects, authors, and licenses whose work made Notarium better.">
+  <link rel="canonical" href="https://notarium.health/credits">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    /* BEGIN base */
+/* Shared base style for every served page.
+ *
+ * tools/build.mjs injects this file verbatim between the begin/end marker
+ * comments in each page's inline <style>. It is injected rather than linked
+ * so the CSP inline-hash model stays intact: no new style-src origin, no
+ * extra request, one file to edit. This text deliberately avoids spelling
+ * out the marker comments, so the injected body can never look like a marker.
+ *
+ * Only rules that were confirmed identical on every page live here. Rules
+ * that differ even slightly between pages (body, .footer, .footer-copy, the
+ * reduced-motion block) stay in each page's own region below the END marker.
+ */
+
+:root {
+  --bg: #0D1117;
+  --surface: #141921;
+  --border: #1E2535;
+  --text: #EEE9E2;
+  /* F-2: the previous muted grey was 4.36:1 on surface and failed AA for
+     normal text. #82869A is 4.89:1 on surface and 5.25:1 on bg. */
+  --muted: #82869A;
+  --accent: #4A9585;
+  --accent-hover: #5BB8A4;
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* F-4: skip link, visually hidden until it takes focus. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
+}
+
+/* F-3: form controls need a 3:1 boundary. --border is 1.24:1 on bg and is
+   fine for decorative card edges but invisible as a control boundary.
+   --muted is 5.25:1. The audit's suggested #3A4356 computes to 1.91:1 and
+   does not pass; do not use it. */
+input,
+select,
+textarea {
+  border: 1px solid var(--muted);
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.nav-logo-dot {
+  color: var(--accent);
+}
+
+.tm {
+  font-size: 0.5em;
+  font-weight: 400;
+  vertical-align: super;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-link {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-hover);
+}
+
+/* ---------- Footer (only the parts every page shares) ---------- */
+.footer-logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-nav a {
+  color: var(--accent);
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--accent-hover);
+}
+    /* END base */
+
+    /* page-specific: long-form reference layout.
+       Derived from templates/about.html, with two deliberate differences:
+       a narrower measure, because this template carries long reference lists
+       that are scanned rather than read straight through; and no CTA row,
+       because a credits or legal page is not a place to sell anything. */
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .nav-link[aria-current="page"] {
+      color: var(--text);
+    }
+
+    /* ---------- Article hero ---------- */
+    .hero {
+      padding-top: 72px;
+      padding-bottom: 64px;
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .about-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(40px, 8vw, 66px);
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .lead {
+      font-size: 21px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 600px;
+    }
+
+    /* ---------- Section scaffolding ---------- */
+    .section {
+      padding-top: 64px;
+      padding-bottom: 64px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(28px, 4.4vw, 38px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Prose ---------- */
+    .prose {
+      max-width: 620px;
+    }
+
+    .prose p {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Each entry in a reference list opens with one of these, so it needs more
+       air above it than a subsection inside running prose would. */
+    .prose .sub-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 52px 0 14px;
+    }
+
+    .prose .sub-title:first-child {
+      margin-top: 0;
+    }
+
+    .prose-list {
+      margin: 0 0 22px 20px;
+      padding: 0;
+    }
+
+    .prose-list li {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-left: 6px;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .prose strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .prose a {
+      color: var(--accent);
+      transition: color 0.2s ease;
+    }
+
+    .prose a:hover {
+      color: var(--accent-hover);
+    }
+
+    .signature {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 24px;
+      color: var(--text);
+      margin-top: 44px;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .lead {
+        font-size: 19px;
+      }
+      .prose .sub-title {
+        margin-top: 40px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="tm">&trade;</span><span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article>
+      <section class="wrap hero">
+        <p class="hero-eyebrow">Credits</p>
+        <h1 class="about-title">Credit where<br>it is due.</h1>
+        <p class="lead">Notarium was designed after a close study of the health-tracking apps that already exist, and much of what shaped it came from open-source and source-available projects whose authors published their code, data models, and export formats for anyone to read.</p>
+      </section>
+
+      <section class="wrap section">
+        <div class="prose">
+          <p>Notarium does not contain their code. What it contains is the result of reading their work and, in a number of places, adopting a data shape, an import format, an interaction pattern, or a design principle they got right. This page records what was learned and who built it.</p>
+          <p>Where a project's license is copyleft (GPL or AGPL), the source was read for understanding and interoperability only, and none of its code was incorporated into Notarium. The credit below is the courtesy attribution good practice asks for regardless of whether a license compels it.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Open-source projects</h2>
+        <div class="prose">
+          <h3 class="sub-title">Pain Tracker</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://github.com/CrisisCore-Systems/pain-tracker">github.com/CrisisCore-Systems/pain-tracker</a></li>
+            <li><strong>Author:</strong> CrisisCore-Systems</li>
+            <li><strong>License:</strong> MIT</li>
+          </ul>
+          <p>Pain Tracker's Protective Computing framing was adopted wholesale. It designs for use under pain, fatigue, interruption, and coercive conditions, and it treats employers, insurers, abusive partners, and opposing counsel as part of the threat model rather than treating a lost phone as the whole of it. That framing shaped Notarium's own threat model and its trauma-informed logging floor. Its zero-knowledge, AES-GCM, no-sync-by-default posture is the closest reference for any opt-in sync Notarium adds later.</p>
+          <h3 class="sub-title">drip. and sympto</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://gitlab.com/bloodyhealth/drip">gitlab.com/bloodyhealth/drip</a>, with the method rules at <a href="https://gitlab.com/bloodyhealth/sympto">gitlab.com/bloodyhealth/sympto</a></li>
+            <li><strong>Authors:</strong> the Bloody Health collective</li>
+            <li><strong>License:</strong> GPL-3.0, read for understanding and interoperability, code not incorporated</li>
+          </ul>
+          <p>drip.'s cycle-day schema confirmed the decision to scope menstrual logging to bleeding for symptom correlation rather than to fertility prediction. Its bleeding-intensity values map one to one onto Notarium's flow intensity, which makes an import from drip. lossless, and drip.'s CSV export is a first-class importer source. Its values carried over as well: keeping the method rules in a separate auditable repository, a design that is inclusive rather than defaulted to pink, and storage that stays on the device.</p>
+          <h3 class="sub-title">MedTimer</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://github.com/Futsch1/medTimer">github.com/Futsch1/medTimer</a></li>
+            <li><strong>Author:</strong> Futsch1</li>
+            <li><strong>License:</strong> MIT</li>
+          </ul>
+          <p>MedTimer sets the reminder-reliability bar Notarium's medication engine has to match on day one. Its database entities were read as a reference while shaping the medication schema, and its JSON and CSV exports are a primary importer path. Reading its CSV export code corrected an error in Notarium's own importer specification.</p>
+          <h3 class="sub-title">Flaredown</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://github.com/rubyforgood/Flaredown">github.com/rubyforgood/Flaredown</a></li>
+            <li><strong>Authors:</strong> Ruby for Good and the original Flaredown creators</li>
+            <li><strong>License:</strong> GPL-3.0, read for understanding and interoperability, code not incorporated</li>
+          </ul>
+          <p>Flaredown's polymorphic trackable schema is the reference behind Notarium's factor and trigger model, which is how user-defined tracking stays flexible without a schema change per new thing tracked. Notarium also mirrors Flaredown's decision to model a condition as a separate entity from a symptom, which Flaredown gets right. Its open codebase and its public dataset make it an importer source too.</p>
+          <h3 class="sub-title">Gadgetbridge</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://codeberg.org/Freeyourgadget/Gadgetbridge">codeberg.org/Freeyourgadget/Gadgetbridge</a></li>
+            <li><strong>Authors:</strong> the Gadgetbridge contributors</li>
+            <li><strong>License:</strong> GPL-3.0, read for understanding and interoperability, code not incorporated</li>
+          </ul>
+          <p>Gadgetbridge is the privacy-respecting route to wearable data, including heart rate, heart-rate variability, sleep, steps, and blood oxygen, with no vendor account and nothing leaving the device. It demonstrates that pacing features do not require a vendor cloud. That lesson shaped how Notarium thinks about wearable data: a live Health Connect bridge is the ordinary path, and a user's own local database export is the shape a deep-history route should take.</p>
+          <h3 class="sub-title">Privacy Friendly Pain Diary</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> published by the SECUSO research group at Karlsruhe Institute of Technology, distributed on F-Droid</li>
+            <li><strong>Authors:</strong> the SECUSO research group</li>
+            <li><strong>License:</strong> GPL-3.0, read for understanding and interoperability, code not incorporated</li>
+          </ul>
+          <p>An academic reference for what a small, honest pain-diary schema contains: location, intensity, nature, and time, plus medications and notes. It is also an importer source, through its PDF export and, for people who want it, its raw database file.</p>
+          <h3 class="sub-title">OpenScale</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://github.com/oliexdev/openScale">github.com/oliexdev/openScale</a></li>
+            <li><strong>Author:</strong> oliexdev and contributors</li>
+            <li><strong>License:</strong> GPL-3.0, read for understanding and interoperability, code not incorporated</li>
+          </ul>
+          <p>OpenScale is where the principle came from that the absence of a permission is a stronger privacy guarantee than a promise about how a permission is used. It ships with no internet permission at all. That is the model for Notarium's core, which holds no internet permission either.</p>
+          <h3 class="sub-title">HealthLog</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://github.com/MBombeck/HealthLog">github.com/MBombeck/HealthLog</a></li>
+            <li><strong>Author:</strong> Marc Bombeck</li>
+            <li><strong>License:</strong> AGPL-3.0 for the work studied, read for understanding and interoperability, code not incorporated</li>
+          </ul>
+          <p>The best free Apple Health importer design available to read: a documented parser that streams the export archive rather than loading it. It is prior art for Notarium's own importer. Its versioned key map with zero-downtime rotation is prior art worth rereading before building key rotation, and its write-up of fail-closed cryptography, where every failure path throws rather than silently writing plaintext, states the same principle Notarium holds.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Source-available projects</h2>
+        <div class="prose">
+          <p>These projects publish their source under a license that is not an OSI open-source license, so they are listed separately. The design and interaction ideas below were reimplemented independently in Notarium's own code. No source was copied or adapted.</p>
+          <h3 class="sub-title">Clove</h3>
+          <ul class="prose-list">
+            <li><strong>Source:</strong> <a href="https://github.com/colbyb2/clove-ios">github.com/colbyb2/clove-ios</a></li>
+            <li><strong>Author:</strong> Colby Brown</li>
+            <li><strong>License:</strong> Creative Commons Attribution-NonCommercial 4.0 International, source-available and non-commercial rather than open source</li>
+          </ul>
+          <p>Clove's single-form, fatigue-aware daily entry is the pattern Notarium's logging flow was studied against, along with its compassionate approach to symptom tracking. The specific patterns adopted:</p>
+          <ul class="prose-list">
+            <li><strong>Two-tier daily logging.</strong> Inline sliders for light fields, collapsible sheets for heavier entries, so a full day of logging does not demand a full day's attention.</li>
+            <li><strong>A continuity card for yesterday.</strong> A low-friction prompt that appears only when there is something to catch up on.</li>
+            <li><strong>One-time symptoms.</strong> Logging an intermittent symptom for a single day without it permanently joining the tracking list.</li>
+            <li><strong>Accessible inputs.</strong> A user-switchable preference between sliders and large steppers.</li>
+            <li><strong>Plain-English insights.</strong> Correlations led by plain language with a glossary, and technical detail available underneath rather than in front.</li>
+            <li><strong>Fatigue-aware onboarding.</strong> Progressive disclosure and educational empty states, so a person with a chronic condition is not met with everything at once.</li>
+            <li><strong>Manual weather correlation with no network call</strong>, as the baseline that works before any integration is granted.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">The wider landscape</h2>
+        <div class="prose">
+          <p>These projects informed the landscape study without contributing one specific pattern. They are credited for the reference.</p>
+          <ul class="prose-list">
+            <li>The medication apps surveyed for reminder, multi-profile, and refill patterns: <a href="https://github.com/AdamGuidarini/MediTrak">MediTrak</a>, <a href="https://github.com/jclehner/rxdroid">RxDroid</a>, Calendula, Daily Pill, Simpill, and Medic Log.</li>
+            <li>The minimalist mood and journaling apps surveyed: MyMood, My Brain, Tempo, moreDays, and Mini Moods. Mini Moods showed how minimal a daily mood entry can be while still feeling worth doing, and that minimalism informed Notarium's own quick-log flow.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Building blocks</h2>
+        <div class="prose">
+          <p>Notarium stands on open-source infrastructure as well. These are dependencies rather than apps whose ideas were studied, but they deserve the nod: SQLCipher by Zetetic for the encrypted database, BSD-3-Clause licensed; Syncthing as the recommended user-side encrypted-backup transport, MPL-2.0 licensed; Automerge and Yjs as candidate libraries for any opt-in sync, both MIT licensed; and Open-Meteo as the keyless, opt-in weather source, whose server software is AGPL-3.0-or-later licensed and whose API data is offered under CC BY 4.0.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Icons</h2>
+        <div class="prose">
+          <p>The four line icons on the home page are drawn in the visual idiom of Feather
+Icons by Cole Bemis, MIT licensed, and its fork Lucide, ISC licensed. The paths
+are not identical to either set, but the vocabulary is theirs and the credit
+belongs to them.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">A note on proprietary sources</h2>
+        <div class="prose">
+          <p>Notarium also studied a number of closed-source apps, mostly in order to build importers so that their users can leave without losing their history. These are not open source and are named here only for interoperability and context, not for any code or design reused from them: Bearable, Daylio, Medisafe, MyTherapy, Visible, Human Health, and Apple Health as an export format.</p>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <nav class="footer-nav" aria-label="Legal and source">
+      <a href="/security">Security</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/board">Board</a>
+      <a href="/credits">Credits</a>
+      <a href="/license">License</a>
+      <a href="https://github.com/notariumhealth">GitHub</a>
+      <a href="https://codeberg.org/notariumhealth">Codeberg</a>
+    </nav>
+    <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
+  </footer>
+</body>
+</html>

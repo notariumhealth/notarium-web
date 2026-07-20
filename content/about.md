@@ -1,5 +1,9 @@
 # About
 
+<!-- The trailing "- Sophia" below is read as a signature only because it is the
+     only dash-led block in this file. Adding any bullet list here will turn it
+     into a plain list item instead - see tools/render.mjs in notarium-web. -->
+
 I'm Sophia Daw. I built Notarium because I needed it for myself and the apps I'd been using couldn't be stitched together into anything that worked.
 
 Sometime in my thirties I came down with POTS and dysautonomia, with full syncope episodes. The diagnoses kept growing: hypermobile Ehlers-Danlos, chronic fatigue, post-exertional malaise, long COVID. There's the neurodivergence and the mental-health overlap that often comes with this kind of body. I'm on sixteen medications and supplements. Exercise makes me worse instead of better. My life was documented in spreadsheets and data exports because no app held the whole picture.

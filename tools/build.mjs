@@ -15,130 +15,86 @@
 //   paragraphs before    \
 //     the first ## H2    -> opening prose section (no heading)
 //   ## H2 + paragraphs  -> a .section with .section-title + .prose
-//   final "- ..." line  -> .signature (rendered in its section)
-// The CTA row is web-only chrome; it is injected into the section that holds
-// the signature. Inline Markdown supported: [text](url) and **bold**.
+//   ### H3              -> a subsection heading within a section
+//   - a / - b (multi-line, or any doc with more than one dash-led block)
+//                       -> <ul> list
+//   sole trailing "- x" -> .signature (rendered in its section)
+// The parsing rules live in tools/render.mjs (see its header comment for the
+// full signature-vs-list discriminator); this file just maps the result onto
+// the page template. The CTA row is web-only chrome; it is injected into the
+// section that holds the signature. Inline Markdown supported:
+// [text](url) and **bold**.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
+import { render } from './render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const PAGES = [
-  {
-    src: 'content/about.md',
-    out: 'web/about.html',
-    template: 'templates/about.html',
-    title: 'About - Notarium',
-    description:
-      'Why Sophia Daw built Notarium: a private, local-first health tracker for people documenting chronic illness and the workplace accommodation process that comes with it.',
-    canonical: 'https://notarium.health/about',
-    heroTitle: 'Why I built<br>Notarium.',
-    cta:
-      '<div class="cta-row">\n' +
-      '          <a class="btn-primary" href="/#waitlist">Get early access</a>\n' +
-      '          <span class="cta-meta">Android &middot; Free</span>\n' +
-      '        </div>',
-  },
-];
-
-function escapeHtml(s) {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-// Inline Markdown -> HTML. Escapes first, so [](), ** survive (their chars
-// aren't escaped) and any literal <, >, & in the prose are made safe.
-function inline(s) {
-  return escapeHtml(s)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-}
-
-function isSignature(text) {
-  // A signature block leads with a hyphen + space, e.g. "- Sophia".
-  return /^-\s/.test(text.trim());
-}
-
-// Split into blank-line-separated blocks; classify each.
-function parse(md) {
-  const blocks = md
-    .replace(/\r\n/g, '\n')
-    .split(/\n{2,}/)
-    .map((b) => b.trim())
-    .filter(Boolean);
-
-  let h1 = '';
-  const intro = []; // paragraphs before the first H2
-  const sections = []; // { title, paras:[], signature? }
-  let cur = null;
-
-  for (const b of blocks) {
-    if (b.startsWith('## ')) {
-      cur = { title: b.slice(3).trim(), paras: [], signature: null };
-      sections.push(cur);
-    } else if (b.startsWith('# ')) {
-      h1 = b.slice(2).trim();
-    } else if (isSignature(b)) {
-      // Signature belongs to the current (last) section.
-      if (cur) cur.signature = b.trim();
-      else intro.push(b); // no section yet: keep as prose
-    } else if (cur) {
-      cur.paras.push(b);
-    } else {
-      intro.push(b);
-    }
-  }
-  return { h1, intro, sections };
-}
-
-function proseHtml(paras) {
-  return paras.map((p) => `          <p>${inline(p)}</p>`).join('\n');
-}
-
-function render(page, md) {
-  const { h1, intro, sections } = parse(md);
-
-  // Hero: eyebrow from H1, fixed display title, lead = first intro paragraph.
-  const lead = intro.shift() || '';
-  const parts = [];
-  parts.push(
-    '      <section class="wrap hero">\n' +
-      `        <p class="hero-eyebrow">${inline(h1)}</p>\n` +
-      `        <h1 class="about-title">${page.heroTitle}</h1>\n` +
-      `        <p class="lead">${inline(lead)}</p>\n` +
-      '      </section>'
+// --- Nav active state --------------------------------------------------------
+// Templates carry their own nav markup, and a page's route decides which nav
+// link (if any) is "current" - this must not be hardcoded per template, since
+// every page rendered from the same template shares the file. Drive it from
+// the page's own `canonical` URL instead: whichever nav-link href equals the
+// page's route gets aria-current="page"; every other nav-link on the page
+// (including one a template might have hardcoded) does not. A route that has
+// no matching nav-link (e.g. /roadmap, which is not in the primary nav) ends
+// up with aria-current on nothing, which is the correct programmatic state,
+// not a fallback to whatever the template happened to mark.
+function setActiveNav(html, page) {
+  const route = new URL(page.canonical).pathname;
+  return html.replace(
+    /<a class="nav-link" href="([^"]+)"((?:\s[^>]*)?)>/g,
+    (_all, href, attrs) => {
+      const stripped = attrs.replace(/\s*aria-current="page"/, '');
+      const current = href === route ? ' aria-current="page"' : '';
+      return `<a class="nav-link" href="${href}"${stripped}${current}>`;
+    },
   );
+}
 
-  // Opening prose section (remaining intro paragraphs, no heading).
-  if (intro.length) {
-    parts.push(
-      '      <section class="wrap section">\n' +
-        '        <div class="prose">\n' +
-        proseHtml(intro) +
-        '\n        </div>\n' +
-        '      </section>'
+// --- Shared base style ------------------------------------------------------
+// Every served page carries one <style> block whose first region is the shared
+// base, delimited by markers, followed by that page's own rules. Injecting
+// rather than linking keeps the CSP inline-hash model intact (no new style-src
+// origin) and keeps the palette in exactly one file.
+//
+// This must run BEFORE the CSP hash pinning block at the bottom of this file.
+// Pinning first would hash pre-injection content, and the browser would then
+// refuse every style block on the site.
+const BASE_CSS = readFileSync(join(ROOT, 'styles/base.css'), 'utf8').trim();
+
+function injectBaseStyles(html) {
+  // BASE_CSS lands verbatim inside an inline <style> element. A literal
+  // closing style tag anywhere in it - even inside a CSS comment or string -
+  // terminates that element early in the browser, so every served page loses
+  // the rules after it AND blockHash below silently hashes only the truncated
+  // prefix. Both failures are site-wide and silent, so refuse at build time.
+  if (/<\/style/i.test(BASE_CSS)) {
+    throw new Error(
+      'styles/base.css contains a literal closing style tag; it is injected into an '
+      + 'inline <style> element and would truncate every served page.',
     );
   }
+  const re = /(\/\* BEGIN base \*\/)[\s\S]*?(\/\* END base \*\/)/;
+  if (!re.test(html)) throw new Error('page has no base-style region to inject into');
+  // Replacement FUNCTION, not a string: a string replacement expands $&, $1,
+  // $` and friends, so a dollar sign in styles/base.css (a `content` value, an
+  // at-rule) would be rewritten instead of emitted. The function form emits
+  // BASE_CSS verbatim.
+  return html.replace(re, (_all, begin, end) => `${begin}\n${BASE_CSS}\n    ${end}`);
+}
 
-  for (const s of sections) {
-    let body =
-      `        <h2 class="section-title">${inline(s.title)}</h2>\n` +
-      '        <div class="prose">\n' +
-      proseHtml(s.paras) +
-      '\n        </div>';
-    if (s.signature) {
-      if (page.cta) body += `\n        ${page.cta}`;
-      body += `\n        <p class="signature">${inline(s.signature)}</p>`;
-    }
-    parts.push(`      <section class="wrap section">\n${body}\n      </section>`);
-  }
-
-  return parts.join('\n\n');
+// `--list-sources` prints the content basenames this repo publishes, one per
+// line. tools/sync-content.sh consumes it so the copy is an allowlist rather
+// than a glob: an internal doc in canonical's docs/website/ cannot reach this
+// public repo just by existing.
+if (process.argv.includes('--list-sources')) {
+  for (const page of PAGES) console.log(page.src.replace(/^content\//, ''));
+  process.exit(0);
 }
 
 let built = 0;
@@ -152,9 +108,23 @@ for (const page of PAGES) {
     .replaceAll('{{DESCRIPTION}}', page.description)
     .replaceAll('{{CANONICAL}}', page.canonical)
     .replace('{{BODY}}', body);
-  writeFileSync(join(ROOT, page.out), html);
+  writeFileSync(join(ROOT, page.out), injectBaseStyles(setActiveNav(html, page)));
   console.log(`built ${page.out}  <-  ${page.src}`);
   built++;
+}
+
+// Hand-maintained pages (not in PAGES) still take the shared base. Runs before
+// the CSP pinning below so the hashes describe post-injection content.
+// The list itself lives in tools/pages.mjs, alongside STYLE_PAGES, so
+// tools/test.mjs can assert the two agree.
+for (const rel of HAND_MAINTAINED) {
+  const p = join(ROOT, rel);
+  const before = readFileSync(p, 'utf8');
+  const after = injectBaseStyles(before);
+  if (after !== before) {
+    writeFileSync(p, after);
+    console.log(`restyled ${rel}`);
+  }
 }
 
 // --- CSP inline-hash pinning -----------------------------------------------
@@ -164,21 +134,25 @@ for (const page of PAGES) {
 // styles, script-src for the script. Edit a block, re-run this script, and the
 // hashes refresh. A forgotten rebuild fails loud - the browser refuses the
 // block (unstyled page or inert script), never silently open.
-const STYLE_PAGES = [
-  'web/index.html',
-  'web/about.html',
-  'web/logo-poll/index.html',
-  'web/thanks-for-voting/index.html',
-  'web/security/index.html',
-  'web/404.html',
-];
-const SCRIPT_PAGES = ['web/logo-poll/index.html'];
+// STYLE_PAGES / SCRIPT_PAGES live in tools/pages.mjs so tools/test.mjs can
+// assert they agree with the other page lists.
 
 function blockHash(relPath, tag) {
   const html = readFileSync(join(ROOT, relPath), 'utf8');
-  const m = html.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
-  if (!m) throw new Error(`no inline <${tag}> found in ${relPath}`);
-  return `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`;
+  // Tolerate attributes on the opening tag, and match globally: only one block
+  // per tag may exist. Pinning the first of several would leave the rest
+  // unhashed, and the browser would refuse them - a page half-styled or with
+  // an inert script. Fail loudly here instead.
+  const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'g');
+  const all = [...html.matchAll(re)];
+  if (all.length === 0) throw new Error(`no inline <${tag}> found in ${relPath}`);
+  if (all.length > 1) {
+    throw new Error(
+      `${relPath} has ${all.length} inline <${tag}> blocks; the CSP pins exactly one. ` +
+      'Merge them into a single block.',
+    );
+  }
+  return `'sha256-${createHash('sha256').update(all[0][1], 'utf8').digest('base64')}'`;
 }
 
 const styleHashes = [...new Set(STYLE_PAGES.map((p) => blockHash(p, 'style')))].sort();

@@ -11,7 +11,7 @@
 # (or the generator) or the resource will be blocked.
 
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'sha256-1C+DDiTFnEAL8HkAhp2BE4lv+w5X9CNkuqTH/34egSc='; style-src 'self' 'sha256-CHpqa3+enSPaSG6zkpJYuMrB/7XJkUGilkfnwIj/cZc=' 'sha256-QYq3fFlQw1G4IR1px11iuR8K8H+lcZ+ks/pMBT1zf3A=' 'sha256-SqyxYZSybdSP8rjsUYLW1Qy5AjnZ2DoK3nqgPgcxup0=' 'sha256-UY19vnN4thNzXZHeAj+CYUXiNg6XQq8JpywKaOOMxR8=' 'sha256-drMSowRrTtlI4SUSKOlnyCeEtjeFhfDOyaMsdfUmdO0=' 'sha256-fy3wbOl9652QHDrUzVXPxKtxWY6klzfKvEPyyCYVe58=' https://fonts.bunny.net; font-src https://fonts.bunny.net; img-src 'self' data:; form-action 'self' https://formspree.io; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'sha256-1C+DDiTFnEAL8HkAhp2BE4lv+w5X9CNkuqTH/34egSc='; style-src 'self' 'sha256-2397bSg89HxbTNE6WtVKT5wL5lTpr40ZFpbcl2+qXlo=' 'sha256-80pLWLW+Z0l0euPZuvxPf0Ksq/yBgRqlMcJ8AhB005Y=' 'sha256-M7WMaeujAkuH2ctJ5r7UnNtHG10ag6pWaUA0bAkbQE8=' 'sha256-N74M1AA+L+HKPheaxSjcJm5qJPsE5mUjyrAHg6NsJjc=' 'sha256-ja2ZZJJx9Clm+97AcSY+Ol6v53IGWkcEpnziqfwfEzg=' 'sha256-stysCjJnQJqdtaqXxZyGwhXwpGpilQhzCdVdKBWJIJk=' 'sha256-yw+S0B/7mmQQ/2MQugoYd6pimKLRxAztWe3P47GAjlM=' https://fonts.bunny.net; font-src https://fonts.bunny.net; img-src 'self' data:; form-action 'self' https://formspree.io; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
