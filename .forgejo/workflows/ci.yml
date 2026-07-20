@@ -1,0 +1,161 @@
+# CI - test suite, build-drift gate, and content constraint gates.
+#
+# Forgejo Actions (homelab convention: .forgejo/workflows/, see README.md in this
+# directory for the runner contract). This repo has no Gradle, no Android SDK,
+# and no npm dependencies at all (no package.json - Node built-ins only), so
+# unlike notarium/.forgejo/workflows/ci.yml this job is a single short step list
+# on a plain public node image, not a custom homelab-built one.
+#
+# WHY THIS EXISTS: the site's entire safety model was 23 tests in tools/test.mjs
+# that nothing obliged anyone to run. A review demonstrated the consequence
+# directly: edit a page's CSS without rerunning `node tools/build.mjs`, and every
+# test still passes locally while the committed web/*.html no longer matches
+# what the source would produce - the Content-Security-Policy pins the OLD
+# inline <style> block's hash, so the browser refuses the page's entire style
+# and it ships unstyled. A test nobody runs catches nothing; this makes running
+# it non-optional on every pull request and every push to main.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same ref supersedes an in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Runs on the homelab ci-runner-01 Docker autoscaler pool (label `docker`).
+    runs-on: docker
+    container:
+      # node:22-slim, not a custom image: this project needs nothing beyond a
+      # node binary, since there is no package.json and every tool under
+      # tools/ imports only Node built-ins (node:test, node:assert, node:fs,
+      # node:crypto, node:path, node:url).
+      image: node:22-slim
+
+    steps:
+      - name: Install git
+        # node:22-slim is a minimal Debian image and does not ship git. The
+        # checkout step below shells out to git, and so do the tracked-file
+        # scans further down (git grep over exactly what is committed, not
+        # whatever happens to be sitting in the working tree).
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git
+          rm -rf /var/lib/apt/lists/*
+
+      - name: Checkout
+        # actions/checkout v4.2.2 pinned by SHA, the same digest notarium's own
+        # ci.yml vets. Refresh deliberately, never float the tag.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Run test suite
+        run: node --test tools/test.mjs
+
+      - name: Rebuild and check the committed output is not stale
+        # This is the check the WHY section above describes. Run the real
+        # build and diff the working tree: any difference means content/ or a
+        # template changed without the build being rerun and its output
+        # committed. Print the diff so the cause is obvious in the log, not
+        # just a bare nonzero exit.
+        run: |
+          node tools/build.mjs
+          if ! git diff --quiet; then
+            echo "::error::committed output is stale - node tools/build.mjs changed tracked files"
+            echo "A page or content edit was committed without rebuilding. Run 'node tools/build.mjs' locally and commit the result."
+            git diff
+            exit 1
+          fi
+          echo "OK: committed output matches a fresh build"
+
+      - name: No em dashes in tracked files
+        # House style is hyphens only. .gitattributes carries one pre-existing
+        # em dash inside a comment ("Binary assets - never touch EOLs...",
+        # predates this gate); it is the sole excluded path. Everything else,
+        # including this workflow file, must pass this check.
+        run: |
+          EMDASH=$(printf '\xe2\x80\x94')
+          if git grep -n -I -F -e "$EMDASH" -- . ':!.gitattributes'; then
+            echo "::error::em dash (U+2014) found in the tracked file(s) above - use a hyphen instead"
+            exit 1
+          fi
+          echo "OK: no em dashes outside .gitattributes"
+
+      - name: Trademark line uses the trade entity, never the registered symbol
+        # The USPTO trademark application is pending (content/board.md), so a
+        # registered-mark symbol anywhere on the site would be a false legal
+        # claim. The footer's "Notarium&trade; is a trademark of Notarium LLC"
+        # line is correct today; this guards it from ever regressing to the
+        # registered-mark symbol, in either its literal glyph form or its HTML
+        # entity form.
+        #
+        # Both search patterns below are built at runtime instead of written
+        # out literally, so this very check does not trip over its own source
+        # (the glyph is a real non-ASCII character the em dash check would
+        # also object to living bare in a script; the entity's four letters,
+        # if written contiguously, would match this step's own grep pattern).
+        run: |
+          FOUND=0
+          REG_GLYPH=$(printf '\xc2\xae')
+          REG_ENTITY='&re''g;'
+          if git grep -n -I -F -e "$REG_GLYPH" -- .; then
+            echo "::error::registered trademark symbol (U+00AE) found in the file(s) above"
+            FOUND=1
+          fi
+          if git grep -n -I -i -F -e "$REG_ENTITY" -- .; then
+            echo "::error::the registered-mark HTML entity was found in the file(s) above"
+            FOUND=1
+          fi
+          if [ "$FOUND" -eq 1 ]; then
+            echo "::error::the trademark application is pending; a registered-mark symbol here would be a false claim. The trade-mark entity is correct, the registered-mark one is not."
+            exit 1
+          fi
+          echo "OK: no registered-mark symbol anywhere"
+
+      - name: No forward-looking dates or timelines in content/
+        # Pages describe state and sequence, never a calendar (see
+        # content/roadmap.md: "Now / Next / Then", not dates). Pragmatic
+        # pattern match, not a full date parser:
+        #   - a four-digit year that is the current year or later reads as a
+        #     forecast ("ships in 2027"); a year strictly before now is a
+        #     historical fact ("since 2009" in content/about.md today) and is
+        #     allowed on purpose.
+        #   - a bare month name. "May" is excluded: it collides with the
+        #     common modal verb ("changes may occur") and would false-positive
+        #     on ordinary prose constantly; every other month name is
+        #     unambiguous.
+        #   - explicit forward-leaning phrasing ("this summer", "next month",
+        #     "coming soon", "in 3 weeks").
+        # The footer copyright year is not in scope: it lives in templates/
+        # and web/, not content/, and is legitimately a year, not a forecast.
+        run: |
+          CURRENT_YEAR=$(date +%Y)
+          VIOLATIONS=0
+
+          while IFS=: read -r file line year; do
+            [ -z "${file:-}" ] && continue
+            if [ "$year" -ge "$CURRENT_YEAR" ]; then
+              echo "::error file=$file,line=$line::forward-looking year '$year' in published copy - pages describe state and sequence, never a calendar"
+              VIOLATIONS=1
+            fi
+          done < <(grep -rnoE '\b(19|20)[0-9]{2}\b' content/*.md 2>/dev/null || true)
+
+          if git grep -n -i -E -e '\b(January|February|March|April|June|July|August|September|October|November|December)\b' -- 'content/*.md'; then
+            echo "::error::month name in content/ (see above) - pages describe state and sequence, never a calendar"
+            VIOLATIONS=1
+          fi
+
+          if git grep -n -i -E -e '\bthis (spring|summer|fall|autumn|winter)\b|\bnext (week|month|quarter|year)\b|\b(in the )?coming (soon|weeks|months)\b|\bin [0-9]+ (days|weeks|months)\b' -- 'content/*.md'; then
+            echo "::error::forward-looking timeline phrase in content/ (see above) - pages describe state and sequence, never a calendar"
+            VIOLATIONS=1
+          fi
+
+          if [ "$VIOLATIONS" -eq 1 ]; then
+            exit 1
+          fi
+          echo "OK: no forward-looking dates or timelines in content/"

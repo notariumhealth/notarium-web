@@ -1,7 +1,7 @@
 // Run: node --test tools/test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { parse } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
@@ -443,5 +443,41 @@ test('every PAGES entry is linked from at least one other served page', () => {
       linkedFrom.length > 0,
       `${page.out} (route ${route}) is not linked from any other served page - it is orphaned`,
     );
+  }
+});
+
+// --- No internal reviewer annotations in public output ----------------------
+// A separate unmerged branch (legal-pages) drafts terms/privacy copy with
+// internal review notes written directly in the Markdown, in the form
+// "[ATTORNEY: note]" and "[CONFIRM: note]"; on that branch they render as
+// visible highlighted callouts on the public page. Nothing today stops one of
+// these from surviving a rebase onto main. The pattern below matches the
+// general SHAPE - an opening bracket, two or more uppercase letters, a colon,
+// then anything up to the closing bracket - not the two literal words, so the
+// next reviewer inventing a third tag (say "[LEGAL: ...]") is still caught.
+//
+// Checked by hand against every SERVED page's rendered HTML and every file
+// under content/ as of writing: it matches nothing. The only bracket usage on
+// the site is Markdown link syntax "[text](url)" (link text here is always a
+// lowercase domain, never a run of uppercase letters followed by a colon) and
+// CSS attribute selectors such as [aria-current="page"], [hidden],
+// [type="text"] (an attribute name, never uppercase, and no colon before the
+// closing bracket).
+const REVIEWER_TAG = /\[[A-Z]{2,}:[^\]]*\]/;
+
+test('no served page contains a bracketed reviewer annotation', () => {
+  for (const path of SERVED) {
+    const html = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+    const m = html.match(REVIEWER_TAG);
+    assert.equal(m, null, `${path} contains a reviewer annotation: ${m && m[0]}`);
+  }
+});
+
+test('no content/ file contains a bracketed reviewer annotation', () => {
+  const dir = new URL('../content/', import.meta.url);
+  for (const name of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    const md = readFileSync(new URL(name, dir), 'utf8');
+    const m = md.match(REVIEWER_TAG);
+    assert.equal(m, null, `content/${name} contains a reviewer annotation: ${m && m[0]}`);
   }
 });
