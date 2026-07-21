@@ -44,9 +44,69 @@ export const PAGES = [
     template: 'templates/about.html',
     title: 'Board - Notarium',
     description:
-      'Notarium is converting to a 501(c)(3) nonprofit and staffing a founding board. Five external seats are open.',
+      'Notarium is converting to a 501(c)(3) nonprofit and staffing a founding board. External seats are open across legal, finance, patient, technical, fundraising, and at-large roles.',
     canonical: 'https://notarium.health/board',
     heroTitle: 'Join the<br>founding board.',
+  },
+  {
+    src: 'content/board-legal-governance.md',
+    out: 'web/board/legal-governance/index.html',
+    template: 'templates/about.html',
+    title: 'Board seat: Legal / Governance - Notarium',
+    description:
+      'Founding board seat 2 at Notarium: an attorney, paralegal, or governance professional to keep the evidence exports honest and carry the 501(c)(3) through compliance.',
+    canonical: 'https://notarium.health/board/legal-governance',
+    heroTitle: 'Legal /<br>Governance.',
+  },
+  {
+    src: 'content/board-finance-treasurer.md',
+    out: 'web/board/finance-treasurer/index.html',
+    template: 'templates/about.html',
+    title: 'Board seat: Finance / Treasurer - Notarium',
+    description:
+      'Founding board seat 3 at Notarium: a CPA or nonprofit finance officer to serve as Treasurer and keep the board confident that money is handled correctly.',
+    canonical: 'https://notarium.health/board/finance-treasurer',
+    heroTitle: 'Finance /<br>Treasurer.',
+  },
+  {
+    src: 'content/board-patient-community.md',
+    out: 'web/board/patient-community/index.html',
+    template: 'templates/about.html',
+    title: 'Board seat: Patient / Community - Notarium',
+    description:
+      'Founding board seat 4 at Notarium: a patient advocate or disability rights organizer to keep the board honest about whether product decisions actually help people.',
+    canonical: 'https://notarium.health/board/patient-community',
+    heroTitle: 'Patient /<br>Community.',
+  },
+  {
+    src: 'content/board-technical-security.md',
+    out: 'web/board/technical-security/index.html',
+    template: 'templates/about.html',
+    title: 'Board seat: Technical / Security - Notarium',
+    description:
+      'Founding board seat 5 at Notarium: a senior technologist to peer-review the security claims, held by someone with no professional debt to the founder.',
+    canonical: 'https://notarium.health/board/technical-security',
+    heroTitle: 'Technical /<br>Security.',
+  },
+  {
+    src: 'content/board-fundraising-development.md',
+    out: 'web/board/fundraising-development/index.html',
+    template: 'templates/about.html',
+    title: 'Board seat: Fundraising / Development - Notarium',
+    description:
+      'Founding board seat 6 at Notarium: a nonprofit development professional to drive the case that the org can raise real money against a specific mission.',
+    canonical: 'https://notarium.health/board/fundraising-development',
+    heroTitle: 'Fundraising /<br>Development.',
+  },
+  {
+    src: 'content/board-at-large.md',
+    out: 'web/board/at-large/index.html',
+    template: 'templates/about.html',
+    title: 'Board seats: At-Large - Notarium',
+    description:
+      'Founding board at-large seats 7 to 9 at Notarium: up to three directors who strengthen the board through judgment, lived experience, or a specialized background.',
+    canonical: 'https://notarium.health/board/at-large',
+    heroTitle: 'At-large<br>directors.',
   },
   {
     src: 'content/credits.md',
@@ -75,6 +135,12 @@ export const STYLE_PAGES = [
   'web/about.html',
   'web/roadmap/index.html',
   'web/board/index.html',
+  'web/board/legal-governance/index.html',
+  'web/board/finance-treasurer/index.html',
+  'web/board/patient-community/index.html',
+  'web/board/technical-security/index.html',
+  'web/board/fundraising-development/index.html',
+  'web/board/at-large/index.html',
   'web/credits/index.html',
   'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
