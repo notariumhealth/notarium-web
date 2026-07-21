@@ -1,6 +1,6 @@
 # Board
 
-Notarium is converting from an LLC to a 501(c)(3) nonprofit. I am staffing the founding board and looking for five external directors.
+Notarium is converting from an LLC to a 501(c)(3) nonprofit. I am staffing the founding board and recruiting external directors.
 
 Welcome, however you found this page. Thanks for reading this far.
 
@@ -30,28 +30,43 @@ Board seats at a 501(c)(3) are volunteer positions. There is no compensation. Th
 
 ## Open seats
 
-Five external seats. I hold the sixth as Founder / Chair.
+I hold Seat 1 as Founder and Chair. The remaining seats are open to external directors: five defined by function, and up to three at-large.
 
-**Seat 2: Legal / Governance.** Attorney, paralegal, or governance professional with a background in nonprofit formation, disability rights law, health data privacy, or employment law with an accommodation practice.
+Each seat below links to its own page with the full picture: what the seat does, the time commitment, what you get, and how the seat fits the mission.
 
-**Seat 3: Finance / Treasurer.** CPA, nonprofit finance officer, or professional with treasurer experience at a small 501(c)(3).
+**[Seat 2: Legal / Governance](/board/legal-governance)**
 
-**Seat 4: Patient / Community.** Patient advocate, chronic illness researcher, disability rights organizer, or someone who has navigated the ADA accommodation process as a patient, employee, or professional.
+Attorney, paralegal, or governance professional with a background in nonprofit formation, disability rights law, health data privacy, or employment law with an accommodation practice.
 
-**Seat 5: Technical / Security Peer.** Senior technologist in information security, health IT, FOSS project governance, or mobile platform security. This seat cannot be a current or former direct professional connection of mine. The seat is about peer review, and peer review from someone with a professional debt to me is not peer review.
+**[Seat 3: Finance / Treasurer](/board/finance-treasurer)**
 
-**Seat 6: Fundraising / Development.** Nonprofit development professional with experience in grant writing, individual donor cultivation, or nonprofit development strategy at a small org.
+CPA, nonprofit finance officer, or professional with treasurer experience at a small 501(c)(3).
 
-Each seat has a one-pager with the full picture: what the seat does, time commitment, what you get, and how the seat fits the mission. Email me at sophia@notarium.health, name the seat that looks like a fit, and I will send you its one-pager.
+**[Seat 4: Patient / Community](/board/patient-community)**
+
+Patient advocate, chronic illness researcher, disability rights organizer, or someone who has navigated the ADA accommodation process as a patient, employee, or professional.
+
+**[Seat 5: Technical / Security Peer](/board/technical-security)**
+
+Senior technologist in information security, health IT, FOSS project governance, or mobile platform security. This seat cannot be a current or former direct professional connection of mine. The seat is about peer review, and peer review from someone with a professional debt to me is not peer review.
+
+**[Seat 6: Fundraising / Development](/board/fundraising-development)**
+
+Nonprofit development professional with experience in grant writing, individual donor cultivation, or nonprofit development strategy at a small org.
+
+**[Seats 7 to 9: At-Large](/board/at-large)**
+
+Up to three directors who strengthen the board through general judgment, lived experience, community standing, or a specialized background the five function seats do not cover. These seats take the board from its six-seat floor to its nine-seat target.
+
+To ask about a seat, email me at sophia@notarium.health, name the seat that looks like a fit, and I will follow up.
 
 ## Independence and composition
 
-IRS Form 1023 asks how many directors on the founding board are independent of the founder by family and business relationships. My commitment is that at least four of the six founding directors will meet that independence test.
+IRS Form 1023 asks how many directors on the founding board are independent of the founder by family and business relationships. My commitment is that a majority of the directors will meet that independence test. The at-large seats, recruited from outside my professional circles, are where I most want to hold that line.
 
 This is not a paperwork answer. A board where the founder can outvote everyone else on any question is a board that will not push back when the founder is wrong. I want directors who can and will disagree with me.
 
 I am also actively working to seat directors whose lived experience and professional background reflect the patient community Notarium is built for. That includes chronic illness, disability, LGBTQIA+, and communities historically underserved by health technology.
-
 
 ## How to express interest
 

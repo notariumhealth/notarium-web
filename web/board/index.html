@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Board - Notarium</title>
-  <meta name="description" content="Notarium is converting to a 501(c)(3) nonprofit and staffing a founding board. Five external seats are open.">
+  <meta name="description" content="Notarium is converting to a 501(c)(3) nonprofit and staffing a founding board. External seats are open across legal, finance, patient, technical, fundraising, and at-large roles.">
   <link rel="canonical" href="https://notarium.health/board">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
@@ -236,7 +236,7 @@ textarea {
     }
 
     .prose p {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 300;
       line-height: 1.7;
       color: var(--muted);
@@ -256,12 +256,25 @@ textarea {
     }
 
     .prose-list li {
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
       margin-bottom: 10px;
       padding-left: 6px;
     }
 
     .prose p:last-child {
       margin-bottom: 0;
+    }
+
+    /* A paragraph that is nothing but a bold link is a label sitting above
+       its own blurb (the seat names on the board summary). Tighten the gap
+       to the description below so the pair reads as one unit, not two
+       evenly spaced paragraphs. Falls back to normal spacing where :has()
+       is unsupported. */
+    .prose p:has(> strong:only-child > a:only-child) {
+      margin-bottom: 6px;
     }
 
     .prose strong {
@@ -377,7 +390,7 @@ textarea {
       <section class="wrap hero">
         <p class="hero-eyebrow">Board</p>
         <h1 class="about-title">Join the<br>founding board.</h1>
-        <p class="lead">Notarium is converting from an LLC to a 501(c)(3) nonprofit. I am staffing the founding board and looking for five external directors.</p>
+        <p class="lead">Notarium is converting from an LLC to a 501(c)(3) nonprofit. I am staffing the founding board and recruiting external directors.</p>
       </section>
 
       <section class="wrap section">
@@ -414,20 +427,28 @@ textarea {
       <section class="wrap section">
         <h2 class="section-title">Open seats</h2>
         <div class="prose">
-          <p>Five external seats. I hold the sixth as Founder / Chair.</p>
-          <p><strong>Seat 2: Legal / Governance.</strong> Attorney, paralegal, or governance professional with a background in nonprofit formation, disability rights law, health data privacy, or employment law with an accommodation practice.</p>
-          <p><strong>Seat 3: Finance / Treasurer.</strong> CPA, nonprofit finance officer, or professional with treasurer experience at a small 501(c)(3).</p>
-          <p><strong>Seat 4: Patient / Community.</strong> Patient advocate, chronic illness researcher, disability rights organizer, or someone who has navigated the ADA accommodation process as a patient, employee, or professional.</p>
-          <p><strong>Seat 5: Technical / Security Peer.</strong> Senior technologist in information security, health IT, FOSS project governance, or mobile platform security. This seat cannot be a current or former direct professional connection of mine. The seat is about peer review, and peer review from someone with a professional debt to me is not peer review.</p>
-          <p><strong>Seat 6: Fundraising / Development.</strong> Nonprofit development professional with experience in grant writing, individual donor cultivation, or nonprofit development strategy at a small org.</p>
-          <p>Each seat has a one-pager with the full picture: what the seat does, time commitment, what you get, and how the seat fits the mission. Email me at sophia@notarium.health, name the seat that looks like a fit, and I will send you its one-pager.</p>
+          <p>I hold Seat 1 as Founder and Chair. The remaining seats are open to external directors: five defined by function, and up to three at-large.</p>
+          <p>Each seat below links to its own page with the full picture: what the seat does, the time commitment, what you get, and how the seat fits the mission.</p>
+          <p><strong><a href="/board/legal-governance">Seat 2: Legal / Governance</a></strong></p>
+          <p>Attorney, paralegal, or governance professional with a background in nonprofit formation, disability rights law, health data privacy, or employment law with an accommodation practice.</p>
+          <p><strong><a href="/board/finance-treasurer">Seat 3: Finance / Treasurer</a></strong></p>
+          <p>CPA, nonprofit finance officer, or professional with treasurer experience at a small 501(c)(3).</p>
+          <p><strong><a href="/board/patient-community">Seat 4: Patient / Community</a></strong></p>
+          <p>Patient advocate, chronic illness researcher, disability rights organizer, or someone who has navigated the ADA accommodation process as a patient, employee, or professional.</p>
+          <p><strong><a href="/board/technical-security">Seat 5: Technical / Security Peer</a></strong></p>
+          <p>Senior technologist in information security, health IT, FOSS project governance, or mobile platform security. This seat cannot be a current or former direct professional connection of mine. The seat is about peer review, and peer review from someone with a professional debt to me is not peer review.</p>
+          <p><strong><a href="/board/fundraising-development">Seat 6: Fundraising / Development</a></strong></p>
+          <p>Nonprofit development professional with experience in grant writing, individual donor cultivation, or nonprofit development strategy at a small org.</p>
+          <p><strong><a href="/board/at-large">Seats 7 to 9: At-Large</a></strong></p>
+          <p>Up to three directors who strengthen the board through general judgment, lived experience, community standing, or a specialized background the five function seats do not cover. These seats take the board from its six-seat floor to its nine-seat target.</p>
+          <p>To ask about a seat, email me at sophia@notarium.health, name the seat that looks like a fit, and I will follow up.</p>
         </div>
       </section>
 
       <section class="wrap section">
         <h2 class="section-title">Independence and composition</h2>
         <div class="prose">
-          <p>IRS Form 1023 asks how many directors on the founding board are independent of the founder by family and business relationships. My commitment is that at least four of the six founding directors will meet that independence test.</p>
+          <p>IRS Form 1023 asks how many directors on the founding board are independent of the founder by family and business relationships. My commitment is that a majority of the directors will meet that independence test. The at-large seats, recruited from outside my professional circles, are where I most want to hold that line.</p>
           <p>This is not a paperwork answer. A board where the founder can outvote everyone else on any question is a board that will not push back when the founder is wrong. I want directors who can and will disagree with me.</p>
           <p>I am also actively working to seat directors whose lived experience and professional background reflect the patient community Notarium is built for. That includes chronic illness, disability, LGBTQIA+, and communities historically underserved by health technology.</p>
         </div>

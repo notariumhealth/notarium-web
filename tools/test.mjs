@@ -98,7 +98,14 @@ test('a single trailing bullet with no other list in the document is still a sig
 
 const SERVED = [
   'web/index.html', 'web/about.html', 'web/roadmap/index.html',
-  'web/board/index.html', 'web/credits/index.html', 'web/404.html',
+  'web/board/index.html',
+  'web/board/legal-governance/index.html',
+  'web/board/finance-treasurer/index.html',
+  'web/board/patient-community/index.html',
+  'web/board/technical-security/index.html',
+  'web/board/fundraising-development/index.html',
+  'web/board/at-large/index.html',
+  'web/credits/index.html', 'web/404.html',
   'web/security/index.html', 'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html', 'web/license/index.html',
 ];

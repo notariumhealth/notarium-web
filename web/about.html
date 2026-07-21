@@ -236,7 +236,7 @@ textarea {
     }
 
     .prose p {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 300;
       line-height: 1.7;
       color: var(--muted);
@@ -256,12 +256,25 @@ textarea {
     }
 
     .prose-list li {
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
       margin-bottom: 10px;
       padding-left: 6px;
     }
 
     .prose p:last-child {
       margin-bottom: 0;
+    }
+
+    /* A paragraph that is nothing but a bold link is a label sitting above
+       its own blurb (the seat names on the board summary). Tighten the gap
+       to the description below so the pair reads as one unit, not two
+       evenly spaced paragraphs. Falls back to normal spacing where :has()
+       is unsupported. */
+    .prose p:has(> strong:only-child > a:only-child) {
+      margin-bottom: 6px;
     }
 
     .prose strong {
