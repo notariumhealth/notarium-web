@@ -6,7 +6,9 @@ Welcome, however you found this page. Thanks for reading this far.
 
 ## Why a board, and why now
 
-Notarium shipped its first public alpha. The USPTO trademark was filed the same day. The LLC was formed in Tennessee. A business attorney confirmed the 501(c)(3) conversion is achievable along the Form 1023-EZ path.
+Notarium shipped its first public alpha. The USPTO trademark was filed the same day. The LLC was formed in Tennessee. A business attorney confirmed the conversion to a 501(c)(3) is achievable, and Tennessee law lets the LLC convert directly into a nonprofit corporation rather than dissolve and start over.
+
+Which IRS application we file is still being settled with counsel. The streamlined Form 1023-EZ is probably not open to us: the IRS treats an organization converted from a for-profit entity as a successor and routes it to the full Form 1023, which carries a higher fee and a much longer wait for a determination letter. An earlier version of this page said the 1023-EZ path was confirmed. Our own follow-up research says otherwise, so I have corrected it. I would rather a prospective director read that here than find it out after saying yes.
 
 The nonprofit form does three things for this project:
 
