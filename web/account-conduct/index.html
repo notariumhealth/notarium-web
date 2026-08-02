@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- GENERATED FILE. Do not edit by hand. Source: content/board-legal-governance.md - regenerate with: node tools/build.mjs -->
+<!-- GENERATED FILE. Do not edit by hand. Source: content/account-conduct.md - regenerate with: node tools/build.mjs -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Board seat: Legal / Governance - Notarium</title>
-  <meta name="description" content="Founding board seat 2 at Notarium: an attorney, paralegal, or governance professional to keep the evidence exports honest and carry the 501(c)(3) through compliance.">
-  <link rel="canonical" href="https://notarium.health/board/legal-governance">
+  <title>Account conduct - Notarium</title>
+  <meta name="description" content="What Notarium's public accounts will and will not do: no patient information or user stories without written consent, no medical or legal advice, and no automated posting.">
+  <link rel="canonical" href="https://notarium.health/account-conduct">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -164,6 +164,12 @@ textarea {
 }
     /* END base */
 
+    /* page-specific: long-form reference layout.
+       Derived from templates/about.html, with two deliberate differences:
+       a narrower measure, because this template carries long reference lists
+       that are scanned rather than read straight through; and no CTA row,
+       because a credits or legal page is not a place to sell anything. */
+
     body {
       background: var(--bg);
       color: var(--text);
@@ -197,84 +203,82 @@ textarea {
     .about-title {
       font-family: var(--font-display);
       font-weight: 300;
-      font-size: clamp(44px, 9vw, 76px);
-      line-height: 1.02;
+      font-size: clamp(40px, 8vw, 66px);
+      line-height: 1.04;
       letter-spacing: -0.01em;
       color: var(--text);
       margin-bottom: 28px;
     }
 
     .lead {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 300;
       line-height: 1.5;
       color: var(--text);
-      max-width: 640px;
+      max-width: 600px;
     }
 
     /* ---------- Section scaffolding ---------- */
     .section {
-      padding-top: 72px;
-      padding-bottom: 72px;
+      padding-top: 64px;
+      padding-bottom: 64px;
       border-top: 1px solid var(--border);
     }
 
     .section-title {
       font-family: var(--font-display);
       font-weight: 300;
-      font-size: clamp(30px, 5vw, 42px);
+      font-size: clamp(28px, 4.4vw, 38px);
       line-height: 1.1;
       letter-spacing: -0.01em;
       color: var(--text);
-      max-width: 700px;
+      max-width: 600px;
       margin-bottom: 32px;
     }
 
     /* ---------- Prose ---------- */
     .prose {
-      max-width: 680px;
+      max-width: 620px;
     }
 
     .prose p {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 300;
       line-height: 1.7;
       color: var(--muted);
       margin-bottom: 24px;
     }
 
+    /* Each entry in a reference list opens with one of these, so it needs more
+       air above it than a subsection inside running prose would. */
     .prose .sub-title {
       font-family: var(--font-display);
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 600;
-      margin: 32px 0 12px;
+      color: var(--text);
+      margin: 52px 0 14px;
+    }
+
+    .prose .sub-title:first-child {
+      margin-top: 0;
     }
 
     .prose-list {
-      margin: 0 0 20px 20px;
+      margin: 0 0 22px 20px;
       padding: 0;
     }
 
     .prose-list li {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 300;
-      line-height: 1.7;
+      line-height: 1.6;
       color: var(--muted);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       padding-left: 6px;
     }
 
     .prose p:last-child {
       margin-bottom: 0;
-    }
-
-    /* A paragraph that is nothing but a bold link is a label sitting above
-       its own blurb (the seat names on the board summary). Tighten the gap
-       to the description below so the pair reads as one unit, not two
-       evenly spaced paragraphs. Falls back to normal spacing where :has()
-       is unsupported. */
-    .prose p:has(> strong:only-child > a:only-child) {
-      margin-bottom: 6px;
     }
 
     .prose strong {
@@ -297,39 +301,6 @@ textarea {
       font-size: 24px;
       color: var(--text);
       margin-top: 44px;
-    }
-
-    /* ---------- CTA row ---------- */
-    .cta-row {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 36px;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--bg);
-      font-family: var(--font-body);
-      font-size: 16px;
-      font-weight: 500;
-      padding: 14px 28px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .cta-meta {
-      font-size: 15px;
-      color: var(--muted);
-      font-weight: 400;
     }
 
     /* ---------- Footer ---------- */
@@ -358,6 +329,9 @@ textarea {
       }
       .lead {
         font-size: 19px;
+      }
+      .prose .sub-title {
+        margin-top: 40px;
       }
     }
 
@@ -388,82 +362,67 @@ textarea {
   <main id="main">
     <article>
       <section class="wrap hero">
-        <p class="hero-eyebrow">Founding board</p>
-        <h1 class="about-title">Legal /<br>Governance.</h1>
-        <p class="lead">Seat 2 keeps Notarium honest about what its evidence exports can and cannot claim, and carries the 501(c)(3) through formation and ongoing compliance.</p>
+        <p class="hero-eyebrow">Account conduct</p>
+        <h1 class="about-title">How these<br>accounts behave.</h1>
+        <p class="lead">Notarium posts from a small number of public accounts, currently on Mastodon and Bluesky. This page states what those accounts will and will not do, so anyone deciding whether to follow one can hold it to something written down.</p>
       </section>
 
       <section class="wrap section">
         <div class="prose">
-          <p>This is one of the founding board's five function seats. I am recruiting an external director to fill it.</p>
+          <p>The accounts are operated by Sophia Daw, the project maintainer. Nothing is scheduled and nothing is automated; every post is written by hand. If anyone else is given posting access, reading this page and the rules of the host server is a condition of getting it, not an expectation afterwards.</p>
+          <p>Conduct in the repository and the issue tracker is covered by the <a href="/code-of-conduct">Code of Conduct</a> instead.</p>
         </div>
       </section>
 
       <section class="wrap section">
-        <h2 class="section-title">Who I am looking for</h2>
-        <div class="prose">
-          <p>An attorney, paralegal, or governance professional with one or more of these backgrounds:</p>
-          <ul class="prose-list">
-            <li>501(c)(3) nonprofit formation, compliance, or ongoing governance</li>
-            <li>Disability rights law (ADA, FMLA, state leave law)</li>
-            <li>Health data privacy (HIPAA, state health privacy laws, or GDPR if we ever serve international users)</li>
-            <li>Employment law with an accommodation practice</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="wrap section">
-        <h2 class="section-title">Why this seat matters</h2>
-        <div class="prose">
-          <p>Notarium's evidence exports have to hold up under HR review, EEOC charge review, and attorney review. A director with legal fluency in one of these areas keeps the product honest about what it can and cannot claim. The 501(c)(3) formation and ongoing compliance, including annual filings, unrelated business income analysis, and private benefit review, also draw on this seat.</p>
-        </div>
-      </section>
-
-      <section class="wrap section">
-        <h2 class="section-title">What you would do</h2>
+        <h2 class="section-title">What the accounts are for</h2>
         <div class="prose">
           <ul class="prose-list">
-            <li>Review bylaws revisions before board votes</li>
-            <li>Chair the Governance Committee once we have three or more seats to staff it</li>
-            <li>Review any user-facing legal language (Terms, Privacy Policy, evidence-export disclaimers) before public release</li>
-            <li>Represent the board's legal perspective in vendor and partner negotiations (D&amp;O renewals, hosting terms, grant contracts)</li>
-            <li>Serve as the go-to for founder questions on legal risk</li>
+            <li>Release notes and what changed in the app</li>
+            <li>Security disclosures and their fixes</li>
+            <li>Accessibility and design notes, including decisions that turned out badly</li>
+            <li>Talking with other free software, health, and disability projects</li>
           </ul>
+          <p>They are not a marketing channel. A release gets announced once. If there is nothing new to say, nothing gets posted.</p>
         </div>
       </section>
 
       <section class="wrap section">
-        <h2 class="section-title">Time commitment</h2>
+        <h2 class="section-title">No patient information</h2>
         <div class="prose">
-          <p>The base of four hours per month, plus review turns around bylaws and policy documents.</p>
+          <p>The accounts do not post identifiable patient information, health data, or user stories, including anonymized ones, without explicit written consent from the person involved.</p>
+          <p>Disclosing a health condition carries real employment and insurance consequences for the person disclosing it, and no amount of engagement is worth handing someone that risk. The same rule covers screenshots: anything published from the app shows synthetic data, not a real person's log.</p>
         </div>
       </section>
 
       <section class="wrap section">
-        <h2 class="section-title">What you get</h2>
+        <h2 class="section-title">No medical or legal advice</h2>
         <div class="prose">
-          <ul class="prose-list">
-            <li>Public credit as a founding director of a mission-locked FOSS health nonprofit</li>
-            <li>A vote on how the product's evidence framing is scoped</li>
-            <li>A working relationship with a security-focused founder who does not need hand-holding on infosec but does need legal counsel on the accommodation-record use case</li>
-            <li>A contribution to a moat around a real gap in the market</li>
-          </ul>
+          <p>Notarium helps a person document their own situation. It does not tell them what a diagnosis means or what their rights are, and neither do these accounts. Questions of that kind get pointed toward a clinician, an attorney, or the agency that actually handles them.</p>
         </div>
       </section>
 
       <section class="wrap section">
-        <h2 class="section-title">How to express interest</h2>
+        <h2 class="section-title">Charged topics</h2>
         <div class="prose">
-          <p>Email me at sophia@notarium.health and name this seat. I will send a forty-five minute intro call invitation and answer any questions before either of us commits. A call is not a commitment to serve. If it feels right, we set a start date after the 501(c)(3) formation completes.</p>
-          <p>If this is not you but you know someone who might fit, referrals are welcome.</p>
+          <p>Disability rights, healthcare access, and workplace accommodation are politically contested in the United States, and this project sits inside that. The accounts speak factually about what the software does and about how the accommodation process is documented. They stay out of adjacent political fights that do not concern the project.</p>
+          <p>If a thread stops being useful, the account disengages rather than escalating. It does not pile on, and it does not use its follower count as a weapon in someone else's argument.</p>
         </div>
       </section>
 
       <section class="wrap section">
-        <h2 class="section-title">About Notarium</h2>
+        <h2 class="section-title">The rules of the host server</h2>
         <div class="prose">
-          <p>Notarium is a private, local-first Android app for people managing chronic illness or disability while navigating workplace leave and accommodations. It helps users log symptoms, track medications, record flare-ups, and preserve documentation that holds up under HR review or an EEOC charge. Everything stays on the user's device by default, encrypted at the file system, at the database, and per field for the most sensitive columns. Any upstream sync is opt-in per data category, never global. The source is public under AGPL-3.0.</p>
-          <p>More on the project and the founder is on the <a href="/about">about page</a>. The full board overview, including every open seat and the independence commitment, is on the <a href="/board">board page</a>.</p>
+          <p>Each account also follows the rules of the server it posts from. Where a host's rules are stricter than this page, the host's rules win.</p>
+          <p>On Hachyderm that means the server rules, the Specialized Account Expectations for accounts like this one, and the guidance on charged topics. Moderators there are volunteers, and an account that needs moderating has already failed at self-moderation. That is the standard this page is meant to hold.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Reporting</h2>
+        <div class="prose">
+          <p>If one of these accounts breaks something written here, write to <a href="mailto:conduct@notarium.health">conduct@notarium.health</a>.</p>
+          <p>Reporting to the moderators of the host server is always an option too, and it is the better one if the complaint is about us. That route does not depend on the project acting in good faith.</p>
         </div>
       </section>
     </article>

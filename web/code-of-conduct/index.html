@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<!-- GENERATED FILE. Do not edit by hand. Source: content/code-of-conduct.md - regenerate with: node tools/build.mjs -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code of Conduct - Notarium</title>
+  <meta name="description" content="The Contributor Covenant as adopted by Notarium, with the additions this project needs: no one has to disclose a diagnosis to justify a bug report, and health information in an issue stays there.">
+  <link rel="canonical" href="https://notarium.health/code-of-conduct">
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
+  <style>
+    /* BEGIN base */
+/* Shared base style for every served page.
+ *
+ * tools/build.mjs injects this file verbatim between the begin/end marker
+ * comments in each page's inline <style>. It is injected rather than linked
+ * so the CSP inline-hash model stays intact: no new style-src origin, no
+ * extra request, one file to edit. This text deliberately avoids spelling
+ * out the marker comments, so the injected body can never look like a marker.
+ *
+ * Only rules that were confirmed identical on every page live here. Rules
+ * that differ even slightly between pages (body, .footer, .footer-copy, the
+ * reduced-motion block) stay in each page's own region below the END marker.
+ */
+
+:root {
+  --bg: #0D1117;
+  --surface: #141921;
+  --border: #1E2535;
+  --text: #EEE9E2;
+  /* F-2: the previous muted grey was 4.36:1 on surface and failed AA for
+     normal text. #82869A is 4.89:1 on surface and 5.25:1 on bg. */
+  --muted: #82869A;
+  --accent: #4A9585;
+  --accent-hover: #5BB8A4;
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* F-4: skip link, visually hidden until it takes focus. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
+}
+
+/* F-3: form controls need a 3:1 boundary. --border is 1.24:1 on bg and is
+   fine for decorative card edges but invisible as a control boundary.
+   --muted is 5.25:1. The audit's suggested #3A4356 computes to 1.91:1 and
+   does not pass; do not use it. */
+input,
+select,
+textarea {
+  border: 1px solid var(--muted);
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.nav-logo-dot {
+  color: var(--accent);
+}
+
+.tm {
+  font-size: 0.5em;
+  font-weight: 400;
+  vertical-align: super;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-link {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-hover);
+}
+
+/* ---------- Footer (only the parts every page shares) ---------- */
+.footer-logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-nav a {
+  color: var(--accent);
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--accent-hover);
+}
+    /* END base */
+
+    /* page-specific: long-form reference layout.
+       Derived from templates/about.html, with two deliberate differences:
+       a narrower measure, because this template carries long reference lists
+       that are scanned rather than read straight through; and no CTA row,
+       because a credits or legal page is not a place to sell anything. */
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .nav-link[aria-current="page"] {
+      color: var(--text);
+    }
+
+    /* ---------- Article hero ---------- */
+    .hero {
+      padding-top: 72px;
+      padding-bottom: 64px;
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .about-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(40px, 8vw, 66px);
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .lead {
+      font-size: 21px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 600px;
+    }
+
+    /* ---------- Section scaffolding ---------- */
+    .section {
+      padding-top: 64px;
+      padding-bottom: 64px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(28px, 4.4vw, 38px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Prose ---------- */
+    .prose {
+      max-width: 620px;
+    }
+
+    .prose p {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Each entry in a reference list opens with one of these, so it needs more
+       air above it than a subsection inside running prose would. */
+    .prose .sub-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 52px 0 14px;
+    }
+
+    .prose .sub-title:first-child {
+      margin-top: 0;
+    }
+
+    .prose-list {
+      margin: 0 0 22px 20px;
+      padding: 0;
+    }
+
+    .prose-list li {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-left: 6px;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .prose strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .prose a {
+      color: var(--accent);
+      transition: color 0.2s ease;
+    }
+
+    .prose a:hover {
+      color: var(--accent-hover);
+    }
+
+    .signature {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 24px;
+      color: var(--text);
+      margin-top: 44px;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 40px;
+      padding-bottom: 48px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .lead {
+        font-size: 19px;
+      }
+      .prose .sub-title {
+        margin-top: 40px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="wrap">
+    <nav class="nav">
+      <a class="nav-logo" href="/" aria-label="Notarium home">Notarium<span class="tm">&trade;</span><span class="nav-logo-dot">.</span></a>
+      <div class="nav-right">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/#waitlist">Get early access &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <article>
+      <section class="wrap hero">
+        <p class="hero-eyebrow">Code of Conduct</p>
+        <h1 class="about-title">How we treat<br>each other.</h1>
+        <p class="lead">Notarium follows the Contributor Covenant, version 2.1, with one addition written for what this project is about.</p>
+      </section>
+
+      <section class="wrap section">
+        <div class="prose">
+          <p>The authoritative copy is <a href="https://github.com/notariumhealth/notarium/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a> in the source repository. This page carries the same text so it can be read and linked without cloning anything. Conduct on the project's own public accounts is a separate matter, covered on the <a href="/account-conduct">account conduct</a> page.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Our pledge</h2>
+        <div class="prose">
+          <p>We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, colour, religion, or sexual identity and orientation.</p>
+          <p>We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">A note specific to this project</h2>
+        <div class="prose">
+          <p>Notarium exists partly to help people document disability, chronic illness, and workplace accommodation disputes. Many of the people who use it, report bugs here, or contribute are managing exactly those conditions.</p>
+          <p>Take that seriously. Assume a person filing an issue may be doing it on a bad day. Do not ask anyone to disclose a diagnosis to justify a feature request, a bug report, or an accessibility need; the request stands on its own. Treat health information that appears in an issue or a log as sensitive, and do not quote it onward.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Our standards</h2>
+        <div class="prose">
+          <p>Examples of behaviour that contributes to a positive environment:</p>
+          <ul class="prose-list">
+            <li>Demonstrating empathy and kindness toward other people</li>
+            <li>Being respectful of differing opinions, viewpoints, and experiences</li>
+            <li>Giving and gracefully accepting constructive feedback</li>
+            <li>Accepting responsibility, apologising to those affected by our mistakes, and learning from the experience</li>
+            <li>Focusing on what is best not just for us as individuals but for the overall community</li>
+          </ul>
+          <p>Examples of unacceptable behaviour:</p>
+          <ul class="prose-list">
+            <li>The use of sexualised language or imagery, and sexual attention or advances of any kind</li>
+            <li>Trolling, insulting or derogatory comments, and personal or political attacks</li>
+            <li>Public or private harassment</li>
+            <li>Publishing others' private information, such as a physical or email address, or health information, without their explicit permission</li>
+            <li>Other conduct which could reasonably be considered inappropriate in a professional setting</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Enforcement responsibilities</h2>
+        <div class="prose">
+          <p>Project maintainers are responsible for clarifying and enforcing our standards of acceptable behaviour and will take appropriate and fair corrective action in response to any behaviour that they deem inappropriate, threatening, offensive, or harmful.</p>
+          <p>Maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Scope</h2>
+        <div class="prose">
+          <p>This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces. Examples include using an official email address, posting via an official social media account, or acting as an appointed representative at an event.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Enforcement</h2>
+        <div class="prose">
+          <p>Instances of abusive, harassing, or otherwise unacceptable behaviour may be reported to the maintainers at <a href="mailto:conduct@notarium.health">conduct@notarium.health</a>. All complaints will be reviewed and investigated promptly and fairly.</p>
+          <p>All maintainers are obligated to respect the privacy and security of the reporter of any incident.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Enforcement guidelines</h2>
+        <div class="prose">
+          <p>Maintainers will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:</p>
+          <h3 class="sub-title">1. Correction</h3>
+          <p><strong>Community impact:</strong> Use of inappropriate language or other behaviour deemed unprofessional or unwelcome.</p>
+          <p><strong>Consequence:</strong> A private, written warning from maintainers, providing clarity around the nature of the violation and an explanation of why the behaviour was inappropriate. A public apology may be requested.</p>
+          <h3 class="sub-title">2. Warning</h3>
+          <p><strong>Community impact:</strong> A violation through a single incident or series of actions.</p>
+          <p><strong>Consequence:</strong> A warning with consequences for continued behaviour. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time. This includes avoiding interactions in community spaces as well as external channels like social media. Violating these terms may lead to a temporary or permanent ban.</p>
+          <h3 class="sub-title">3. Temporary ban</h3>
+          <p><strong>Community impact:</strong> A serious violation of community standards, including sustained inappropriate behaviour.</p>
+          <p><strong>Consequence:</strong> A temporary ban from any sort of interaction or public communication with the community for a specified period of time. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period. Violating these terms may lead to a permanent ban.</p>
+          <h3 class="sub-title">4. Permanent ban</h3>
+          <p><strong>Community impact:</strong> Demonstrating a pattern of violation of community standards, including sustained inappropriate behaviour, harassment of an individual, or aggression toward or disparagement of classes of individuals.</p>
+          <p><strong>Consequence:</strong> A permanent ban from any sort of public interaction within the community.</p>
+        </div>
+      </section>
+
+      <section class="wrap section">
+        <h2 class="section-title">Attribution</h2>
+        <div class="prose">
+          <p>This Code of Conduct is adapted from the <a href="https://www.contributor-covenant.org/version/2/1/code_of_conduct.html">Contributor Covenant, version 2.1</a>, which is published under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+          <p>The Community Impact Guidelines were inspired by <a href="https://github.com/mozilla/inclusion">Mozilla's code of conduct enforcement ladder</a>.</p>
+          <p>Common questions are answered in the <a href="https://www.contributor-covenant.org/faq">Contributor Covenant FAQ</a>, and <a href="https://www.contributor-covenant.org/translations">translations</a> are available.</p>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="wrap footer">
+    <span class="footer-logo">Notarium</span>
+    <nav class="footer-nav" aria-label="Legal and source">
+      <a href="/security">Security</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/board">Board</a>
+      <a href="/credits">Credits</a>
+      <a href="/code-of-conduct">Conduct</a>
+      <a href="/license">License</a>
+      <a href="https://github.com/notariumhealth">GitHub</a>
+      <a href="https://codeberg.org/notariumhealth">Codeberg</a>
+    </nav>
+    <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
+  </footer>
+</body>
+</html>

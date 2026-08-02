@@ -105,6 +105,7 @@ const SERVED = [
   'web/board/technical-security/index.html',
   'web/board/fundraising-development/index.html',
   'web/board/at-large/index.html',
+  'web/code-of-conduct/index.html', 'web/account-conduct/index.html',
   'web/credits/index.html', 'web/404.html',
   'web/security/index.html', 'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html', 'web/license/index.html',
