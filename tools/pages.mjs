@@ -109,6 +109,26 @@ export const PAGES = [
     heroTitle: 'At-large<br>directors.',
   },
   {
+    src: 'content/code-of-conduct.md',
+    out: 'web/code-of-conduct/index.html',
+    template: 'templates/legal.html',
+    title: 'Code of Conduct - Notarium',
+    description:
+      'The Contributor Covenant as adopted by Notarium, with the additions this project needs: no one has to disclose a diagnosis to justify a bug report, and health information in an issue stays there.',
+    canonical: 'https://notarium.health/code-of-conduct',
+    heroTitle: 'How we treat<br>each other.',
+  },
+  {
+    src: 'content/account-conduct.md',
+    out: 'web/account-conduct/index.html',
+    template: 'templates/legal.html',
+    title: 'Account conduct - Notarium',
+    description:
+      'What Notarium\'s public accounts will and will not do: no patient information or user stories without written consent, no medical or legal advice, and no automated posting.',
+    canonical: 'https://notarium.health/account-conduct',
+    heroTitle: 'How these<br>accounts behave.',
+  },
+  {
     src: 'content/credits.md',
     out: 'web/credits/index.html',
     template: 'templates/legal.html',
@@ -141,6 +161,8 @@ export const STYLE_PAGES = [
   'web/board/technical-security/index.html',
   'web/board/fundraising-development/index.html',
   'web/board/at-large/index.html',
+  'web/code-of-conduct/index.html',
+  'web/account-conduct/index.html',
   'web/credits/index.html',
   'web/logo-poll/index.html',
   'web/thanks-for-voting/index.html',
