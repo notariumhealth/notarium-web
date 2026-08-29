@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { parse } from './render.mjs';
+import { parse, fillTemplate } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
 
 test('trailing single-line dash block is the signature', () => {
@@ -537,4 +537,39 @@ test('the waitlist email input declares its autocomplete purpose', () => {
     /\bautocomplete="email"/,
     `the waitlist email input has no autocomplete="email": ${input[0]}`,
   );
+});
+
+// --- Template substitution must not expand dollar patterns ------------------
+// String.prototype.replace / replaceAll expand $&, $`, $' and $$ in a STRING
+// replacement regardless of whether the pattern is a string or a regex. Five
+// of build.mjs's six substitutions passed strings, so a single $' in a page
+// title, description or body would splice part of the template back into the
+// served page - silently, and passing every check but the build-drift diff.
+// Assert on the dollar patterns themselves, since a test using ordinary prose
+// would pass against the broken version too.
+
+test('fillTemplate emits dollar patterns literally instead of expanding them', () => {
+  const template = 'A<title>{{TITLE}}</title>B{{DESCRIPTION}}C{{CANONICAL}}D{{SRC}}E{{BODY}}F';
+  const page = {
+    src: "content/$'.md",
+    title: "$'",
+    description: '$&',
+    canonical: '$`',
+    body: '$$',
+  };
+  const out = fillTemplate(template, page, '$$');
+  assert.equal(out, "A<title>$'</title>B$&C$`D$'.mdE$$F");
+});
+
+test('fillTemplate fills every placeholder the templates declare', () => {
+  for (const rel of ['templates/about.html', 'templates/legal.html']) {
+    const template = readServed(rel);
+    const out = fillTemplate(
+      template,
+      { src: 'content/x.md', title: 't', description: 'd', canonical: 'https://example.test/x' },
+      'body',
+    );
+    const left = out.match(/\{\{[A-Z_]+\}\}/g);
+    assert.equal(left, null, `${rel} has unfilled placeholders: ${left && left.join(' ')}`);
+  }
 });

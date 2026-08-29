@@ -28,6 +28,26 @@ export function inline(s) {
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 }
 
+// Fill a page template's {{PLACEHOLDER}} slots.
+//
+// Every replacement is a FUNCTION, never a string. String.prototype.replace
+// and replaceAll expand $&, $`, $' and $$ inside a STRING replacement whether
+// the pattern is a string or a regex, so a lone $' anywhere in a page title,
+// description or rendered body would splice a chunk of the template back into
+// the output. Nothing in the tree triggers it today (the only dollar sign is a
+// figure in content/board-fundraising-development.md), and it would pass every
+// check except the build-drift diff, failing quietly rather than loudly.
+// tools/build.mjs already defends injectBaseStyles this exact way; this
+// carries the same defence across the remaining five substitutions.
+export function fillTemplate(template, page, body) {
+  return template
+    .replaceAll('{{SRC}}', () => page.src.replace(/^content\//, ''))
+    .replaceAll('{{TITLE}}', () => page.title)
+    .replaceAll('{{DESCRIPTION}}', () => page.description)
+    .replaceAll('{{CANONICAL}}', () => page.canonical)
+    .replace('{{BODY}}', () => body);
+}
+
 function isDashLedBlock(text) {
   const lines = text.trim().split('\n');
   return lines.every((l) => /^-\s/.test(l.trim()));

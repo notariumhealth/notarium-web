@@ -30,7 +30,7 @@ import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
-import { render } from './render.mjs';
+import { render, fillTemplate } from './render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -102,12 +102,7 @@ for (const page of PAGES) {
   const md = readFileSync(join(ROOT, page.src), 'utf8');
   const template = readFileSync(join(ROOT, page.template), 'utf8');
   const body = render(page, md);
-  const html = template
-    .replaceAll('{{SRC}}', page.src.replace(/^content\//, ''))
-    .replaceAll('{{TITLE}}', page.title)
-    .replaceAll('{{DESCRIPTION}}', page.description)
-    .replaceAll('{{CANONICAL}}', page.canonical)
-    .replace('{{BODY}}', body);
+  const html = fillTemplate(template, page, body);
   writeFileSync(join(ROOT, page.out), injectBaseStyles(setActiveNav(html, page)));
   console.log(`built ${page.out}  <-  ${page.src}`);
   built++;
