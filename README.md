@@ -77,13 +77,35 @@ command at deploy time; Pages serves the committed `web/` directory as-is, so
 regenerate locally and commit the HTML. (`/about` resolves to `about.html` via
 Pages' clean-URL handling.)
 
+## Checks
+
+The same five gates run on both remotes, from `.forgejo/workflows/ci.yml` and
+`.github/workflows/ci.yml`, on every pull request and every push to `main`:
+
+1. `node --test tools/test.mjs`
+2. **Build drift** - rebuild and fail if any tracked file changed, which means
+   content or a template was committed without rerunning the build. This is the
+   important one: a stale CSP hash ships a page unstyled and nothing else
+   notices.
+3. No em dashes in tracked files
+4. No registered-mark symbol (the trademark application is pending)
+5. No forward-looking dates or timelines
+
+The two workflow files are a hand-maintained mirror of each other, differing
+only in the runner. `tools/test.mjs` asserts they run the same named steps with
+the same commands, so a gate added or weakened on one side fails the build
+until it is mirrored on the other. They used to exist on the Forgejo side only,
+which meant a push straight to `github/main` - the branch Cloudflare Pages
+actually deploys - was verified by nothing.
+
 ## Remotes
 
 - `github`  github.com/notariumhealth/notarium-web  (publishes to Cloudflare Pages)
 - `origin`  Forgejo on the homelab (private working copy)
 
 Keep both in sync. The GitHub copy is the one that ships, so a change is not
-live until it lands on `github/main`.
+live until it lands on `github/main`. Both now run the checks above, so neither
+remote is the unguarded one.
 
 ## Writing copy
 

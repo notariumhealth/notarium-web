@@ -633,3 +633,89 @@ test('every href in content/ passes the renderer allowlist', () => {
   }
   assert.ok(checked > 20, `expected the content links to be scanned, saw ${checked}`);
 });
+
+// --- The two CI workflows must stay in lockstep -----------------------------
+// Cloudflare Pages builds from github/main, so github/main is the branch that
+// ships, but every gate this project has lived under .forgejo/ only: a push
+// straight to github/main deployed with nothing checked. .github/workflows/
+// now mirrors it. A mirror maintained by hand rots, and the rot is silent -
+// the deploying side would keep passing a smaller set of checks than the
+// working side. So assert the two describe the same gates, running the same
+// commands.
+//
+// The runner differs on purpose: Forgejo runs a node:22-slim container on the
+// homelab `docker` pool and has to apt-get git into it, GitHub runs
+// ubuntu-latest which ships both. That one step is the only allowed
+// divergence, and it is named here rather than pattern-matched so adding a
+// second exception is a deliberate edit to this list.
+
+const FORGEJO_ONLY_STEPS = ['Install git'];
+
+function workflowSteps(relPath) {
+  const yaml = readServed(relPath);
+  const steps = new Map();
+  // Deliberately not a YAML parser (this repo has no dependencies). The two
+  // files share one generated shape: steps are "      - name: X" and their
+  // command is the "        run: |" block that follows, indented under it.
+  const lines = yaml.split('\n');
+  let name = null;
+  let run = null;
+  for (const line of lines) {
+    const nameMatch = line.match(/^ {6}- name: (.+)$/);
+    if (nameMatch) {
+      if (name !== null) steps.set(name, run);
+      name = nameMatch[1].trim();
+      run = null;
+      continue;
+    }
+    if (name === null) continue;
+    const inlineRun = line.match(/^ {8}run: (?!\|)(.+)$/);
+    if (inlineRun) { run = inlineRun[1].trim(); continue; }
+    if (/^ {8}run: \|\s*$/.test(line)) { run = ''; continue; }
+    if (run !== null && /^ {10}/.test(line)) { run += `${line.slice(10)}\n`; continue; }
+    if (run !== null && line.trim() === '') { run += '\n'; continue; }
+  }
+  if (name !== null) steps.set(name, run);
+  return steps;
+}
+
+test('the GitHub and Forgejo CI workflows run the same gates', () => {
+  const forgejo = workflowSteps('.forgejo/workflows/ci.yml');
+  const github = workflowSteps('.github/workflows/ci.yml');
+  assert.ok(forgejo.size > 4, `parsed only ${forgejo.size} Forgejo steps; the parser is broken`);
+
+  const expected = [...forgejo.keys()].filter((n) => !FORGEJO_ONLY_STEPS.includes(n));
+  assert.deepEqual(
+    [...github.keys()], expected,
+    'the GitHub workflow does not run the same named steps as the Forgejo one. '
+    + 'Mirror the change, or add a deliberate exception to FORGEJO_ONLY_STEPS.',
+  );
+
+  for (const name of expected) {
+    assert.equal(
+      (github.get(name) || '').trim(), (forgejo.get(name) || '').trim(),
+      `CI step "${name}" runs different commands on GitHub than on Forgejo. `
+      + 'The deploying side must not check less than the working side.',
+    );
+  }
+});
+
+test('every Forgejo-only CI step really is absent from the GitHub workflow', () => {
+  const github = workflowSteps('.github/workflows/ci.yml');
+  const forgejo = workflowSteps('.forgejo/workflows/ci.yml');
+  for (const name of FORGEJO_ONLY_STEPS) {
+    assert.ok(forgejo.has(name), `FORGEJO_ONLY_STEPS names "${name}", which no longer exists`);
+    assert.ok(!github.has(name), `"${name}" is listed as Forgejo-only but appears on GitHub too`);
+  }
+});
+
+test('both CI workflows pin actions/checkout by SHA, never by tag', () => {
+  for (const rel of ['.forgejo/workflows/ci.yml', '.github/workflows/ci.yml']) {
+    const yaml = readServed(rel);
+    const uses = [...yaml.matchAll(/^\s*uses: (.+)$/gm)].map((m) => m[1].trim());
+    assert.ok(uses.length > 0, `${rel} uses no actions at all`);
+    for (const u of uses) {
+      assert.match(u, /@[0-9a-f]{40}$/, `${rel} floats an action reference: ${u}`);
+    }
+  }
+});

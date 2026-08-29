@@ -1,11 +1,28 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
+# Dependabot configuration.
+#
+# This repo has no package manifest and no runtime dependencies by design: no
+# package.json, and every tool under tools/ imports Node built-ins only. So
+# there is nothing here for a language ecosystem to scan.
+#
+# What there IS to keep current is the GitHub Actions reference in
+# .github/workflows/ci.yml, which is pinned by commit SHA rather than by tag
+# (a floating tag is a supply-chain hole; a pinned SHA is a stale one unless
+# something raises it). That is exactly what Dependabot's github-actions
+# ecosystem watches, and it opens a pull request with the new digest rather
+# than moving the pin silently.
+#
+# Note it will not see .forgejo/workflows/ci.yml, which pins the same action
+# and is not a path Dependabot knows about. When a bump lands here, mirror the
+# digest there in the same commit: tools/test.mjs asserts the two workflows
+# stay in lockstep and will fail the build if only one moves.
+#
+# The previous file was an unedited GitHub template with
+# `package-ecosystem: ""`. An empty string is not a valid ecosystem, so
+# Dependabot failed to parse the config and ran nothing at all - the coverage
+# was zero while the file's presence suggested otherwise.
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: "weekly" 
+      interval: "weekly"
