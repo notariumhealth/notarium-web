@@ -186,4 +186,55 @@ if (updated !== headers) {
   console.log('web/_headers CSP already current');
 }
 
+// --- robots.txt and sitemap.xml ---------------------------------------------
+// Crawl hygiene at the meta level was already right (/404, /logo-poll and
+// /thanks-for-voting are noindex), but there was no robots.txt at all - a 404
+// on every crawl - and no sitemap for the indexable pages.
+//
+// The sitemap is GENERATED rather than hand-listed, from the same page lists
+// everything else here uses, so it cannot drift from the site the way a
+// second hand-maintained page list would. A page is indexable unless it says
+// otherwise in its own markup: read the robots meta out of the committed HTML
+// rather than keeping a list of exclusions, so marking a new page noindex
+// takes it out of the sitemap automatically.
+const ORIGIN = 'https://notarium.health';
+
+function isIndexable(relPath) {
+  const html = readFileSync(join(ROOT, relPath), 'utf8');
+  return !/<meta name="robots" content="[^"]*noindex/i.test(html);
+}
+
+function routeOfServed(relPath) {
+  const html = readFileSync(join(ROOT, relPath), 'utf8');
+  const m = html.match(/<link rel="canonical" href="([^"]+)">/);
+  // No canonical means the page declares no route of its own (web/404.html).
+  return m ? new URL(m[1]).pathname : null;
+}
+
+const sitemapRoutes = [...HAND_MAINTAINED, ...PAGES.map((p) => p.out)]
+  .filter((rel) => isIndexable(rel))
+  .map(routeOfServed)
+  .filter((route) => route !== null)
+  .sort();
+
+const sitemap =
+  '<?xml version="1.0" encoding="UTF-8"?>\n'
+  + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  + sitemapRoutes.map((route) => `  <url><loc>${ORIGIN}${route}</loc></url>\n`).join('')
+  + '</urlset>\n';
+writeFileSync(join(ROOT, 'web/sitemap.xml'), sitemap);
+
+const robots =
+  '# notarium.health\n'
+  + '# Pages that should not be indexed say so in their own markup\n'
+  + '# (<meta name="robots" content="noindex">), which is what keeps them out\n'
+  + '# of the sitemap below. This file exists so a crawler stops 404ing on it\n'
+  + '# and can find the sitemap; it is not the access-control mechanism.\n'
+  + 'User-agent: *\n'
+  + 'Allow: /\n'
+  + '\n'
+  + `Sitemap: ${ORIGIN}/sitemap.xml\n`;
+writeFileSync(join(ROOT, 'web/robots.txt'), robots);
+console.log(`wrote web/sitemap.xml (${sitemapRoutes.length} routes) and web/robots.txt`);
+
 console.log(`done: ${built} page(s)`);
