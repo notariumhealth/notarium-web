@@ -138,6 +138,16 @@ function blockHash(relPath, tag) {
   // per tag may exist. Pinning the first of several would leave the rest
   // unhashed, and the browser would refuse them - a page half-styled or with
   // an inert script. Fail loudly here instead.
+  // BOUND, and why it is acceptable rather than fixed: this opening-tag
+  // pattern cannot survive a `>` inside an attribute value, and would also
+  // match the literal text `<style>` sitting inside an HTML comment. Both are
+  // latent - no served page does either. Widening it means either a real HTML
+  // parser (a dependency this repo does not want) or a longer regex that is
+  // harder to read than the constraint it enforces. The constraint instead is:
+  // ONE inline block per tag per page, written as a plain `<style>` /
+  // `<script>` with no attributes carrying `>`. The multi-block case below
+  // fails loudly, so the shape that would break this is rejected rather than
+  // silently mishashed.
   const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'g');
   const all = [...html.matchAll(re)];
   if (all.length === 0) throw new Error(`no inline <${tag}> found in ${relPath}`);

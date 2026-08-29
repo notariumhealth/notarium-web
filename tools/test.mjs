@@ -272,6 +272,7 @@ function readServed(relPath) {
 // changes, this must change with it or the assertion becomes meaningless.
 function blockHash(relPath, tag) {
   const html = readServed(relPath);
+  // Same regex, same bound - see the note beside blockHash in tools/build.mjs.
   const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'g');
   const all = [...html.matchAll(re)];
   assert.equal(all.length, 1, `${relPath} should have exactly one inline <${tag}>, saw ${all.length}`);

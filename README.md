@@ -116,6 +116,32 @@ Keep both in sync. The GitHub copy is the one that ships, so a change is not
 live until it lands on `github/main`. Both now run the checks above, so neither
 remote is the unguarded one.
 
+## Forms, and what happens when they break
+
+Two pages POST to Formspree: the home-page waitlist (`f/xykqjzeg`) and the
+logo poll (`f/xojorywl`, now closed). Both are plain HTML form posts with no
+client-side handling, which is deliberate - they work with JavaScript off -
+but it means there is **no failure signal**. If the endpoint is retired, hits
+a plan limit, or starts rejecting, the visitor sees a Formspree error page and
+nothing here reports it. The waitlist is the site's only conversion, so the
+failure mode is silent loss of the thing the site exists to collect.
+
+This is accepted rather than fixed: adding client-side error handling would
+mean giving the one page that has to work without JavaScript a JavaScript
+dependency. The check is manual instead.
+
+**Monthly, and before sharing the waitlist anywhere new:** submit a real
+address through the form at <https://notarium.health/#waitlist>, confirm the
+redirect lands, and confirm the notification arrives. If it does not:
+
+1. Check the Formspree dashboard for the form's status and the plan's
+   submission quota.
+2. Confirm `form-action 'self' https://formspree.io` is still in the CSP in
+   `web/_headers` - a CSP edit that drops it blocks the POST in the browser
+   with no server-side trace at all.
+3. Confirm the `action` URL on the page still matches the form ID in the
+   dashboard.
+
 ## Writing copy
 
 Plain language, accurate claims, no inflated marketing voice. The privacy
