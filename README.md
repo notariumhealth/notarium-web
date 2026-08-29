@@ -9,20 +9,28 @@ repo.
 ## Layout
 
 ```
-web/
-  index.html    Landing page - hand-authored, self-contained (inline CSS)
-  about.html    GENERATED from content/about.md - do not edit by hand
-content/
-  about.md      Prose source for /about (vendored from the canonical repo)
-templates/
-  about.html    Styled shell (CSS, nav, footer) with placeholders
+web/         The served site. Every route is a directory index
+             (web/<route>/index.html), so the file layout and the URL
+             layout are the same thing and nothing depends on host
+             rewriting. web/index.html is the landing page.
+content/     Markdown prose for the generated pages, vendored from the
+             canonical repo. Do not edit the generated HTML.
+templates/   Styled shells (CSS, nav, footer) with {{PLACEHOLDER}} slots
+styles/      base.css, injected into every page's inline <style>
 tools/
-  build.mjs        Renders content/*.md into web/*.html (zero dependencies)
+  pages.mjs        THE PAGE MANIFEST. Which pages exist, what generates
+                   them, and which lists they belong to. Read this rather
+                   than a tree in a README, which is what went stale.
+  build.mjs        Renders content/*.md into web/, injects the base style,
+                   pins the CSP hashes (zero dependencies)
+  render.mjs       The Markdown-ish parse and render layer
+  test.mjs         The test suite (node --test tools/test.mjs)
   sync-content.sh  Pulls the canonical docs into content/, then rebuilds
 ```
 
-`web/index.html` is a single static HTML file with inline styles. `web/about.html`
-is generated, so edit the Markdown source, not the HTML.
+`web/index.html` is hand-authored with inline styles. The pages listed in
+`PAGES` in `tools/pages.mjs` are generated, so edit the Markdown source, not
+the HTML; the ones in `HAND_MAINTAINED` are edited directly.
 
 ## Content source of truth
 
@@ -66,7 +74,7 @@ Open the file directly, or serve the folder:
 
 ```bash
 python3 -m http.server -d web 8080
-# then visit http://localhost:8080  (about page at /about.html locally)
+# then visit http://localhost:8080  (every route resolves locally too)
 ```
 
 ## Deploy
@@ -74,8 +82,9 @@ python3 -m http.server -d web 8080
 Cloudflare Pages builds from the GitHub `main` branch and publishes to
 notarium.health. Pushing to `main` triggers a new deploy. There is no build
 command at deploy time; Pages serves the committed `web/` directory as-is, so
-regenerate locally and commit the HTML. (`/about` resolves to `about.html` via
-Pages' clean-URL handling.)
+regenerate locally and commit the HTML. Every route is a directory index, so
+resolution depends on the file layout rather than on host-specific clean-URL
+handling, and local preview matches production.
 
 ## Checks
 

@@ -1,7 +1,7 @@
 // Run: node --test tools/test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { parse, inline, fillTemplate } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
@@ -97,7 +97,7 @@ test('a single trailing bullet with no other list in the document is still a sig
 // injection silently stopped covering that page.
 
 const SERVED = [
-  'web/index.html', 'web/about.html', 'web/roadmap/index.html',
+  'web/index.html', 'web/about/index.html', 'web/roadmap/index.html',
   'web/board/index.html',
   'web/board/legal-governance/index.html',
   'web/board/finance-treasurer/index.html',
@@ -805,4 +805,47 @@ test('neither template hardcodes a copyright year any more', () => {
       `${rel} still hardcodes a literal copyright year`,
     );
   }
+});
+
+// --- Internal links must resolve to something the site actually serves ------
+// Every internal link was walked by hand during the audit and every one
+// resolved. Nothing kept that true, and a broken internal link is invisible
+// until a visitor hits it: there is no server-side router here, just files.
+// Resolution is by file layout alone, deliberately - the one route that used
+// to depend on the host's clean-URL rewrite is now a directory index like
+// every other.
+
+const WEB = new URL('../web/', import.meta.url);
+
+function resolvesToAServedFile(route) {
+  const clean = route.replace(/[?#].*$/, '').replace(/^\//, '');
+  if (clean === '') return true; // "/" is web/index.html
+  for (const candidate of [clean, `${clean}/index.html`, `${clean}.html`]) {
+    if (existsSync(new URL(candidate, WEB))) return true;
+  }
+  return false;
+}
+
+test('every internal link on every served page resolves to a served file', () => {
+  let checked = 0;
+  const broken = [];
+  for (const path of SERVED) {
+    for (const [, href] of readServed(path).matchAll(/href="([^"]*)"/g)) {
+      // Only site-absolute paths. Fragments are same-page, and anything with a
+      // scheme is somebody else's server.
+      if (!href.startsWith('/')) continue;
+      checked++;
+      if (!resolvesToAServedFile(href)) broken.push(`${path} -> ${href}`);
+    }
+  }
+  assert.deepEqual(broken, [], `internal links that resolve to nothing:\n  ${broken.join('\n  ')}`);
+  assert.ok(checked > 25, `expected the site's internal links to be walked, saw ${checked}`);
+});
+
+test('the link resolver rejects a route with no file behind it', () => {
+  // Guard the guard: a resolver that returned true unconditionally would make
+  // the test above vacuous.
+  assert.ok(!resolvesToAServedFile('/no-such-route'));
+  assert.ok(resolvesToAServedFile('/about'));
+  assert.ok(resolvesToAServedFile('/'));
 });

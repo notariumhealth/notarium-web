@@ -15,7 +15,7 @@
 export const PAGES = [
   {
     src: 'content/about.md',
-    out: 'web/about.html',
+    out: 'web/about/index.html',
     template: 'templates/about.html',
     title: 'About - Notarium',
     description:
@@ -152,7 +152,7 @@ export const HAND_MAINTAINED = [
 // by SHA-256 in the CSP. This is the union of HAND_MAINTAINED and PAGES `out`.
 export const STYLE_PAGES = [
   'web/index.html',
-  'web/about.html',
+  'web/about/index.html',
   'web/roadmap/index.html',
   'web/board/index.html',
   'web/board/legal-governance/index.html',
