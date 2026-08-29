@@ -20,11 +20,43 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
+// Schemes a link in content/ may use. content/ is vendored from a repo we
+// control, but the copy is scripted (tools/sync-content.sh) rather than read,
+// and every other parse path in this renderer is defensive, so the href gets
+// the same treatment. Site-relative paths and fragments cover the internal
+// links; https/http and mailto cover the external ones. Anything else -
+// javascript:, data:, vbscript: - is an authoring error, not a link.
+const ALLOWED_HREF = /^(?:https?:\/\/|mailto:|\/|#)/;
+
+// Escape a value being emitted INSIDE a double-quoted HTML attribute. Body
+// text does not need this (a bare quote or apostrophe in prose is harmless and
+// escaping it would only churn the diff), but an attribute value does: without
+// it a source containing [x](" onmouseover=... x=") closes the href early and
+// lands an attribute of its own on the anchor. The CSP blocks the handler that
+// would result, which is why the audit rated this Low, but the CSP is the
+// second line, not the first.
+function escapeAttr(s) {
+  return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // Inline Markdown -> HTML. Escapes first, so [](), ** survive (their chars
-// aren't escaped) and any literal <, >, & in the prose are made safe.
+// aren't escaped) and any literal <, >, & in the prose are made safe. The href
+// is then scheme-checked and attribute-escaped on top of that: escapeHtml
+// covers & < > , which is right for text, and leaves the quote characters that
+// matter only inside an attribute.
 export function inline(s) {
   return escapeHtml(s)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (all, text, href) => {
+      if (!ALLOWED_HREF.test(href)) {
+        // Fail the build rather than emit the link. Dropping it silently would
+        // hide a typo'd URL just as effectively as it hides a hostile one.
+        throw new Error(
+          `link href "${href}" uses a scheme this renderer does not allow. `
+          + 'Use https://, http://, mailto:, a site-relative /path, or a #fragment.',
+        );
+      }
+      return `<a href="${escapeAttr(href)}">${text}</a>`;
+    })
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 }
 

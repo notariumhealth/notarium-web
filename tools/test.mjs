@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { parse, fillTemplate } from './render.mjs';
+import { parse, inline, fillTemplate } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
 
 test('trailing single-line dash block is the signature', () => {
@@ -572,4 +572,64 @@ test('fillTemplate fills every placeholder the templates declare', () => {
     const left = out.match(/\{\{[A-Z_]+\}\}/g);
     assert.equal(left, null, `${rel} has unfilled placeholders: ${left && left.join(' ')}`);
   }
+});
+
+// --- Link hrefs are attribute-escaped and scheme-checked --------------------
+// escapeHtml covers & < > , which is the right set for body text and the wrong
+// set for an attribute value: a source containing [x](" onmouseover=... x=")
+// closed the href early and landed its own attribute on the anchor, and
+// [x](javascript:...) emitted a javascript: URL. content/ is vendored from a
+// repo we control and the CSP blocks the handler either way, which is why the
+// audit rated this Low - but the sync is scripted rather than read, and this
+// is the one parse path in the renderer that was not defensive.
+
+test('a quote in a link href cannot break out of the attribute', () => {
+  const out = inline('[x](/a" onmouseover=alert(1) x=")');
+  // The property is that the anchor's opening tag carries href and nothing
+  // else: the injected quote is escaped, so it cannot terminate the value and
+  // start a second attribute. Everything after the markdown link's closing
+  // paren stays inert body text.
+  const openTag = out.match(/<a\b[^>]*>/);
+  assert.ok(openTag, `no anchor rendered: ${out}`);
+  assert.match(openTag[0], /^<a href="[^"]*">$/, `href broke out: ${openTag[0]}`);
+  assert.ok(!/onmouseover=/.test(openTag[0].replace(/&quot;.*/s, '')), openTag[0]);
+});
+
+test('an apostrophe in a link href is escaped too', () => {
+  assert.match(inline("[x](/a'b)"), /href="\/a&#39;b"/);
+});
+
+test('the renderer refuses a link scheme outside the allowlist', () => {
+  for (const href of ['javascript:alert(1)', 'data:text/html,x', 'vbscript:x', 'JavaScript:x']) {
+    assert.throws(
+      () => inline(`[x](${href})`),
+      /scheme this renderer does not allow/,
+      `${href} was not rejected`,
+    );
+  }
+});
+
+test('the allowed schemes still render', () => {
+  for (const href of [
+    'https://notarium.health', 'http://example.test', 'mailto:conduct@notarium.health',
+    '/board/at-large', '#waitlist',
+  ]) {
+    assert.match(inline(`[x](${href})`), new RegExp(`href="${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
+  }
+});
+
+test('every href in content/ passes the renderer allowlist', () => {
+  const dir = new URL('../content/', import.meta.url);
+  let checked = 0;
+  for (const name of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    const md = readFileSync(new URL(name, dir), 'utf8');
+    for (const [, , href] of md.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)) {
+      assert.doesNotThrow(
+        () => inline(`[t](${href})`),
+        `content/${name} has an href the renderer will refuse: ${href}`,
+      );
+      checked++;
+    }
+  }
+  assert.ok(checked > 20, `expected the content links to be scanned, saw ${checked}`);
 });
