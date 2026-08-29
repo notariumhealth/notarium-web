@@ -489,3 +489,52 @@ test('no content/ file contains a bracketed reviewer annotation', () => {
     assert.equal(m, null, `content/${name} contains a reviewer annotation: ${m && m[0]}`);
   }
 });
+
+// --- Heading order, WCAG 2.1 SC 1.3.1 ---------------------------------------
+// The home page opened h1 and then went straight to three h3 "why" cards, so a
+// screen-reader user navigating by heading level landed on an orphaned h3 with
+// no parent section - on the site's primary page, for a project that names
+// accessibility as a founding commitment. Assert the property (no level is
+// skipped on the way down) rather than the specific tag that was wrong once,
+// and assert it across every served page including the hand-maintained ones,
+// which is where this class of error lives.
+
+function headingLevels(html) {
+  return [...html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
+}
+
+test('no served page skips a heading level on the way down', () => {
+  let checked = 0;
+  for (const path of SERVED) {
+    const levels = headingLevels(readServed(path));
+    assert.ok(levels.length > 0, `${path} has no headings at all`);
+    assert.equal(levels[0], 1, `${path} opens on h${levels[0]}, not h1`);
+    let prev = levels[0];
+    for (const level of levels) {
+      assert.ok(
+        level <= prev + 1,
+        `${path}: h${prev} is followed by h${level}, skipping h${prev + 1} `
+        + '(WCAG 2.1 SC 1.3.1). Demote the deeper heading or add the missing level.',
+      );
+      prev = level;
+      checked++;
+    }
+  }
+  assert.ok(checked > 20, `expected headings across the whole site, saw ${checked}`);
+});
+
+// --- Waitlist input carries an autofill hint --------------------------------
+// WCAG 2.1 SC 1.3.5 (Identify Input Purpose). It is also the one field on the
+// site a visitor has to type, and the app's own design constraint is that a
+// user with a tremor should have to type as little as possible.
+
+test('the waitlist email input declares its autocomplete purpose', () => {
+  const html = readServed('web/index.html');
+  const input = html.match(/<input[^>]*type="email"[^>]*>/);
+  assert.ok(input, 'web/index.html has no email input');
+  assert.match(
+    input[0],
+    /\bautocomplete="email"/,
+    `the waitlist email input has no autocomplete="email": ${input[0]}`,
+  );
+});
