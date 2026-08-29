@@ -71,8 +71,14 @@ export function inline(s) {
 // check except the build-drift diff, failing quietly rather than loudly.
 // tools/build.mjs already defends injectBaseStyles this exact way; this
 // carries the same defence across the remaining five substitutions.
-export function fillTemplate(template, page, body) {
+// The footer copyright year is generated rather than typed, so the twelve
+// template-rendered pages correct themselves on the next build instead of
+// going stale on January 1. `year` is injectable so a test can pin the output
+// without depending on when it runs. The six hand-maintained pages have no
+// template to render from and are covered by the CI copyright gate instead.
+export function fillTemplate(template, page, body, year = new Date().getFullYear()) {
   return template
+    .replaceAll('{{YEAR}}', () => String(year))
     .replaceAll('{{SRC}}', () => page.src.replace(/^content\//, ''))
     .replaceAll('{{TITLE}}', () => page.title)
     .replaceAll('{{DESCRIPTION}}', () => page.description)

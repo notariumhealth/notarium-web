@@ -335,28 +335,38 @@ test('the CSP pins no hash that no committed block produces', () => {
 // whose route is not in the nav at all ends up with aria-current on nothing,
 // not a fallback to whichever link happened to be marked in the template.
 
+// The route a served page answers on, read from its own canonical link rather
+// than from the manifest - HAND_MAINTAINED pages have no manifest entry, and
+// they are exactly the pages the tests below used to skip. web/404.html has no
+// canonical on purpose: it is served for URLs that do not exist, so it has no
+// route of its own to declare.
+function routeOf(path) {
+  const m = readServed(path).match(/<link rel="canonical" href="([^"]+)"/);
+  return m ? new URL(m[1]).pathname : null;
+}
+
 function navLinks(html) {
   return [...html.matchAll(/<a class="nav-link" href="([^"]+)"([^>]*)>/g)]
     .map(([, href, rest]) => ({ href, current: /\baria-current="page"/.test(rest) }));
 }
 
-test('every generated page has at most one aria-current nav link', () => {
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
-    const links = navLinks(html);
-    assert.ok(links.length > 0, `${page.out} has no nav links to check`);
+test('every served page has at most one aria-current nav link', () => {
+  for (const path of SERVED) {
+    const links = navLinks(readServed(path));
+    assert.ok(links.length > 0, `${path} has no nav links to check`);
     const current = links.filter((l) => l.current);
     assert.ok(
       current.length <= 1,
-      `${page.out} has ${current.length} aria-current nav links: ${JSON.stringify(current)}`,
+      `${path} has ${current.length} aria-current nav links: ${JSON.stringify(current)}`,
     );
   }
 });
 
 test('a page\'s own route in its nav carries aria-current, and no other link does', () => {
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
-    const route = new URL(page.canonical).pathname;
+  for (const page of SERVED.map((out) => ({ out, route: routeOf(out) }))) {
+    if (page.route === null) continue; // web/404.html declares no route
+    const html = readServed(page.out);
+    const route = page.route;
     const links = navLinks(html);
     const own = links.find((l) => l.href === route);
     if (own) {
@@ -385,21 +395,21 @@ test('a page\'s own route in its nav carries aria-current, and no other link doe
 // failure this page's structure would have hit hardest, so assert the absence
 // of the markers in the OUTPUT rather than trusting the parser tests alone.
 
-test('no generated page leaks a literal Markdown block marker', () => {
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
+test('no served page leaks a literal Markdown block marker', () => {
+  for (const path of SERVED) {
+    const html = readServed(path);
     const lines = html.split('\n');
     lines.forEach((line, i) => {
       assert.ok(
         !line.includes('###'),
-        `${page.out}:${i + 1} leaks a literal H3 marker: ${line.trim()}`,
+        `${path}:${i + 1} leaks a literal H3 marker: ${line.trim()}`,
       );
       // A rendered bullet is "<li>...", never a line that begins with a dash.
       // The about.md signature ("- Sophia") is inline inside <p class="signature">,
       // so it does not begin a line and is correctly not caught here.
       assert.ok(
         !/^\s*-\s/.test(line),
-        `${page.out}:${i + 1} leaks a literal list marker: ${line.trim()}`,
+        `${path}:${i + 1} leaks a literal list marker: ${line.trim()}`,
       );
     });
   }
@@ -410,12 +420,11 @@ test('no generated page leaks a literal Markdown block marker', () => {
 // analyses, data model, importer specs) must not be advertised by name. The
 // credits page in particular is condensed from a source file thick with them.
 
-test('no generated page names an internal repo path', () => {
+test('no served page names an internal repo path', () => {
   const forbidden = /docs\/|\.titan|feature-matrix|competitive-|importer-specifications|02-data-model|gradle\//;
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
-    const hit = html.split('\n').find((l) => forbidden.test(l));
-    assert.equal(hit, undefined, `${page.out} names an internal path: ${hit && hit.trim()}`);
+  for (const path of SERVED) {
+    const hit = readServed(path).split('\n').find((l) => forbidden.test(l));
+    assert.equal(hit, undefined, `${path} names an internal path: ${hit && hit.trim()}`);
   }
 });
 
@@ -438,18 +447,51 @@ test('the credits page attributes the home-page icons with both licenses', () =>
 // later PAGES entry too - the check is generic over the manifest, not
 // hardcoded to /roadmap specifically.
 
-test('every PAGES entry is linked from at least one other served page', () => {
-  const outs = new Set([...HAND_MAINTAINED, ...PAGES.map((p) => p.out)]);
-  for (const page of PAGES) {
-    const route = new URL(page.canonical).pathname;
-    const linkedFrom = [...outs].filter((out) => {
-      if (out === page.out) return false;
-      const html = readFileSync(new URL(`../${out}`, import.meta.url), 'utf8');
-      return html.includes(`href="${route}"`);
-    });
+// Two served pages are unreachable by link ON PURPOSE, and each has to say why
+// here rather than be skipped silently:
+//   web/404.html              served for URLs that do not exist; it declares no
+//                             canonical, so it has no route to be linked to.
+//   web/thanks-for-voting/    the logo poll's post-submit redirect target. It
+//                             is noindex and is reached by submitting the form,
+//                             never by following a link.
+// web/logo-poll/ is NOT here: it is noindex and shared by direct link, but the
+// results announcement does link to it, so the check still applies.
+const DELIBERATELY_UNLINKED = ['web/404.html', 'web/thanks-for-voting/index.html'];
+
+test('every served page is linked from at least one other served page', () => {
+  let checked = 0;
+  for (const path of SERVED) {
+    if (DELIBERATELY_UNLINKED.includes(path)) continue;
+    const route = routeOf(path);
+    assert.ok(route, `${path} has no canonical link, so it declares no route`);
+    const linkedFrom = SERVED.filter(
+      (other) => other !== path && readServed(other).includes(`href="${route}"`),
+    );
     assert.ok(
       linkedFrom.length > 0,
-      `${page.out} (route ${route}) is not linked from any other served page - it is orphaned`,
+      `${path} (route ${route}) is not linked from any other served page - it is orphaned. `
+      + 'If that is deliberate, add it to DELIBERATELY_UNLINKED with the reason.',
+    );
+    checked++;
+  }
+  assert.ok(checked >= 15, `expected nearly every served page to be checked, saw ${checked}`);
+});
+
+test('every deliberately unlinked page really is unreachable by link', () => {
+  // Guards the exception list from outliving its reason: if one of these later
+  // gains an inbound link, the entry is stale and should be removed so the
+  // check starts covering it again.
+  for (const path of DELIBERATELY_UNLINKED) {
+    assert.ok(SERVED.includes(path), `DELIBERATELY_UNLINKED names ${path}, which is not served`);
+    const route = routeOf(path);
+    if (route === null) continue;
+    const linkedFrom = SERVED.filter(
+      (other) => other !== path && readServed(other).includes(`href="${route}"`),
+    );
+    assert.deepEqual(
+      linkedFrom, [],
+      `${path} is listed as deliberately unlinked but is linked from ${linkedFrom.join(', ')}. `
+      + 'Drop it from DELIBERATELY_UNLINKED so the orphan check covers it.',
     );
   }
 });
@@ -717,5 +759,50 @@ test('both CI workflows pin actions/checkout by SHA, never by tag', () => {
     for (const u of uses) {
       assert.match(u, /@[0-9a-f]{40}$/, `${rel} floats an action reference: ${u}`);
     }
+  }
+});
+
+// --- Footer copyright year --------------------------------------------------
+// It was typed by hand into all 18 served pages with nothing watching it, so
+// on January 1 it would simply have been wrong site-wide. The twelve
+// template-rendered pages now take it from fillTemplate, which means the
+// build-drift gate catches those; these tests cover the property end to end,
+// including the six hand-maintained pages that have no template.
+
+test('fillTemplate writes the year it is given into the footer', () => {
+  const out = fillTemplate(
+    readServed('templates/about.html'),
+    { src: 'content/x.md', title: 't', description: 'd', canonical: 'https://example.test/x' },
+    'body',
+    2099,
+  );
+  assert.match(out, /&copy; 2099 Notarium LLC/);
+  assert.ok(!/&copy; 2026/.test(out), 'the template still hardcodes a year');
+});
+
+test('no served page hardcodes a stale footer copyright year', () => {
+  const current = new Date().getFullYear();
+  let checked = 0;
+  for (const path of SERVED) {
+    for (const [, year] of readServed(path).matchAll(/&copy; ((?:19|20)\d{2})/g)) {
+      assert.equal(
+        Number(year), current,
+        `${path} footer says ${year}, but the current year is ${current}. `
+        + 'Rebuild for the generated pages; edit the hand-maintained ones by hand.',
+      );
+      checked++;
+    }
+  }
+  assert.ok(checked >= 18, `expected a copyright line on every served page, saw ${checked}`);
+});
+
+test('neither template hardcodes a copyright year any more', () => {
+  for (const rel of ['templates/about.html', 'templates/legal.html']) {
+    const html = readServed(rel);
+    assert.match(html, /&copy; \{\{YEAR\}\}/, `${rel} does not take the year from the build`);
+    assert.ok(
+      !/&copy; (?:19|20)\d{2}/.test(html),
+      `${rel} still hardcodes a literal copyright year`,
+    );
   }
 });
