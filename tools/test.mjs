@@ -913,3 +913,57 @@ test('the security page names the repository instead of saying "this repository"
   );
   assert.match(html, /private vulnerability reporting[\s\S]{0,200}github\.com\/notariumhealth\/notarium-web/);
 });
+
+// --- Gallery images declare their real intrinsic size -----------------------
+// Without width/height the browser cannot reserve the box before the image
+// arrives, so the gallery reflows on load (cumulative layout shift). Asserting
+// the attributes are PRESENT would not be enough: a wrong number reserves the
+// wrong box and reintroduces the shift while looking fixed. So read the real
+// dimensions out of each PNG header and require the markup to match, which
+// also catches an asset swapped for one of a different size.
+
+function pngSize(relPath) {
+  const buf = readFileSync(new URL(`../${relPath}`, import.meta.url));
+  assert.equal(buf.subarray(1, 4).toString('ascii'), 'PNG', `${relPath} is not a PNG`);
+  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+}
+
+test('every logo-poll thumbnail declares the PNG\'s real width and height', () => {
+  const html = readServed('web/logo-poll/index.html');
+  const imgs = [...html.matchAll(/<img src="(\/logo-poll\/[^"]+\.png)"([^>]*)>/g)];
+  assert.equal(imgs.length, 9, `expected the nine ballot concepts, saw ${imgs.length}`);
+  for (const [, src, attrs] of imgs) {
+    const { width, height } = pngSize(`web${src}`);
+    assert.match(attrs, new RegExp(`\\bwidth="${width}"`), `${src} should declare width="${width}": ${attrs}`);
+    assert.match(attrs, new RegExp(`\\bheight="${height}"`), `${src} should declare height="${height}": ${attrs}`);
+  }
+});
+
+// --- The lightbox is a modal for keyboard users too -------------------------
+// The handler built a role="dialog" overlay and appended it to body without
+// ever moving focus into it, trapping it, or restoring it on close. A keyboard
+// user activating a thumbnail was left with focus behind an overlay they could
+// see but not reach. Escape-to-close was already wired globally and worked.
+//
+// There is no DOM here (no dependencies, node --test only), so this asserts on
+// the committed inline script's source rather than on behaviour. That is a real
+// limit: it pins that the calls are present, not that they fire in the right
+// order. It is still worth having - the failure it guards is a silent deletion
+// during an unrelated edit, not a subtle ordering bug.
+
+test('the logo-poll lightbox moves, traps and restores focus', () => {
+  const html = readServed('web/logo-poll/index.html');
+  const script = html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/);
+  assert.ok(script, 'the logo poll has no inline script');
+  const src = script[1];
+  for (const [needle, why] of [
+    ["setAttribute('aria-modal', 'true')", 'the overlay does not announce itself as modal'],
+    ["setAttribute('tabindex', '-1')", 'the overlay cannot receive focus'],
+    ['box.focus()', 'focus is never moved into the overlay'],
+    ['opener.focus()', 'focus is never restored to the thumbnail on close'],
+    ["ev.key === 'Tab'", 'Tab is not trapped, so it walks the page behind the overlay'],
+    ["e.key === 'Escape'", 'Escape no longer closes the overlay'],
+  ]) {
+    assert.ok(src.includes(needle), `${why} (missing: ${needle})`);
+  }
+});
