@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { parse, inline, fillTemplate } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
@@ -848,4 +849,67 @@ test('the link resolver rejects a route with no file behind it', () => {
   assert.ok(!resolvesToAServedFile('/no-such-route'));
   assert.ok(resolvesToAServedFile('/about'));
   assert.ok(resolvesToAServedFile('/'));
+});
+
+// --- LICENSE exhaustiveness ------------------------------------------------
+// LICENSE and the served /license page both claim that every path in the repo
+// falls under exactly one of four scopes and that "none is covered by
+// omission". Scope 1 makes that claim checkable by enumerating the config and
+// docs paths BY NAME. .forgejo/ was added later by the CI commit and named in
+// neither, and because .github/ is named explicitly right beside it, the
+// omission reads as a deliberate exclusion rather than an oversight.
+//
+// Enumerate-by-name plus a completeness claim is only safe if something
+// checks it, so: every top-level tracked path that is not already covered by
+// a named scope must appear in Scope 1, in the file AND on the page. The two
+// are kept in sync by hand, which is exactly why both are asserted.
+
+const SCOPED_BY_CATEGORY = [
+  // Named in Scope 1 as directories rather than as individual paths.
+  'templates', 'tools', 'styles', 'web',
+  // Scope 2: the published prose.
+  'content',
+  // Addressed at the end of the document, on its own terms.
+  'LICENSE',
+];
+
+function topLevelTrackedPaths() {
+  const out = execFileSync('git', ['ls-files'], { cwd: new URL('..', import.meta.url), encoding: 'utf8' });
+  return [...new Set(out.split('\n').filter(Boolean).map((f) => f.split('/')[0]))];
+}
+
+test('LICENSE Scope 1 names every top-level path not covered by a category', () => {
+  const licenseFile = readServed('LICENSE');
+  const licensePage = readServed('web/license/index.html');
+  const paths = topLevelTrackedPaths();
+  assert.ok(paths.length > 5, `only ${paths.length} top-level paths; the listing is broken`);
+
+  for (const path of paths) {
+    if (SCOPED_BY_CATEGORY.includes(path)) continue;
+    // Directories are written with a trailing slash in both documents.
+    const needle = existsSync(new URL(`../${path}/`, import.meta.url)) ? `${path}/` : path;
+    assert.ok(
+      licenseFile.includes(needle),
+      `LICENSE claims to cover every path but never names ${needle}. `
+      + 'Add it to Scope 1, or add it to SCOPED_BY_CATEGORY with the scope that covers it.',
+    );
+    assert.ok(
+      licensePage.includes(needle),
+      `web/license/index.html does not name ${needle}, though LICENSE does. `
+      + 'The file and the page are kept in sync by hand; both need the edit.',
+    );
+  }
+});
+
+// --- /security has a referent for "this repository" -------------------------
+// The copy is correct in SECURITY.md, where it is read inside the repo. On the
+// served page it had no referent at all.
+
+test('the security page names the repository instead of saying "this repository"', () => {
+  const html = readServed('web/security/index.html');
+  assert.ok(
+    !/>this repository/.test(html) && !/: this repository/.test(html),
+    'web/security/index.html still says "this repository" with nothing to point at',
+  );
+  assert.match(html, /private vulnerability reporting[\s\S]{0,200}github\.com\/notariumhealth\/notarium-web/);
 });
