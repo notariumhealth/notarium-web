@@ -959,11 +959,19 @@ test('the logo-poll lightbox moves, traps and restores focus', () => {
   for (const [needle, why] of [
     ["setAttribute('aria-modal', 'true')", 'the overlay does not announce itself as modal'],
     ["setAttribute('tabindex', '-1')", 'the overlay cannot receive focus'],
-    ['box.focus()', 'focus is never moved into the overlay'],
     ['opener.focus()', 'focus is never restored to the thumbnail on close'],
     ["ev.key === 'Tab'", 'Tab is not trapped, so it walks the page behind the overlay'],
     ["e.key === 'Escape'", 'Escape no longer closes the overlay'],
   ]) {
     assert.ok(src.includes(needle), `${why} (missing: ${needle})`);
   }
+  // The open-time focus move needs its own assertion anchored to the insertion,
+  // not a bare `box.focus()` search: that call also appears inside the Tab trap,
+  // so a plain substring check stays green with the open-time move deleted -
+  // which is the actual bug this test exists to catch. Verified by deleting it.
+  assert.match(
+    src,
+    /document\.body\.appendChild\(box\);\s*box\.focus\(\);/,
+    'focus is not moved into the overlay when it opens',
+  );
 });
