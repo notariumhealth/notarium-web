@@ -1,0 +1,15 @@
+<!-- Interim site favicon: the wordmark's initial and its accent dot.
+     Colours are the palette tokens from styles/base.css, written literally
+     because an SVG served as an icon gets no page stylesheet: --bg #0D1117,
+     --text #EEE9E2, --accent #4A9585.
+     The dot is the wordmark's one piece of colour (.nav-logo-dot), and it is
+     what stays legible at 16px once the letterform stops resolving.
+     The logo poll elected Logo 6; replacing this with a proper export of that
+     mark is a separate change, since it needs the vector source. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Notarium">
+  <rect width="64" height="64" rx="14" fill="#0D1117"/>
+  <text x="30" y="45" fill="#EEE9E2"
+        font-family="Cormorant Garamond, Georgia, 'Times New Roman', serif"
+        font-size="44" font-weight="600" text-anchor="middle">N</text>
+  <circle cx="52" cy="42" r="5" fill="#4A9585"/>
+</svg>

@@ -975,3 +975,73 @@ test('the logo-poll lightbox moves, traps and restores focus', () => {
     'focus is not moved into the overlay when it opens',
   );
 });
+
+// --- Head metadata: favicon and link previews -------------------------------
+// Every visit used to 404 on /favicon.ico and show a blank tab icon, and a
+// link shared to Mastodon, Bluesky or an email to a prospective board member
+// rendered as a bare URL. Board recruiting and the direct-link poll are the
+// two channels actually in use, and both run over exactly those surfaces.
+//
+// The og:* values are derived from each page's own title, description and
+// canonical rather than written separately, so the assertion below is that
+// they AGREE - a second set of strings that drifts is worse than none, because
+// the preview then says something the page does not.
+
+function headMeta(html) {
+  const pick = (re) => { const m = html.match(re); return m ? m[1] : null; };
+  return {
+    title: pick(/<title>([\s\S]*?)<\/title>/),
+    description: pick(/<meta name="description" content="([\s\S]*?)">/),
+    canonical: pick(/<link rel="canonical" href="([^"]*)">/),
+    ogTitle: pick(/<meta property="og:title" content="([\s\S]*?)">/),
+    ogDescription: pick(/<meta property="og:description" content="([\s\S]*?)">/),
+    ogUrl: pick(/<meta property="og:url" content="([^"]*)">/),
+    twTitle: pick(/<meta name="twitter:title" content="([\s\S]*?)">/),
+    twDescription: pick(/<meta name="twitter:description" content="([\s\S]*?)">/),
+    twCard: pick(/<meta name="twitter:card" content="([^"]*)">/),
+  };
+}
+
+// web/404.html is served for URLs that do not exist: it is noindex, declares no
+// canonical and no description, and is never a shared link, so it carries no
+// preview metadata on purpose.
+const NO_LINK_PREVIEW = ['web/404.html'];
+
+test('every served page links the favicon', () => {
+  for (const path of SERVED) {
+    assert.match(
+      readServed(path),
+      /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/,
+      `${path} has no favicon link, so it shows a blank tab icon and 404s on /favicon.ico`,
+    );
+  }
+  assert.ok(existsSync(new URL('../web/favicon.svg', import.meta.url)), 'web/favicon.svg is missing');
+});
+
+test('link-preview metadata agrees with the page it describes', () => {
+  let checked = 0;
+  for (const path of SERVED) {
+    if (NO_LINK_PREVIEW.includes(path)) continue;
+    const m = headMeta(readServed(path));
+    assert.ok(m.ogTitle, `${path} has no og:title, so a shared link renders as a bare URL`);
+    assert.equal(m.ogTitle, m.title, `${path}: og:title disagrees with <title>`);
+    assert.equal(m.ogDescription, m.description, `${path}: og:description disagrees with the meta description`);
+    assert.equal(m.ogUrl, m.canonical, `${path}: og:url disagrees with the canonical link`);
+    assert.equal(m.twTitle, m.title, `${path}: twitter:title disagrees with <title>`);
+    assert.equal(m.twDescription, m.description, `${path}: twitter:description disagrees with the meta description`);
+    // summary, not summary_large_image: there is no designed card image yet,
+    // and a large-image card with no image renders worse than a small one.
+    assert.equal(m.twCard, 'summary', `${path}: unexpected twitter:card`);
+    checked++;
+  }
+  assert.ok(checked >= 17, `expected preview metadata on nearly every page, saw ${checked}`);
+});
+
+test('the page with no link preview really declares no canonical', () => {
+  // Guards the exception the way DELIBERATELY_UNLINKED is guarded: if 404.html
+  // ever gains a canonical it has become a real route and should carry the
+  // metadata like everything else.
+  for (const path of NO_LINK_PREVIEW) {
+    assert.equal(routeOf(path), null, `${path} now declares a route, so it should carry og:* too`);
+  }
+});
