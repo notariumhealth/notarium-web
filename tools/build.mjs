@@ -234,14 +234,32 @@ const sitemap =
   + '</urlset>\n';
 writeFileSync(join(ROOT, 'web/sitemap.xml'), sitemap);
 
+// DELIBERATELY ONLY A Sitemap: DIRECTIVE, no User-agent group.
+//
+// Cloudflare prepends its own managed block to whatever this file contains,
+// and that block already opens a `User-agent: *` group - carrying
+// `Content-Signal: search=yes,ai-train=no,use=reference` plus per-agent
+// Disallow rules for the AI crawlers. Emitting a second `User-agent: *` group
+// here put two same-agent groups in the served file. Crawlers are supposed to
+// merge those, so it was harmless in practice, but our group landed AFTER
+// Cloudflare's, and a parser that took the last group rather than merging
+// would drop the Content-Signal line - which is an express reservation of
+// rights under Article 4 of the EU DSM Directive, and not something to risk
+// for a redundant `Allow: /`.
+//
+// `Sitemap:` is a non-group directive and is valid anywhere in the file, so
+// this still does the job L15 was filed for: the sitemap is discoverable, and
+// the agent rules stay owned by one block instead of two.
 const robots =
   '# notarium.health\n'
+  + '#\n'
+  + '# Crawler rules are NOT here: Cloudflare prepends a managed block above\n'
+  + '# this text that already opens a User-agent group and carries the\n'
+  + '# Content-Signal reservation. A second group here would duplicate it.\n'
+  + '#\n'
   + '# Pages that should not be indexed say so in their own markup\n'
-  + '# (<meta name="robots" content="noindex">), which is what keeps them out\n'
-  + '# of the sitemap below. This file exists so a crawler stops 404ing on it\n'
-  + '# and can find the sitemap; it is not the access-control mechanism.\n'
-  + 'User-agent: *\n'
-  + 'Allow: /\n'
+  + '# (<meta name="robots" content="noindex">), which is also what keeps them\n'
+  + '# out of the sitemap. This file is not the access-control mechanism.\n'
   + '\n'
   + `Sitemap: ${ORIGIN}/sitemap.xml\n`;
 writeFileSync(join(ROOT, 'web/robots.txt'), robots);
