@@ -44,7 +44,7 @@ jobs:
       - name: Checkout
         # actions/checkout v4.2.2 pinned by SHA, the same digest notarium's own
         # ci.yml vets. Refresh deliberately, never float the tag.
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Run test suite
         run: node --test tools/test.mjs
