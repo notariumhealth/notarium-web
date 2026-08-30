@@ -1,9 +1,11 @@
 # notarium.health
+#
+# Crawler rules are NOT here: Cloudflare prepends a managed block above
+# this text that already opens a User-agent group and carries the
+# Content-Signal reservation. A second group here would duplicate it.
+#
 # Pages that should not be indexed say so in their own markup
-# (<meta name="robots" content="noindex">), which is what keeps them out
-# of the sitemap below. This file exists so a crawler stops 404ing on it
-# and can find the sitemap; it is not the access-control mechanism.
-User-agent: *
-Allow: /
+# (<meta name="robots" content="noindex">), which is also what keeps them
+# out of the sitemap. This file is not the access-control mechanism.
 
 Sitemap: https://notarium.health/sitemap.xml

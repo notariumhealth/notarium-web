@@ -1093,8 +1093,21 @@ test('every sitemap entry resolves to a served file', () => {
   }
 });
 
-test('robots.txt exists and points at the sitemap', () => {
+test('robots.txt points at the sitemap and declares no crawler group', () => {
   const robots = readServed('web/robots.txt');
-  assert.match(robots, /^User-agent: \*$/m);
   assert.match(robots, /^Sitemap: https:\/\/notarium\.health\/sitemap\.xml$/m);
+  // Cloudflare prepends a managed block that already opens a `User-agent: *`
+  // group carrying the Content-Signal reservation and the per-agent AI crawler
+  // rules. A group here would be a SECOND same-agent group in the served file,
+  // landing after Cloudflare's; crawlers are meant to merge those, but one
+  // that took the last group instead would drop the Content-Signal line. Keep
+  // the agent rules owned by exactly one block.
+  assert.ok(
+    !/^User-agent:/m.test(robots),
+    'robots.txt declares a User-agent group, duplicating the Cloudflare managed block',
+  );
+  assert.ok(
+    !/^(Allow|Disallow):/m.test(robots),
+    'robots.txt declares crawler rules; those belong to the Cloudflare managed block',
+  );
 });
