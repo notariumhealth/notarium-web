@@ -6,6 +6,24 @@
   <title>Security - Notarium</title>
   <meta name="description" content="How to report a security vulnerability in the Notarium website, what to expect, scope, and our PGP key.">
   <link rel="canonical" href="https://notarium.health/security">
+  <!-- Link-preview metadata. Both currently active distribution channels -
+       board recruiting by email and the direct-link poll - run over surfaces
+       that render these, and without them a shared link is a bare URL.
+       Driven by the same title/description/canonical the page already
+       declares, so there is one source per page rather than a second set of
+       strings to drift. twitter:card is "summary" rather than
+       "summary_large_image" deliberately: there is no designed 1200x630 card
+       image yet, and a large-image card with no image renders worse than a
+       small one. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Notarium">
+  <meta property="og:title" content="Security - Notarium">
+  <meta property="og:description" content="How to report a security vulnerability in the Notarium website, what to expect, scope, and our PGP key.">
+  <meta property="og:url" content="https://notarium.health/security">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Security - Notarium">
+  <meta name="twitter:description" content="How to report a security vulnerability in the Notarium website, what to expect, scope, and our PGP key.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -296,7 +314,7 @@ textarea {
       <p>Please report security issues privately. <strong>Do not open a public issue</strong> for a suspected vulnerability.</p>
       <ul>
         <li>Email <a class="link" href="mailto:security@notarium.health">security@notarium.health</a>, ideally encrypted with our PGP key (below).</li>
-        <li>Or use GitHub's <strong>private vulnerability reporting</strong>: this repository, the <strong>Security</strong> tab, then <strong>Report a vulnerability</strong>.</li>
+        <li>Or use GitHub's <strong>private vulnerability reporting</strong>: the <a class="link" href="https://github.com/notariumhealth/notarium-web">notarium-web</a> repository, the <strong>Security</strong> tab, then <strong>Report a vulnerability</strong>.</li>
       </ul>
     </section>
 

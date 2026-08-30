@@ -7,6 +7,24 @@
   <title>{{TITLE}}</title>
   <meta name="description" content="{{DESCRIPTION}}">
   <link rel="canonical" href="{{CANONICAL}}">
+  <!-- Link-preview metadata. Both currently active distribution channels -
+       board recruiting by email and the direct-link poll - run over surfaces
+       that render these, and without them a shared link is a bare URL.
+       Driven by the same title/description/canonical the page already
+       declares, so there is one source per page rather than a second set of
+       strings to drift. twitter:card is "summary" rather than
+       "summary_large_image" deliberately: there is no designed 1200x630 card
+       image yet, and a large-image card with no image renders worse than a
+       small one. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Notarium">
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:url" content="{{CANONICAL}}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{TITLE}}">
+  <meta name="twitter:description" content="{{DESCRIPTION}}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -226,7 +244,7 @@
       <a href="https://codeberg.org/notariumhealth">Codeberg</a>
       <a rel="me" href="https://hachyderm.io/@notarium">Mastodon</a>
     </nav>
-    <span class="footer-copy">&copy; 2026 Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
+    <span class="footer-copy">&copy; {{YEAR}} Notarium LLC. Notarium&trade; is a trademark of Notarium LLC.</span>
   </footer>
 </body>
 </html>

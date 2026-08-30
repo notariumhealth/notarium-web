@@ -6,6 +6,24 @@
   <title>Notarium - Log everything. Share nothing.</title>
   <meta name="description" content="Notarium is a privacy-first health tracker for Android. Your health data stays encrypted and on your device. No accounts, no cloud sync, no data brokers.">
   <link rel="canonical" href="https://notarium.health">
+  <!-- Link-preview metadata. Both currently active distribution channels -
+       board recruiting by email and the direct-link poll - run over surfaces
+       that render these, and without them a shared link is a bare URL.
+       Driven by the same title/description/canonical the page already
+       declares, so there is one source per page rather than a second set of
+       strings to drift. twitter:card is "summary" rather than
+       "summary_large_image" deliberately: there is no designed 1200x630 card
+       image yet, and a large-image card with no image renders worse than a
+       small one. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Notarium">
+  <meta property="og:title" content="Notarium - Log everything. Share nothing.">
+  <meta property="og:description" content="Notarium is a privacy-first health tracker for Android. Your health data stays encrypted and on your device. No accounts, no cloud sync, no data brokers.">
+  <meta property="og:url" content="https://notarium.health">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Notarium - Log everything. Share nothing.">
+  <meta name="twitter:description" content="Notarium is a privacy-first health tracker for Android. Your health data stays encrypted and on your device. No accounts, no cloud sync, no data brokers.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -494,17 +512,17 @@ textarea {
       <div class="why-grid">
         <div class="why-item">
           <p class="why-label">Encrypted</p>
-          <h3 class="why-title">Three layers of protection</h3>
+          <h2 class="why-title">Three layers of protection</h2>
           <p class="why-body">Everything is encrypted on your device: full-disk encryption, a password-protected database, and a second layer on sensitive fields. Your health data stays encrypted even if someone bypasses the app.</p>
         </div>
         <div class="why-item">
           <p class="why-label">Local-first</p>
-          <h3 class="why-title">Your device, not our server</h3>
+          <h2 class="why-title">Your device, not our server</h2>
           <p class="why-body">Data lives on your device by default. Optional sync is opt-in per data type. You choose what moves and where it goes. Nothing is shared automatically.</p>
         </div>
         <div class="why-item">
           <p class="why-label">No tracking</p>
-          <h3 class="why-title">Nothing phones home</h3>
+          <h2 class="why-title">Nothing phones home</h2>
           <p class="why-body">The app has no analytics, crash reporters, or ad networks. It doesn't send data anywhere you didn't ask it to. What you log stays on your device.</p>
         </div>
       </div>
@@ -558,10 +576,10 @@ textarea {
         <h2 class="waitlist-title">Be first to know.</h2>
         <p class="waitlist-body">Notarium is in development. Leave your email and we'll notify you when it's ready for Android.</p>
         <form class="waitlist-form" action="https://formspree.io/f/xykqjzeg" method="POST">
-          <input class="waitlist-input" type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
+          <input class="waitlist-input" type="email" name="email" placeholder="you@example.com" required autocomplete="email" aria-label="Email address">
           <button class="btn-primary btn-submit" type="submit">Notify me</button>
         </form>
-        <p class="waitlist-footnote">Your email won't be shared with anyone. Unsubscribe any time.</p>
+        <p class="waitlist-footnote">Your email goes to our form provider and to me, and nowhere else. Unsubscribe any time.</p>
       </div>
     </section>
   </main>

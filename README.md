@@ -9,20 +9,28 @@ repo.
 ## Layout
 
 ```
-web/
-  index.html    Landing page - hand-authored, self-contained (inline CSS)
-  about.html    GENERATED from content/about.md - do not edit by hand
-content/
-  about.md      Prose source for /about (vendored from the canonical repo)
-templates/
-  about.html    Styled shell (CSS, nav, footer) with placeholders
+web/         The served site. Every route is a directory index
+             (web/<route>/index.html), so the file layout and the URL
+             layout are the same thing and nothing depends on host
+             rewriting. web/index.html is the landing page.
+content/     Markdown prose for the generated pages, vendored from the
+             canonical repo. Do not edit the generated HTML.
+templates/   Styled shells (CSS, nav, footer) with {{PLACEHOLDER}} slots
+styles/      base.css, injected into every page's inline <style>
 tools/
-  build.mjs        Renders content/*.md into web/*.html (zero dependencies)
+  pages.mjs        THE PAGE MANIFEST. Which pages exist, what generates
+                   them, and which lists they belong to. Read this rather
+                   than a tree in a README, which is what went stale.
+  build.mjs        Renders content/*.md into web/, injects the base style,
+                   pins the CSP hashes (zero dependencies)
+  render.mjs       The Markdown-ish parse and render layer
+  test.mjs         The test suite (node --test tools/test.mjs)
   sync-content.sh  Pulls the canonical docs into content/, then rebuilds
 ```
 
-`web/index.html` is a single static HTML file with inline styles. `web/about.html`
-is generated, so edit the Markdown source, not the HTML.
+`web/index.html` is hand-authored with inline styles. The pages listed in
+`PAGES` in `tools/pages.mjs` are generated, so edit the Markdown source, not
+the HTML; the ones in `HAND_MAINTAINED` are edited directly.
 
 ## Content source of truth
 
@@ -66,7 +74,7 @@ Open the file directly, or serve the folder:
 
 ```bash
 python3 -m http.server -d web 8080
-# then visit http://localhost:8080  (about page at /about.html locally)
+# then visit http://localhost:8080  (every route resolves locally too)
 ```
 
 ## Deploy
@@ -74,8 +82,30 @@ python3 -m http.server -d web 8080
 Cloudflare Pages builds from the GitHub `main` branch and publishes to
 notarium.health. Pushing to `main` triggers a new deploy. There is no build
 command at deploy time; Pages serves the committed `web/` directory as-is, so
-regenerate locally and commit the HTML. (`/about` resolves to `about.html` via
-Pages' clean-URL handling.)
+regenerate locally and commit the HTML. Every route is a directory index, so
+resolution depends on the file layout rather than on host-specific clean-URL
+handling, and local preview matches production.
+
+## Checks
+
+The same five gates run on both remotes, from `.forgejo/workflows/ci.yml` and
+`.github/workflows/ci.yml`, on every pull request and every push to `main`:
+
+1. `node --test tools/test.mjs`
+2. **Build drift** - rebuild and fail if any tracked file changed, which means
+   content or a template was committed without rerunning the build. This is the
+   important one: a stale CSP hash ships a page unstyled and nothing else
+   notices.
+3. No em dashes in tracked files
+4. No registered-mark symbol (the trademark application is pending)
+5. No forward-looking dates or timelines
+
+The two workflow files are a hand-maintained mirror of each other, differing
+only in the runner. `tools/test.mjs` asserts they run the same named steps with
+the same commands, so a gate added or weakened on one side fails the build
+until it is mirrored on the other. They used to exist on the Forgejo side only,
+which meant a push straight to `github/main` - the branch Cloudflare Pages
+actually deploys - was verified by nothing.
 
 ## Remotes
 
@@ -83,7 +113,34 @@ Pages' clean-URL handling.)
 - `origin`  Forgejo on the homelab (private working copy)
 
 Keep both in sync. The GitHub copy is the one that ships, so a change is not
-live until it lands on `github/main`.
+live until it lands on `github/main`. Both now run the checks above, so neither
+remote is the unguarded one.
+
+## Forms, and what happens when they break
+
+Two pages POST to Formspree: the home-page waitlist (`f/xykqjzeg`) and the
+logo poll (`f/xojorywl`, now closed). Both are plain HTML form posts with no
+client-side handling, which is deliberate - they work with JavaScript off -
+but it means there is **no failure signal**. If the endpoint is retired, hits
+a plan limit, or starts rejecting, the visitor sees a Formspree error page and
+nothing here reports it. The waitlist is the site's only conversion, so the
+failure mode is silent loss of the thing the site exists to collect.
+
+This is accepted rather than fixed: adding client-side error handling would
+mean giving the one page that has to work without JavaScript a JavaScript
+dependency. The check is manual instead.
+
+**Monthly, and before sharing the waitlist anywhere new:** submit a real
+address through the form at <https://notarium.health/#waitlist>, confirm the
+redirect lands, and confirm the notification arrives. If it does not:
+
+1. Check the Formspree dashboard for the form's status and the plan's
+   submission quota.
+2. Confirm `form-action 'self' https://formspree.io` is still in the CSP in
+   `web/_headers` - a CSP edit that drops it blocks the POST in the browser
+   with no server-side trace at all.
+3. Confirm the `action` URL on the page still matches the form ID in the
+   dashboard.
 
 ## Writing copy
 

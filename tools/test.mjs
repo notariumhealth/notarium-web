@@ -1,9 +1,10 @@
 // Run: node --test tools/test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { parse } from './render.mjs';
+import { parse, inline, fillTemplate } from './render.mjs';
 import { PAGES, HAND_MAINTAINED, STYLE_PAGES, SCRIPT_PAGES } from './pages.mjs';
 
 test('trailing single-line dash block is the signature', () => {
@@ -97,7 +98,7 @@ test('a single trailing bullet with no other list in the document is still a sig
 // injection silently stopped covering that page.
 
 const SERVED = [
-  'web/index.html', 'web/about.html', 'web/roadmap/index.html',
+  'web/index.html', 'web/about/index.html', 'web/roadmap/index.html',
   'web/board/index.html',
   'web/board/legal-governance/index.html',
   'web/board/finance-treasurer/index.html',
@@ -271,6 +272,7 @@ function readServed(relPath) {
 // changes, this must change with it or the assertion becomes meaningless.
 function blockHash(relPath, tag) {
   const html = readServed(relPath);
+  // Same regex, same bound - see the note beside blockHash in tools/build.mjs.
   const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'g');
   const all = [...html.matchAll(re)];
   assert.equal(all.length, 1, `${relPath} should have exactly one inline <${tag}>, saw ${all.length}`);
@@ -335,28 +337,38 @@ test('the CSP pins no hash that no committed block produces', () => {
 // whose route is not in the nav at all ends up with aria-current on nothing,
 // not a fallback to whichever link happened to be marked in the template.
 
+// The route a served page answers on, read from its own canonical link rather
+// than from the manifest - HAND_MAINTAINED pages have no manifest entry, and
+// they are exactly the pages the tests below used to skip. web/404.html has no
+// canonical on purpose: it is served for URLs that do not exist, so it has no
+// route of its own to declare.
+function routeOf(path) {
+  const m = readServed(path).match(/<link rel="canonical" href="([^"]+)"/);
+  return m ? new URL(m[1]).pathname : null;
+}
+
 function navLinks(html) {
   return [...html.matchAll(/<a class="nav-link" href="([^"]+)"([^>]*)>/g)]
     .map(([, href, rest]) => ({ href, current: /\baria-current="page"/.test(rest) }));
 }
 
-test('every generated page has at most one aria-current nav link', () => {
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
-    const links = navLinks(html);
-    assert.ok(links.length > 0, `${page.out} has no nav links to check`);
+test('every served page has at most one aria-current nav link', () => {
+  for (const path of SERVED) {
+    const links = navLinks(readServed(path));
+    assert.ok(links.length > 0, `${path} has no nav links to check`);
     const current = links.filter((l) => l.current);
     assert.ok(
       current.length <= 1,
-      `${page.out} has ${current.length} aria-current nav links: ${JSON.stringify(current)}`,
+      `${path} has ${current.length} aria-current nav links: ${JSON.stringify(current)}`,
     );
   }
 });
 
 test('a page\'s own route in its nav carries aria-current, and no other link does', () => {
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
-    const route = new URL(page.canonical).pathname;
+  for (const page of SERVED.map((out) => ({ out, route: routeOf(out) }))) {
+    if (page.route === null) continue; // web/404.html declares no route
+    const html = readServed(page.out);
+    const route = page.route;
     const links = navLinks(html);
     const own = links.find((l) => l.href === route);
     if (own) {
@@ -385,21 +397,21 @@ test('a page\'s own route in its nav carries aria-current, and no other link doe
 // failure this page's structure would have hit hardest, so assert the absence
 // of the markers in the OUTPUT rather than trusting the parser tests alone.
 
-test('no generated page leaks a literal Markdown block marker', () => {
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
+test('no served page leaks a literal Markdown block marker', () => {
+  for (const path of SERVED) {
+    const html = readServed(path);
     const lines = html.split('\n');
     lines.forEach((line, i) => {
       assert.ok(
         !line.includes('###'),
-        `${page.out}:${i + 1} leaks a literal H3 marker: ${line.trim()}`,
+        `${path}:${i + 1} leaks a literal H3 marker: ${line.trim()}`,
       );
       // A rendered bullet is "<li>...", never a line that begins with a dash.
       // The about.md signature ("- Sophia") is inline inside <p class="signature">,
       // so it does not begin a line and is correctly not caught here.
       assert.ok(
         !/^\s*-\s/.test(line),
-        `${page.out}:${i + 1} leaks a literal list marker: ${line.trim()}`,
+        `${path}:${i + 1} leaks a literal list marker: ${line.trim()}`,
       );
     });
   }
@@ -410,12 +422,11 @@ test('no generated page leaks a literal Markdown block marker', () => {
 // analyses, data model, importer specs) must not be advertised by name. The
 // credits page in particular is condensed from a source file thick with them.
 
-test('no generated page names an internal repo path', () => {
+test('no served page names an internal repo path', () => {
   const forbidden = /docs\/|\.titan|feature-matrix|competitive-|importer-specifications|02-data-model|gradle\//;
-  for (const page of PAGES) {
-    const html = readFileSync(new URL(`../${page.out}`, import.meta.url), 'utf8');
-    const hit = html.split('\n').find((l) => forbidden.test(l));
-    assert.equal(hit, undefined, `${page.out} names an internal path: ${hit && hit.trim()}`);
+  for (const path of SERVED) {
+    const hit = readServed(path).split('\n').find((l) => forbidden.test(l));
+    assert.equal(hit, undefined, `${path} names an internal path: ${hit && hit.trim()}`);
   }
 });
 
@@ -438,18 +449,51 @@ test('the credits page attributes the home-page icons with both licenses', () =>
 // later PAGES entry too - the check is generic over the manifest, not
 // hardcoded to /roadmap specifically.
 
-test('every PAGES entry is linked from at least one other served page', () => {
-  const outs = new Set([...HAND_MAINTAINED, ...PAGES.map((p) => p.out)]);
-  for (const page of PAGES) {
-    const route = new URL(page.canonical).pathname;
-    const linkedFrom = [...outs].filter((out) => {
-      if (out === page.out) return false;
-      const html = readFileSync(new URL(`../${out}`, import.meta.url), 'utf8');
-      return html.includes(`href="${route}"`);
-    });
+// Two served pages are unreachable by link ON PURPOSE, and each has to say why
+// here rather than be skipped silently:
+//   web/404.html              served for URLs that do not exist; it declares no
+//                             canonical, so it has no route to be linked to.
+//   web/thanks-for-voting/    the logo poll's post-submit redirect target. It
+//                             is noindex and is reached by submitting the form,
+//                             never by following a link.
+// web/logo-poll/ is NOT here: it is noindex and shared by direct link, but the
+// results announcement does link to it, so the check still applies.
+const DELIBERATELY_UNLINKED = ['web/404.html', 'web/thanks-for-voting/index.html'];
+
+test('every served page is linked from at least one other served page', () => {
+  let checked = 0;
+  for (const path of SERVED) {
+    if (DELIBERATELY_UNLINKED.includes(path)) continue;
+    const route = routeOf(path);
+    assert.ok(route, `${path} has no canonical link, so it declares no route`);
+    const linkedFrom = SERVED.filter(
+      (other) => other !== path && readServed(other).includes(`href="${route}"`),
+    );
     assert.ok(
       linkedFrom.length > 0,
-      `${page.out} (route ${route}) is not linked from any other served page - it is orphaned`,
+      `${path} (route ${route}) is not linked from any other served page - it is orphaned. `
+      + 'If that is deliberate, add it to DELIBERATELY_UNLINKED with the reason.',
+    );
+    checked++;
+  }
+  assert.ok(checked >= 15, `expected nearly every served page to be checked, saw ${checked}`);
+});
+
+test('every deliberately unlinked page really is unreachable by link', () => {
+  // Guards the exception list from outliving its reason: if one of these later
+  // gains an inbound link, the entry is stale and should be removed so the
+  // check starts covering it again.
+  for (const path of DELIBERATELY_UNLINKED) {
+    assert.ok(SERVED.includes(path), `DELIBERATELY_UNLINKED names ${path}, which is not served`);
+    const route = routeOf(path);
+    if (route === null) continue;
+    const linkedFrom = SERVED.filter(
+      (other) => other !== path && readServed(other).includes(`href="${route}"`),
+    );
+    assert.deepEqual(
+      linkedFrom, [],
+      `${path} is listed as deliberately unlinked but is linked from ${linkedFrom.join(', ')}. `
+      + 'Drop it from DELIBERATELY_UNLINKED so the orphan check covers it.',
     );
   }
 });
@@ -488,4 +532,569 @@ test('no content/ file contains a bracketed reviewer annotation', () => {
     const m = md.match(REVIEWER_TAG);
     assert.equal(m, null, `content/${name} contains a reviewer annotation: ${m && m[0]}`);
   }
+});
+
+// --- Heading order, WCAG 2.1 SC 1.3.1 ---------------------------------------
+// The home page opened h1 and then went straight to three h3 "why" cards, so a
+// screen-reader user navigating by heading level landed on an orphaned h3 with
+// no parent section - on the site's primary page, for a project that names
+// accessibility as a founding commitment. Assert the property (no level is
+// skipped on the way down) rather than the specific tag that was wrong once,
+// and assert it across every served page including the hand-maintained ones,
+// which is where this class of error lives.
+
+function headingLevels(html) {
+  return [...html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
+}
+
+test('no served page skips a heading level on the way down', () => {
+  let checked = 0;
+  for (const path of SERVED) {
+    const levels = headingLevels(readServed(path));
+    assert.ok(levels.length > 0, `${path} has no headings at all`);
+    assert.equal(levels[0], 1, `${path} opens on h${levels[0]}, not h1`);
+    let prev = levels[0];
+    for (const level of levels) {
+      assert.ok(
+        level <= prev + 1,
+        `${path}: h${prev} is followed by h${level}, skipping h${prev + 1} `
+        + '(WCAG 2.1 SC 1.3.1). Demote the deeper heading or add the missing level.',
+      );
+      prev = level;
+      checked++;
+    }
+  }
+  assert.ok(checked > 20, `expected headings across the whole site, saw ${checked}`);
+});
+
+// --- Waitlist input carries an autofill hint --------------------------------
+// WCAG 2.1 SC 1.3.5 (Identify Input Purpose). It is also the one field on the
+// site a visitor has to type, and the app's own design constraint is that a
+// user with a tremor should have to type as little as possible.
+
+test('the waitlist email input declares its autocomplete purpose', () => {
+  const html = readServed('web/index.html');
+  const input = html.match(/<input[^>]*type="email"[^>]*>/);
+  assert.ok(input, 'web/index.html has no email input');
+  assert.match(
+    input[0],
+    /\bautocomplete="email"/,
+    `the waitlist email input has no autocomplete="email": ${input[0]}`,
+  );
+});
+
+// --- Template substitution must not expand dollar patterns ------------------
+// String.prototype.replace / replaceAll expand $&, $`, $' and $$ in a STRING
+// replacement regardless of whether the pattern is a string or a regex. Five
+// of build.mjs's six substitutions passed strings, so a single $' in a page
+// title, description or body would splice part of the template back into the
+// served page - silently, and passing every check but the build-drift diff.
+// Assert on the dollar patterns themselves, since a test using ordinary prose
+// would pass against the broken version too.
+
+test('fillTemplate emits dollar patterns literally instead of expanding them', () => {
+  const template = 'A<title>{{TITLE}}</title>B{{DESCRIPTION}}C{{CANONICAL}}D{{SRC}}E{{BODY}}F';
+  const page = {
+    src: "content/$'.md",
+    title: "$'",
+    description: '$&',
+    canonical: '$`',
+    body: '$$',
+  };
+  const out = fillTemplate(template, page, '$$');
+  assert.equal(out, "A<title>$'</title>B$&C$`D$'.mdE$$F");
+});
+
+test('fillTemplate fills every placeholder the templates declare', () => {
+  for (const rel of ['templates/about.html', 'templates/legal.html']) {
+    const template = readServed(rel);
+    const out = fillTemplate(
+      template,
+      { src: 'content/x.md', title: 't', description: 'd', canonical: 'https://example.test/x' },
+      'body',
+    );
+    const left = out.match(/\{\{[A-Z_]+\}\}/g);
+    assert.equal(left, null, `${rel} has unfilled placeholders: ${left && left.join(' ')}`);
+  }
+});
+
+// --- Link hrefs are attribute-escaped and scheme-checked --------------------
+// escapeHtml covers & < > , which is the right set for body text and the wrong
+// set for an attribute value: a source containing [x](" onmouseover=... x=")
+// closed the href early and landed its own attribute on the anchor, and
+// [x](javascript:...) emitted a javascript: URL. content/ is vendored from a
+// repo we control and the CSP blocks the handler either way, which is why the
+// audit rated this Low - but the sync is scripted rather than read, and this
+// is the one parse path in the renderer that was not defensive.
+
+test('a quote in a link href cannot break out of the attribute', () => {
+  const out = inline('[x](/a" onmouseover=alert(1) x=")');
+  // The property is that the anchor's opening tag carries href and nothing
+  // else: the injected quote is escaped, so it cannot terminate the value and
+  // start a second attribute. Everything after the markdown link's closing
+  // paren stays inert body text.
+  const openTag = out.match(/<a\b[^>]*>/);
+  assert.ok(openTag, `no anchor rendered: ${out}`);
+  assert.match(openTag[0], /^<a href="[^"]*">$/, `href broke out: ${openTag[0]}`);
+  assert.ok(!/onmouseover=/.test(openTag[0].replace(/&quot;.*/s, '')), openTag[0]);
+});
+
+test('an apostrophe in a link href is escaped too', () => {
+  assert.match(inline("[x](/a'b)"), /href="\/a&#39;b"/);
+});
+
+test('the renderer refuses a link scheme outside the allowlist', () => {
+  for (const href of ['javascript:alert(1)', 'data:text/html,x', 'vbscript:x', 'JavaScript:x']) {
+    assert.throws(
+      () => inline(`[x](${href})`),
+      /scheme this renderer does not allow/,
+      `${href} was not rejected`,
+    );
+  }
+});
+
+test('the allowed schemes still render', () => {
+  for (const href of [
+    'https://notarium.health', 'http://example.test', 'mailto:conduct@notarium.health',
+    '/board/at-large', '#waitlist',
+  ]) {
+    assert.match(inline(`[x](${href})`), new RegExp(`href="${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
+  }
+});
+
+test('every href in content/ passes the renderer allowlist', () => {
+  const dir = new URL('../content/', import.meta.url);
+  let checked = 0;
+  for (const name of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    const md = readFileSync(new URL(name, dir), 'utf8');
+    for (const [, , href] of md.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)) {
+      assert.doesNotThrow(
+        () => inline(`[t](${href})`),
+        `content/${name} has an href the renderer will refuse: ${href}`,
+      );
+      checked++;
+    }
+  }
+  assert.ok(checked > 20, `expected the content links to be scanned, saw ${checked}`);
+});
+
+// --- The two CI workflows must stay in lockstep -----------------------------
+// Cloudflare Pages builds from github/main, so github/main is the branch that
+// ships, but every gate this project has lived under .forgejo/ only: a push
+// straight to github/main deployed with nothing checked. .github/workflows/
+// now mirrors it. A mirror maintained by hand rots, and the rot is silent -
+// the deploying side would keep passing a smaller set of checks than the
+// working side. So assert the two describe the same gates, running the same
+// commands.
+//
+// The runner differs on purpose: Forgejo runs a node:22-slim container on the
+// homelab `docker` pool and has to apt-get git into it, GitHub runs
+// ubuntu-latest which ships both. That one step is the only allowed
+// divergence, and it is named here rather than pattern-matched so adding a
+// second exception is a deliberate edit to this list.
+
+const FORGEJO_ONLY_STEPS = ['Install git'];
+
+function workflowSteps(relPath) {
+  const yaml = readServed(relPath);
+  const steps = new Map();
+  // Deliberately not a YAML parser (this repo has no dependencies). The two
+  // files share one generated shape: steps are "      - name: X" and their
+  // command is the "        run: |" block that follows, indented under it.
+  const lines = yaml.split('\n');
+  let name = null;
+  let run = null;
+  for (const line of lines) {
+    const nameMatch = line.match(/^ {6}- name: (.+)$/);
+    if (nameMatch) {
+      if (name !== null) steps.set(name, run);
+      name = nameMatch[1].trim();
+      run = null;
+      continue;
+    }
+    if (name === null) continue;
+    const inlineRun = line.match(/^ {8}run: (?!\|)(.+)$/);
+    if (inlineRun) { run = inlineRun[1].trim(); continue; }
+    if (/^ {8}run: \|\s*$/.test(line)) { run = ''; continue; }
+    if (run !== null && /^ {10}/.test(line)) { run += `${line.slice(10)}\n`; continue; }
+    if (run !== null && line.trim() === '') { run += '\n'; continue; }
+  }
+  if (name !== null) steps.set(name, run);
+  return steps;
+}
+
+test('the GitHub and Forgejo CI workflows run the same gates', () => {
+  const forgejo = workflowSteps('.forgejo/workflows/ci.yml');
+  const github = workflowSteps('.github/workflows/ci.yml');
+  assert.ok(forgejo.size > 4, `parsed only ${forgejo.size} Forgejo steps; the parser is broken`);
+
+  const expected = [...forgejo.keys()].filter((n) => !FORGEJO_ONLY_STEPS.includes(n));
+  assert.deepEqual(
+    [...github.keys()], expected,
+    'the GitHub workflow does not run the same named steps as the Forgejo one. '
+    + 'Mirror the change, or add a deliberate exception to FORGEJO_ONLY_STEPS.',
+  );
+
+  for (const name of expected) {
+    assert.equal(
+      (github.get(name) || '').trim(), (forgejo.get(name) || '').trim(),
+      `CI step "${name}" runs different commands on GitHub than on Forgejo. `
+      + 'The deploying side must not check less than the working side.',
+    );
+  }
+});
+
+test('every Forgejo-only CI step really is absent from the GitHub workflow', () => {
+  const github = workflowSteps('.github/workflows/ci.yml');
+  const forgejo = workflowSteps('.forgejo/workflows/ci.yml');
+  for (const name of FORGEJO_ONLY_STEPS) {
+    assert.ok(forgejo.has(name), `FORGEJO_ONLY_STEPS names "${name}", which no longer exists`);
+    assert.ok(!github.has(name), `"${name}" is listed as Forgejo-only but appears on GitHub too`);
+  }
+});
+
+test('both CI workflows pin actions/checkout by SHA, never by tag', () => {
+  for (const rel of ['.forgejo/workflows/ci.yml', '.github/workflows/ci.yml']) {
+    const yaml = readServed(rel);
+    const uses = [...yaml.matchAll(/^\s*uses: (.+)$/gm)].map((m) => m[1].trim());
+    assert.ok(uses.length > 0, `${rel} uses no actions at all`);
+    for (const u of uses) {
+      assert.match(u, /@[0-9a-f]{40}$/, `${rel} floats an action reference: ${u}`);
+    }
+  }
+});
+
+// --- Footer copyright year --------------------------------------------------
+// It was typed by hand into all 18 served pages with nothing watching it, so
+// on January 1 it would simply have been wrong site-wide. The twelve
+// template-rendered pages now take it from fillTemplate, which means the
+// build-drift gate catches those; these tests cover the property end to end,
+// including the six hand-maintained pages that have no template.
+
+test('fillTemplate writes the year it is given into the footer', () => {
+  const out = fillTemplate(
+    readServed('templates/about.html'),
+    { src: 'content/x.md', title: 't', description: 'd', canonical: 'https://example.test/x' },
+    'body',
+    2099,
+  );
+  assert.match(out, /&copy; 2099 Notarium LLC/);
+  assert.ok(!/&copy; 2026/.test(out), 'the template still hardcodes a year');
+});
+
+test('no served page hardcodes a stale footer copyright year', () => {
+  const current = new Date().getFullYear();
+  let checked = 0;
+  for (const path of SERVED) {
+    for (const [, year] of readServed(path).matchAll(/&copy; ((?:19|20)\d{2})/g)) {
+      assert.equal(
+        Number(year), current,
+        `${path} footer says ${year}, but the current year is ${current}. `
+        + 'Rebuild for the generated pages; edit the hand-maintained ones by hand.',
+      );
+      checked++;
+    }
+  }
+  assert.ok(checked >= 18, `expected a copyright line on every served page, saw ${checked}`);
+});
+
+test('neither template hardcodes a copyright year any more', () => {
+  for (const rel of ['templates/about.html', 'templates/legal.html']) {
+    const html = readServed(rel);
+    assert.match(html, /&copy; \{\{YEAR\}\}/, `${rel} does not take the year from the build`);
+    assert.ok(
+      !/&copy; (?:19|20)\d{2}/.test(html),
+      `${rel} still hardcodes a literal copyright year`,
+    );
+  }
+});
+
+// --- Internal links must resolve to something the site actually serves ------
+// Every internal link was walked by hand during the audit and every one
+// resolved. Nothing kept that true, and a broken internal link is invisible
+// until a visitor hits it: there is no server-side router here, just files.
+// Resolution is by file layout alone, deliberately - the one route that used
+// to depend on the host's clean-URL rewrite is now a directory index like
+// every other.
+
+const WEB = new URL('../web/', import.meta.url);
+
+function resolvesToAServedFile(route) {
+  const clean = route.replace(/[?#].*$/, '').replace(/^\//, '');
+  if (clean === '') return true; // "/" is web/index.html
+  for (const candidate of [clean, `${clean}/index.html`, `${clean}.html`]) {
+    if (existsSync(new URL(candidate, WEB))) return true;
+  }
+  return false;
+}
+
+test('every internal link on every served page resolves to a served file', () => {
+  let checked = 0;
+  const broken = [];
+  for (const path of SERVED) {
+    for (const [, href] of readServed(path).matchAll(/href="([^"]*)"/g)) {
+      // Only site-absolute paths. Fragments are same-page, and anything with a
+      // scheme is somebody else's server.
+      if (!href.startsWith('/')) continue;
+      checked++;
+      if (!resolvesToAServedFile(href)) broken.push(`${path} -> ${href}`);
+    }
+  }
+  assert.deepEqual(broken, [], `internal links that resolve to nothing:\n  ${broken.join('\n  ')}`);
+  assert.ok(checked > 25, `expected the site's internal links to be walked, saw ${checked}`);
+});
+
+test('the link resolver rejects a route with no file behind it', () => {
+  // Guard the guard: a resolver that returned true unconditionally would make
+  // the test above vacuous.
+  assert.ok(!resolvesToAServedFile('/no-such-route'));
+  assert.ok(resolvesToAServedFile('/about'));
+  assert.ok(resolvesToAServedFile('/'));
+});
+
+// --- LICENSE exhaustiveness ------------------------------------------------
+// LICENSE and the served /license page both claim that every path in the repo
+// falls under exactly one of four scopes and that "none is covered by
+// omission". Scope 1 makes that claim checkable by enumerating the config and
+// docs paths BY NAME. .forgejo/ was added later by the CI commit and named in
+// neither, and because .github/ is named explicitly right beside it, the
+// omission reads as a deliberate exclusion rather than an oversight.
+//
+// Enumerate-by-name plus a completeness claim is only safe if something
+// checks it, so: every top-level tracked path that is not already covered by
+// a named scope must appear in Scope 1, in the file AND on the page. The two
+// are kept in sync by hand, which is exactly why both are asserted.
+
+const SCOPED_BY_CATEGORY = [
+  // Named in Scope 1 as directories rather than as individual paths.
+  'templates', 'tools', 'styles', 'web',
+  // Scope 2: the published prose.
+  'content',
+  // Addressed at the end of the document, on its own terms.
+  'LICENSE',
+];
+
+function topLevelTrackedPaths() {
+  const out = execFileSync('git', ['ls-files'], { cwd: new URL('..', import.meta.url), encoding: 'utf8' });
+  return [...new Set(out.split('\n').filter(Boolean).map((f) => f.split('/')[0]))];
+}
+
+test('LICENSE Scope 1 names every top-level path not covered by a category', () => {
+  const licenseFile = readServed('LICENSE');
+  const licensePage = readServed('web/license/index.html');
+  const paths = topLevelTrackedPaths();
+  assert.ok(paths.length > 5, `only ${paths.length} top-level paths; the listing is broken`);
+
+  for (const path of paths) {
+    if (SCOPED_BY_CATEGORY.includes(path)) continue;
+    // Directories are written with a trailing slash in both documents.
+    const needle = existsSync(new URL(`../${path}/`, import.meta.url)) ? `${path}/` : path;
+    assert.ok(
+      licenseFile.includes(needle),
+      `LICENSE claims to cover every path but never names ${needle}. `
+      + 'Add it to Scope 1, or add it to SCOPED_BY_CATEGORY with the scope that covers it.',
+    );
+    assert.ok(
+      licensePage.includes(needle),
+      `web/license/index.html does not name ${needle}, though LICENSE does. `
+      + 'The file and the page are kept in sync by hand; both need the edit.',
+    );
+  }
+});
+
+// --- /security has a referent for "this repository" -------------------------
+// The copy is correct in SECURITY.md, where it is read inside the repo. On the
+// served page it had no referent at all.
+
+test('the security page names the repository instead of saying "this repository"', () => {
+  const html = readServed('web/security/index.html');
+  assert.ok(
+    !/>this repository/.test(html) && !/: this repository/.test(html),
+    'web/security/index.html still says "this repository" with nothing to point at',
+  );
+  assert.match(html, /private vulnerability reporting[\s\S]{0,200}github\.com\/notariumhealth\/notarium-web/);
+});
+
+// --- Gallery images declare their real intrinsic size -----------------------
+// Without width/height the browser cannot reserve the box before the image
+// arrives, so the gallery reflows on load (cumulative layout shift). Asserting
+// the attributes are PRESENT would not be enough: a wrong number reserves the
+// wrong box and reintroduces the shift while looking fixed. So read the real
+// dimensions out of each PNG header and require the markup to match, which
+// also catches an asset swapped for one of a different size.
+
+function pngSize(relPath) {
+  const buf = readFileSync(new URL(`../${relPath}`, import.meta.url));
+  assert.equal(buf.subarray(1, 4).toString('ascii'), 'PNG', `${relPath} is not a PNG`);
+  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+}
+
+test('every logo-poll thumbnail declares the PNG\'s real width and height', () => {
+  const html = readServed('web/logo-poll/index.html');
+  const imgs = [...html.matchAll(/<img src="(\/logo-poll\/[^"]+\.png)"([^>]*)>/g)];
+  assert.equal(imgs.length, 9, `expected the nine ballot concepts, saw ${imgs.length}`);
+  for (const [, src, attrs] of imgs) {
+    const { width, height } = pngSize(`web${src}`);
+    assert.match(attrs, new RegExp(`\\bwidth="${width}"`), `${src} should declare width="${width}": ${attrs}`);
+    assert.match(attrs, new RegExp(`\\bheight="${height}"`), `${src} should declare height="${height}": ${attrs}`);
+  }
+});
+
+// --- The lightbox is a modal for keyboard users too -------------------------
+// The handler built a role="dialog" overlay and appended it to body without
+// ever moving focus into it, trapping it, or restoring it on close. A keyboard
+// user activating a thumbnail was left with focus behind an overlay they could
+// see but not reach. Escape-to-close was already wired globally and worked.
+//
+// There is no DOM here (no dependencies, node --test only), so this asserts on
+// the committed inline script's source rather than on behaviour. That is a real
+// limit: it pins that the calls are present, not that they fire in the right
+// order. It is still worth having - the failure it guards is a silent deletion
+// during an unrelated edit, not a subtle ordering bug.
+
+test('the logo-poll lightbox moves, traps and restores focus', () => {
+  const html = readServed('web/logo-poll/index.html');
+  const script = html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/);
+  assert.ok(script, 'the logo poll has no inline script');
+  const src = script[1];
+  for (const [needle, why] of [
+    ["setAttribute('aria-modal', 'true')", 'the overlay does not announce itself as modal'],
+    ["setAttribute('tabindex', '-1')", 'the overlay cannot receive focus'],
+    ['opener.focus()', 'focus is never restored to the thumbnail on close'],
+    ["ev.key === 'Tab'", 'Tab is not trapped, so it walks the page behind the overlay'],
+    ["e.key === 'Escape'", 'Escape no longer closes the overlay'],
+  ]) {
+    assert.ok(src.includes(needle), `${why} (missing: ${needle})`);
+  }
+  // The open-time focus move needs its own assertion anchored to the insertion,
+  // not a bare `box.focus()` search: that call also appears inside the Tab trap,
+  // so a plain substring check stays green with the open-time move deleted -
+  // which is the actual bug this test exists to catch. Verified by deleting it.
+  assert.match(
+    src,
+    /document\.body\.appendChild\(box\);\s*box\.focus\(\);/,
+    'focus is not moved into the overlay when it opens',
+  );
+});
+
+// --- Head metadata: favicon and link previews -------------------------------
+// Every visit used to 404 on /favicon.ico and show a blank tab icon, and a
+// link shared to Mastodon, Bluesky or an email to a prospective board member
+// rendered as a bare URL. Board recruiting and the direct-link poll are the
+// two channels actually in use, and both run over exactly those surfaces.
+//
+// The og:* values are derived from each page's own title, description and
+// canonical rather than written separately, so the assertion below is that
+// they AGREE - a second set of strings that drifts is worse than none, because
+// the preview then says something the page does not.
+
+function headMeta(html) {
+  const pick = (re) => { const m = html.match(re); return m ? m[1] : null; };
+  return {
+    title: pick(/<title>([\s\S]*?)<\/title>/),
+    description: pick(/<meta name="description" content="([\s\S]*?)">/),
+    canonical: pick(/<link rel="canonical" href="([^"]*)">/),
+    ogTitle: pick(/<meta property="og:title" content="([\s\S]*?)">/),
+    ogDescription: pick(/<meta property="og:description" content="([\s\S]*?)">/),
+    ogUrl: pick(/<meta property="og:url" content="([^"]*)">/),
+    twTitle: pick(/<meta name="twitter:title" content="([\s\S]*?)">/),
+    twDescription: pick(/<meta name="twitter:description" content="([\s\S]*?)">/),
+    twCard: pick(/<meta name="twitter:card" content="([^"]*)">/),
+  };
+}
+
+// web/404.html is served for URLs that do not exist: it is noindex, declares no
+// canonical and no description, and is never a shared link, so it carries no
+// preview metadata on purpose.
+const NO_LINK_PREVIEW = ['web/404.html'];
+
+test('every served page links the favicon', () => {
+  for (const path of SERVED) {
+    assert.match(
+      readServed(path),
+      /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/,
+      `${path} has no favicon link, so it shows a blank tab icon and 404s on /favicon.ico`,
+    );
+  }
+  assert.ok(existsSync(new URL('../web/favicon.svg', import.meta.url)), 'web/favicon.svg is missing');
+});
+
+test('link-preview metadata agrees with the page it describes', () => {
+  let checked = 0;
+  for (const path of SERVED) {
+    if (NO_LINK_PREVIEW.includes(path)) continue;
+    const m = headMeta(readServed(path));
+    assert.ok(m.ogTitle, `${path} has no og:title, so a shared link renders as a bare URL`);
+    assert.equal(m.ogTitle, m.title, `${path}: og:title disagrees with <title>`);
+    assert.equal(m.ogDescription, m.description, `${path}: og:description disagrees with the meta description`);
+    assert.equal(m.ogUrl, m.canonical, `${path}: og:url disagrees with the canonical link`);
+    assert.equal(m.twTitle, m.title, `${path}: twitter:title disagrees with <title>`);
+    assert.equal(m.twDescription, m.description, `${path}: twitter:description disagrees with the meta description`);
+    // summary, not summary_large_image: there is no designed card image yet,
+    // and a large-image card with no image renders worse than a small one.
+    assert.equal(m.twCard, 'summary', `${path}: unexpected twitter:card`);
+    checked++;
+  }
+  assert.ok(checked >= 17, `expected preview metadata on nearly every page, saw ${checked}`);
+});
+
+test('the page with no link preview really declares no canonical', () => {
+  // Guards the exception the way DELIBERATELY_UNLINKED is guarded: if 404.html
+  // ever gains a canonical it has become a real route and should carry the
+  // metadata like everything else.
+  for (const path of NO_LINK_PREVIEW) {
+    assert.equal(routeOf(path), null, `${path} now declares a route, so it should carry og:* too`);
+  }
+});
+
+// --- robots.txt and sitemap.xml ---------------------------------------------
+// Crawl hygiene at the meta level was already right, but there was no
+// robots.txt (a 404 on every crawl) and no sitemap. Both are generated by
+// tools/build.mjs from the same page lists as everything else, so the build
+// drift gate keeps them current; these tests assert the CONTENT is right, in
+// particular that the sitemap and the noindex markup cannot disagree. A
+// sitemap advertising a page that tells crawlers to ignore it is worse than
+// no sitemap.
+
+function isNoindex(path) {
+  return /<meta name="robots" content="[^"]*noindex/i.test(readServed(path));
+}
+
+test('the sitemap lists exactly the indexable routes, and nothing else', () => {
+  const sitemap = readServed('web/sitemap.xml');
+  const listed = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
+  const expected = SERVED
+    .filter((p) => !isNoindex(p))
+    .map(routeOf)
+    .filter((r) => r !== null)
+    .sort();
+  assert.deepEqual(listed, expected, 'the sitemap disagrees with the served pages');
+  assert.ok(listed.length >= 15, `only ${listed.length} routes in the sitemap`);
+});
+
+test('no noindex page appears in the sitemap', () => {
+  const sitemap = readServed('web/sitemap.xml');
+  const noindex = SERVED.filter(isNoindex);
+  assert.ok(noindex.length >= 3, `expected the noindex pages to exist, saw ${noindex.length}`);
+  for (const path of noindex) {
+    const route = routeOf(path);
+    if (route === null) continue;
+    assert.ok(
+      !sitemap.includes(`<loc>https://notarium.health${route}</loc>`),
+      `${path} is noindex but the sitemap advertises ${route}`,
+    );
+  }
+});
+
+test('every sitemap entry resolves to a served file', () => {
+  for (const [, loc] of readServed('web/sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    const route = new URL(loc).pathname;
+    assert.ok(resolvesToAServedFile(route), `the sitemap advertises ${route}, which serves nothing`);
+  }
+});
+
+test('robots.txt exists and points at the sitemap', () => {
+  const robots = readServed('web/robots.txt');
+  assert.match(robots, /^User-agent: \*$/m);
+  assert.match(robots, /^Sitemap: https:\/\/notarium\.health\/sitemap\.xml$/m);
 });

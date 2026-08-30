@@ -1,19 +1,24 @@
 # CI - test suite, build-drift gate, and content constraint gates.
 #
-# Forgejo Actions (homelab convention: .forgejo/workflows/, see README.md in this
-# directory for the runner contract). This repo has no Gradle, no Android SDK,
-# and no npm dependencies at all (no package.json - Node built-ins only), so
-# unlike notarium/.forgejo/workflows/ci.yml this job is a single short step list
-# on a plain public node image, not a custom homelab-built one.
+# GitHub Actions. A deliberate MIRROR of .forgejo/workflows/ci.yml, step for
+# step. The two must stay in lockstep: a change to one belongs in the other in
+# the same commit, and tools/test.mjs asserts that the gate names match.
 #
-# WHY THIS EXISTS: the site's entire safety model was 23 tests in tools/test.mjs
-# that nothing obliged anyone to run. A review demonstrated the consequence
-# directly: edit a page's CSS without rerunning `node tools/build.mjs`, and every
-# test still passes locally while the committed web/*.html no longer matches
-# what the source would produce - the Content-Security-Policy pins the OLD
-# inline <style> block's hash, so the browser refuses the page's entire style
-# and it ships unstyled. A test nobody runs catches nothing; this makes running
-# it non-optional on every pull request and every push to main.
+# WHY BOTH: Cloudflare Pages builds from github/main, so github/main is the
+# branch that actually ships (see README.md, Deploy). Every check this project
+# had ran on the Forgejo side only, which meant a push straight to github/main
+# deployed with no verification at all - the discipline was holding by hand
+# rather than by mechanism, and both remotes happening to be identical at audit
+# time was luck, not a property.
+#
+# The build-drift gate is why this matters most. Its failure mode is silent in
+# CI and catastrophic in the browser: edit a page's CSS without rerunning
+# `node tools/build.mjs`, and the CSP still pins the OLD inline <style> block's
+# hash, so the browser refuses that page's entire style block and it ships
+# unstyled with nothing failing anywhere.
+#
+# The only differences from the Forgejo copy are the runner and the package
+# installation it made necessary. Every gate below is identical to its twin.
 
 name: CI
 
@@ -29,26 +34,13 @@ concurrency:
 
 jobs:
   test:
-    # Runs on the homelab ci-runner-01 Docker autoscaler pool (label `docker`).
-    runs-on: docker
-    container:
-      # node:22-slim, not a custom image: this project needs nothing beyond a
-      # node binary, since there is no package.json and every tool under
-      # tools/ imports only Node built-ins (node:test, node:assert, node:fs,
-      # node:crypto, node:path, node:url).
-      image: node:22-slim
+    # GitHub-hosted runner. Unlike the Forgejo side's node:22-slim container it
+    # ships both git and a current node, so there is no container image and no
+    # package-installation step: the tracked-file scans below still run `git
+    # grep` over exactly what is committed, not the working tree.
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Install git
-        # node:22-slim is a minimal Debian image and does not ship git. The
-        # checkout step below shells out to git, and so do the tracked-file
-        # scans further down (git grep over exactly what is committed, not
-        # whatever happens to be sitting in the working tree).
-        run: |
-          apt-get update
-          apt-get install -y --no-install-recommends git
-          rm -rf /var/lib/apt/lists/*
-
       - name: Checkout
         # actions/checkout v4.2.2 pinned by SHA, the same digest notarium's own
         # ci.yml vets. Refresh deliberately, never float the tag.

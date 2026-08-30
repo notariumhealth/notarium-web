@@ -7,6 +7,24 @@
   <meta name="description" content="The Notarium logo poll. Voting has closed; the nine concepts that were on the ballot remain here as a record.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://notarium.health/logo-poll">
+  <!-- Link-preview metadata. Both currently active distribution channels -
+       board recruiting by email and the direct-link poll - run over surfaces
+       that render these, and without them a shared link is a bare URL.
+       Driven by the same title/description/canonical the page already
+       declares, so there is one source per page rather than a second set of
+       strings to drift. twitter:card is "summary" rather than
+       "summary_large_image" deliberately: there is no designed 1200x630 card
+       image yet, and a large-image card with no image renders worse than a
+       small one. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Notarium">
+  <meta property="og:title" content="Logo poll - Notarium">
+  <meta property="og:description" content="The Notarium logo poll. Voting has closed; the nine concepts that were on the ballot remain here as a record.">
+  <meta property="og:url" content="https://notarium.health/logo-poll">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Logo poll - Notarium">
+  <meta name="twitter:description" content="The Notarium logo poll. Voting has closed; the nine concepts that were on the ballot remain here as a record.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -279,6 +297,13 @@ textarea {
     }
 
     /* ---------- Lightbox ---------- */
+    /* The overlay is focusable (tabindex="-1") so focus can move into it when
+       it opens; it is not itself an interactive target, so it takes no visible
+       focus ring. The image it contains is the content. */
+    .lightbox:focus {
+      outline: none;
+    }
+
     .lightbox {
       position: fixed;
       inset: 0;
@@ -512,15 +537,15 @@ textarea {
     <section class="wrap section">
       <p class="section-label">The nine concepts</p>
       <ul class="poll-gallery" aria-label="Nine logo concepts numbered one through nine. Select a logo to enlarge it.">
-        <li><figure><a class="zoom" href="/logo-poll/logo-01.png"><img src="/logo-poll/logo-01.png" alt="Logo 1"></a><figcaption>Logo 1</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-02.png"><img src="/logo-poll/logo-02.png" alt="Logo 2"></a><figcaption>Logo 2</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-03.png"><img src="/logo-poll/logo-03.png" alt="Logo 3"></a><figcaption>Logo 3</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-04.png"><img src="/logo-poll/logo-04.png" alt="Logo 4"></a><figcaption>Logo 4</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-05.png"><img src="/logo-poll/logo-05.png" alt="Logo 5"></a><figcaption>Logo 5</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-06.png"><img src="/logo-poll/logo-06.png" alt="Logo 6"></a><figcaption>Logo 6</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-07.png"><img src="/logo-poll/logo-07.png" alt="Logo 7"></a><figcaption>Logo 7</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-08.png"><img src="/logo-poll/logo-08.png" alt="Logo 8"></a><figcaption>Logo 8</figcaption></figure></li>
-        <li><figure><a class="zoom" href="/logo-poll/logo-09.png"><img src="/logo-poll/logo-09.png" alt="Logo 9"></a><figcaption>Logo 9</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-01.png"><img src="/logo-poll/logo-01.png" width="207" height="206" alt="Logo 1"></a><figcaption>Logo 1</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-02.png"><img src="/logo-poll/logo-02.png" width="207" height="207" alt="Logo 2"></a><figcaption>Logo 2</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-03.png"><img src="/logo-poll/logo-03.png" width="208" height="207" alt="Logo 3"></a><figcaption>Logo 3</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-04.png"><img src="/logo-poll/logo-04.png" width="208" height="207" loading="lazy" alt="Logo 4"></a><figcaption>Logo 4</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-05.png"><img src="/logo-poll/logo-05.png" width="208" height="207" loading="lazy" alt="Logo 5"></a><figcaption>Logo 5</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-06.png"><img src="/logo-poll/logo-06.png" width="207" height="207" loading="lazy" alt="Logo 6"></a><figcaption>Logo 6</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-07.png"><img src="/logo-poll/logo-07.png" width="204" height="207" loading="lazy" alt="Logo 7"></a><figcaption>Logo 7</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-08.png"><img src="/logo-poll/logo-08.png" width="207" height="207" loading="lazy" alt="Logo 8"></a><figcaption>Logo 8</figcaption></figure></li>
+        <li><figure><a class="zoom" href="/logo-poll/logo-09.png"><img src="/logo-poll/logo-09.png" width="211" height="206" loading="lazy" alt="Logo 9"></a><figcaption>Logo 9</figcaption></figure></li>
       </ul>
     </section>
 
@@ -556,24 +581,51 @@ textarea {
   <script>
     // Click a gallery logo to enlarge it in a lightbox; click anywhere or press
     // Escape to close. With JS off, the thumbnail link opens the image directly.
+    //
+    // The overlay is a real modal for keyboard users: focus moves into it on
+    // open, Tab cannot walk the page behind it, and focus returns to the
+    // thumbnail on close. Before that it was visually modal only - a keyboard
+    // user activated a thumbnail and was left with their focus behind an
+    // overlay they could see but not reach.
     (function () {
       var box = null;
-      function close() { if (box) { box.remove(); box = null; } }
+      var opener = null;
+      function close() {
+        if (!box) return;
+        box.remove();
+        box = null;
+        // Return focus to the thumbnail that opened it, so a keyboard user
+        // resumes where they were instead of at the top of the document.
+        if (opener) { opener.focus(); opener = null; }
+      }
       document.querySelectorAll('.poll-gallery a.zoom').forEach(function (link) {
         link.addEventListener('click', function (e) {
           e.preventDefault();
           close();
+          opener = link;
           var alt = link.querySelector('img').alt;
           box = document.createElement('div');
           box.className = 'lightbox';
           box.setAttribute('role', 'dialog');
+          box.setAttribute('aria-modal', 'true');
           box.setAttribute('aria-label', alt + ', enlarged');
+          // Focusable but not in the tab order: the overlay is visually modal,
+          // so focus has to move into it or a keyboard user is left behind it
+          // with no way to reach what they just opened.
+          box.setAttribute('tabindex', '-1');
           var big = document.createElement('img');
           big.src = link.getAttribute('href');
           big.alt = alt;
           box.appendChild(big);
           box.addEventListener('click', close);
+          // Keep Tab inside the overlay. It holds no focusable content, so the
+          // trap is simply "focus stays on the box" - without it, Tab walks the
+          // page behind the overlay, which is the same bug in slower motion.
+          box.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Tab') { ev.preventDefault(); box.focus(); }
+          });
           document.body.appendChild(box);
+          box.focus();
         });
       });
       document.addEventListener('keydown', function (e) {

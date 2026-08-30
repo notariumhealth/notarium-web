@@ -6,6 +6,24 @@
   <title>License - Notarium</title>
   <meta name="description" content="The license terms for the notarium.health website: MIT for the code, CC BY-SA 4.0 for the prose, all rights reserved for the brand assets and the published security-contact files.">
   <link rel="canonical" href="https://notarium.health/license">
+  <!-- Link-preview metadata. Both currently active distribution channels -
+       board recruiting by email and the direct-link poll - run over surfaces
+       that render these, and without them a shared link is a bare URL.
+       Driven by the same title/description/canonical the page already
+       declares, so there is one source per page rather than a second set of
+       strings to drift. twitter:card is "summary" rather than
+       "summary_large_image" deliberately: there is no designed 1200x630 card
+       image yet, and a large-image card with no image renders worse than a
+       small one. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Notarium">
+  <meta property="og:title" content="License - Notarium">
+  <meta property="og:description" content="The license terms for the notarium.health website: MIT for the code, CC BY-SA 4.0 for the prose, all rights reserved for the brand assets and the published security-contact files.">
+  <meta property="og:url" content="https://notarium.health/license">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="License - Notarium">
+  <meta name="twitter:description" content="The license terms for the notarium.health website: MIT for the code, CC BY-SA 4.0 for the prose, all rights reserved for the brand assets and the published security-contact files.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=cormorant-garamond:300,400,600|inter:300,400,500&display=swap">
   <style>
     /* BEGIN base */
@@ -293,7 +311,7 @@ textarea {
 
     <section>
       <h2>Scope 1: Code - MIT License</h2>
-      <p>Covers the page templates, the build tooling, the stylesheet, the generated HTML markup served on this site (the tags, attributes, and structure, as distinct from the rendered text they carry), the hand-authored inline scripts in that markup (for example the rank-dropdown script on the logo poll), the generated deployment configuration (<code>web/_headers</code>), and the repository's own configuration and documentation (<code>.gitattributes</code>, <code>.gitignore</code>, <code>.github/</code>, <code>README.md</code>, <code>SECURITY.md</code>). This is everything that builds, runs, configures, or documents the repository, as distinct from the words on the published pages and distinct from the brand assets in Scope 3.</p>
+      <p>Covers the page templates, the build tooling, the stylesheet, the generated HTML markup served on this site (the tags, attributes, and structure, as distinct from the rendered text they carry), the hand-authored inline scripts in that markup (for example the rank-dropdown script on the logo poll), the generated deployment configuration (<code>web/_headers</code>), and the repository's own configuration and documentation (<code>.gitattributes</code>, <code>.gitignore</code>, <code>.github/</code>, <code>.forgejo/</code>, <code>README.md</code>, <code>SECURITY.md</code>). This is everything that builds, runs, configures, or documents the repository, as distinct from the words on the published pages and distinct from the brand assets in Scope 3.</p>
       <p><strong>Copyright &copy; 2026 Notarium LLC</strong></p>
       <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &ldquo;Software&rdquo;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
       <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>

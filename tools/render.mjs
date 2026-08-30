@@ -20,12 +20,70 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
+// Schemes a link in content/ may use. content/ is vendored from a repo we
+// control, but the copy is scripted (tools/sync-content.sh) rather than read,
+// and every other parse path in this renderer is defensive, so the href gets
+// the same treatment. Site-relative paths and fragments cover the internal
+// links; https/http and mailto cover the external ones. Anything else -
+// javascript:, data:, vbscript: - is an authoring error, not a link.
+const ALLOWED_HREF = /^(?:https?:\/\/|mailto:|\/|#)/;
+
+// Escape a value being emitted INSIDE a double-quoted HTML attribute. Body
+// text does not need this (a bare quote or apostrophe in prose is harmless and
+// escaping it would only churn the diff), but an attribute value does: without
+// it a source containing [x](" onmouseover=... x=") closes the href early and
+// lands an attribute of its own on the anchor. The CSP blocks the handler that
+// would result, which is why the audit rated this Low, but the CSP is the
+// second line, not the first.
+function escapeAttr(s) {
+  return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // Inline Markdown -> HTML. Escapes first, so [](), ** survive (their chars
-// aren't escaped) and any literal <, >, & in the prose are made safe.
+// aren't escaped) and any literal <, >, & in the prose are made safe. The href
+// is then scheme-checked and attribute-escaped on top of that: escapeHtml
+// covers & < > , which is right for text, and leaves the quote characters that
+// matter only inside an attribute.
 export function inline(s) {
   return escapeHtml(s)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (all, text, href) => {
+      if (!ALLOWED_HREF.test(href)) {
+        // Fail the build rather than emit the link. Dropping it silently would
+        // hide a typo'd URL just as effectively as it hides a hostile one.
+        throw new Error(
+          `link href "${href}" uses a scheme this renderer does not allow. `
+          + 'Use https://, http://, mailto:, a site-relative /path, or a #fragment.',
+        );
+      }
+      return `<a href="${escapeAttr(href)}">${text}</a>`;
+    })
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+// Fill a page template's {{PLACEHOLDER}} slots.
+//
+// Every replacement is a FUNCTION, never a string. String.prototype.replace
+// and replaceAll expand $&, $`, $' and $$ inside a STRING replacement whether
+// the pattern is a string or a regex, so a lone $' anywhere in a page title,
+// description or rendered body would splice a chunk of the template back into
+// the output. Nothing in the tree triggers it today (the only dollar sign is a
+// figure in content/board-fundraising-development.md), and it would pass every
+// check except the build-drift diff, failing quietly rather than loudly.
+// tools/build.mjs already defends injectBaseStyles this exact way; this
+// carries the same defence across the remaining five substitutions.
+// The footer copyright year is generated rather than typed, so the twelve
+// template-rendered pages correct themselves on the next build instead of
+// going stale on January 1. `year` is injectable so a test can pin the output
+// without depending on when it runs. The six hand-maintained pages have no
+// template to render from and are covered by the CI copyright gate instead.
+export function fillTemplate(template, page, body, year = new Date().getFullYear()) {
+  return template
+    .replaceAll('{{YEAR}}', () => String(year))
+    .replaceAll('{{SRC}}', () => page.src.replace(/^content\//, ''))
+    .replaceAll('{{TITLE}}', () => page.title)
+    .replaceAll('{{DESCRIPTION}}', () => page.description)
+    .replaceAll('{{CANONICAL}}', () => page.canonical)
+    .replace('{{BODY}}', () => body);
 }
 
 function isDashLedBlock(text) {

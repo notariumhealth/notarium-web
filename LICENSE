@@ -15,7 +15,7 @@ they carry, which is Scope 2), the hand-authored inline scripts in that
 same markup (for example web/logo-poll/index.html's rank-dropdown script),
 the generated deployment configuration (web/_headers), and the repository's
 own configuration and documentation (.gitattributes, .gitignore, .github/,
-README.md, SECURITY.md). This is everything that builds, runs, configures,
+.forgejo/, README.md, SECURITY.md). This is everything that builds, runs, configures,
 or documents the repository, as distinct from the words on the published
 pages and distinct from the brand assets named in Scope 3.
 
